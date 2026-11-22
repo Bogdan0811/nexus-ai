@@ -1,0 +1,49 @@
+/* NEXUS AI — «Не стань дропом» (mule-exit.js). Токены из style.css, без анимаций появления. */
+
+/* лист #view-mule: каркас .sheet / .sheet-box из style.css (на ≤560px — во весь экран, кнопки внизу) */
+.mx-sheet[hidden] { display: none; }
+.mx-sheet.open { z-index: 210; } /* поверх тостов (#toasts — 200): заголовок листа не перекрывается */
+.mx-box .sheet-b { display: flex; flex-direction: column; gap: var(--s-3); }
+.mx-box p { margin: 0; }
+.mx-paused { display: flex; align-items: flex-start; gap: var(--s-2); padding: var(--s-3); border-radius: 12px; background: var(--ok-soft); border: 1px solid var(--ok-line, var(--line)); color: var(--text); font-weight: 600; }
+.mx-paused svg { flex: none; margin-top: 2px; color: var(--ok-ink); }
+.mx-facts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+.mx-facts li { position: relative; padding-left: 22px; font-size: var(--fs-md); line-height: var(--lh-text); overflow-wrap: anywhere; }
+.mx-facts li::before { content: ''; position: absolute; left: 4px; top: .55em; width: 9px; height: 9px; border-radius: 50%; background: var(--danger); }
+.mx-mean { padding: var(--s-3); border-radius: 12px; background: var(--warn-soft); border: 1px solid var(--warn-line); }
+.mx-mean b { display: block; margin-bottom: var(--s-1); }
+.mx-mean p + p { margin-top: var(--s-1); }
+
+/* «Подробнее» */
+.mx-factors, .mx-inc, .mx-tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.mx-factors li { display: flex; gap: var(--s-2); align-items: baseline; min-width: 0; }
+.mx-factors li.off { opacity: .6; }
+.mx-w { flex: none; min-width: 32px; font-family: var(--mono, monospace); font-weight: 600; color: var(--warn-ink); }
+.mx-factors li.off .mx-w { color: var(--muted); }
+.mx-inc li, .mx-tl li { display: grid; grid-template-columns: auto 1fr auto; gap: var(--s-2); align-items: baseline; min-width: 0; }
+.mx-tl li { grid-template-columns: auto 1fr auto auto; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+.mx-inc span, .mx-tl span { min-width: 0; overflow-wrap: anywhere; }
+.mx-ok { color: var(--ok-ink); }
+
+/* чек-лист выхода */
+.mx-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+.mx-steps li { display: flex; gap: var(--s-3); align-items: flex-start; min-width: 0; }
+.mx-steps li > span:nth-child(2) { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.mx-tick { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--line3, var(--line)); color: var(--bg); }
+.mx-steps li.done .mx-tick { background: var(--ok); border-color: var(--ok); }
+.mx-steps li.wait { color: var(--muted); }
+.mx-final { padding: var(--s-3); border-radius: 12px; background: var(--ok-soft); border: 1px solid var(--ok-line, var(--line)); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Помощь → карточка входа и «Проверить» */
+.mx-entry .card-f { margin-top: var(--s-4); }
+.mx-entry .card-f .btn { white-space: normal; }
+.mx-scan { margin-bottom: var(--s-4); }
+.mx-scan .btn { white-space: normal; }
+
+/* банк: карточка инцидента */
+.mx-h4 { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+@media (max-width: 560px) {
+  .mx-tl li { grid-template-columns: auto 1fr auto; }
+  .mx-tl li > span:last-child { grid-column: 2 / -1; }
+}

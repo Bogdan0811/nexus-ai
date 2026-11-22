@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEXUS AI · цикл защиты</title>
+<meta name="description" content="NEXUS AI — концепт команды по теме «Инновации в банкинге и кибербезопасность», не продукт банка-организатора. NEXUS слышит мошенника во время звонка и не даёт перевести деньги, а реквизиты, которые он назвал, защищают следующих клиентов. Прототип на синтетических данных.">
+<meta name="theme-color" content="#05070D">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235457E8'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='900' font-size='16' text-anchor='middle' fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
+<script>try{if(/[?&]present(=(1|true|on|yes)?)?(&|$)/.test(location.search))document.documentElement.className+=' nx-present';}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  /* ---------- лендинг: mobile-first ---------- */
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body { font-size: 16px; line-height: 1.55; background-image: none; }
+  html.nx-present body { font-size: 18px; }
+  .land { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+  .ext::after { content: ' ↗'; font-size: 0.85em; }
+  h1, h2 { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: break-word; }
+
+  /* навигация */
+  .lnav { position: sticky; top: 0; z-index: 50; background: var(--topbar-bg); -webkit-backdrop-filter: saturate(1.6) blur(16px); backdrop-filter: saturate(1.6) blur(16px); border-bottom: 1px solid transparent; transition: border-color .2s; padding-top: var(--safe-top); }
+  .lnav.scrolled { border-bottom-color: var(--line); }
+  .lnav-in { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+  .brand-link { color: inherit; text-decoration: none !important; padding: 0; }
+  .brand-link .brand-sub { display: none; }
+  .lnav .links { display: none; gap: 2px; margin-left: auto; }
+  .lnav .links a { color: var(--muted); font-weight: 550; font-size: 14px; padding: 10px 12px; border-radius: var(--radius-xs); text-decoration: none; }
+  .lnav .links a:hover { color: var(--text); background: var(--panel); text-decoration: none; }
+  .lnav .cta-mini { margin-left: auto; }
+  .anchors { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 0 16px 12px; max-width: 1200px; margin: 0 auto; }
+  .anchors::-webkit-scrollbar { display: none; }
+  .anchors a { flex: none; display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 550; color: var(--muted); padding: 0 14px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--line); text-decoration: none; }
+  .anchors a:hover { color: var(--text); border-color: var(--line3); text-decoration: none; }
+
+  /* hero */
+  .hero-wrap { position: relative; overflow: hidden; }
+  .hero-bg { position: absolute; inset: -20% -10% auto -10%; height: 900px; pointer-events: none; z-index: 0;
+    background: radial-gradient(55% 40% at 30% 22%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 72%); }
+  .hero { position: relative; z-index: 1; padding: 28px 0 56px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: center; }
+  .hero .eyebrow { margin-bottom: 20px; line-height: 1.35; border-radius: 18px; }
+  .hero h1 { font-size: clamp(30px, 7vw, 48px); line-height: 1.1; letter-spacing: -0.035em; font-weight: 600; }
+  .hero .lead { font-size: 16.5px; color: var(--muted); margin: 20px 0 26px; max-width: 600px; line-height: 1.6; }
+  .hero .lead b { color: var(--text); font-weight: 600; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cta-row .btn { flex: 1 1 auto; }
+  .trust { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 24px; font-size: 14px; color: var(--muted); }
+  .trust span { display: inline-flex; align-items: center; gap: 7px; }
+  .trust svg { width: 16px; height: 16px; color: var(--ok-ink); }
+
+  /* телефон в hero */
+  .hero-vis { position: relative; display: flex; justify-content: center; padding: 8px 0 0; }
+  .phone { position: relative; width: min(330px, 100%); border-radius: 46px; padding: 11px; background: linear-gradient(160deg, var(--panel), var(--panel3)); border: 1px solid var(--line2); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--shadow-lg); }
+  .ph-screen { position: relative; border-radius: 36px; overflow: hidden; background: linear-gradient(180deg, var(--bg2), var(--bg)); border: 1px solid var(--line); min-height: 560px; padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 9px; }
+  .ph-notch { position: absolute; top: 19px; left: 50%; transform: translateX(-50%); width: 92px; height: 24px; border-radius: 14px; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); z-index: 3; }
+  .ph-status { display: flex; justify-content: space-between; font-size: 12px; font-weight: 650; padding: 4px 10px 8px; color: var(--text); }
+  .ph-call { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+  .ph-ava { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); display: grid; place-items: center; flex: none; animation: phRing 1.6s infinite; }
+  .ph-ava svg { width: 18px; height: 18px; }
+  @keyframes phRing { 0%,100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 35%, transparent); } 70% { box-shadow: 0 0 0 10px transparent; } }
+  .ph-call b { font-size: 13px; display: block; }
+  .ph-call .tiny { color: var(--muted); }
+  .ph-line { font-size: 12.5px; line-height: 1.45; padding: 8px 11px; border-radius: 14px; border-top-left-radius: 5px; background: var(--panel); border: 1px solid var(--line); max-width: 92%; opacity: 0; animation: 14s infinite var(--ease); }
+  .ph-line mark { background: var(--danger-soft); color: var(--danger-ink); border-radius: 4px; padding: 0 2px; font-weight: 600; }
+  .ph-line.l1 { animation-name: phL1; } .ph-line.l2 { animation-name: phL2; }
+  .ph-risk { padding: 10px 12px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); font-size: 12px; }
+  .ph-risk .row { justify-content: space-between; gap: 8px; }
+  .riskbar { height: 7px; border-radius: 7px; background: var(--panel3); overflow: hidden; margin-top: 7px; }
+  .riskbar i { display: block; height: 100%; width: 8%; border-radius: 7px; background: var(--ok); animation: riskGrow 14s infinite; }
+  @keyframes riskGrow { 0% { width: 8%; background: var(--ok); } 14% { width: 40%; background: var(--warn); } 28%, 92% { width: 87%; background: var(--danger); } 100% { width: 8%; background: var(--ok); } }
+  .swap { display: inline-grid; }
+  .swap > span { grid-area: 1 / 1; white-space: nowrap; }
+  .swap .a { animation: swapA 14s infinite; }
+  .swap .b { animation: swapB 14s infinite; opacity: 0; }
+  @keyframes swapA { 0%, 26% { opacity: 1; } 29%, 100% { opacity: 0; } }
+  @keyframes swapB { 0%, 26% { opacity: 0; } 29%, 94% { opacity: 1; } 100% { opacity: 0; } }
+  .ph-art { padding: 11px 12px; border-radius: 16px; background: var(--panel); border: 1px solid var(--accent-line); font-size: 12.5px; line-height: 1.45; opacity: 0; animation: phA1 14s infinite var(--ease); box-shadow: var(--shadow); }
+  .ph-art .k { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; }
+  .ph-voice { padding: 11px 12px; border-radius: 16px; background: var(--accent-soft); border: 1px solid var(--accent-soft2); color: var(--text); font-size: 12.5px; line-height: 1.45; opacity: 0; animation: phA2 14s infinite var(--ease); }
+  .ph-voice .k { font-size: 12px; color: var(--accent-ink); font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .wave { display: inline-flex; gap: 2px; align-items: center; height: 12px; }
+  .wave i { width: 2px; border-radius: 2px; background: var(--accent); animation: wv 1s infinite ease-in-out; }
+  .wave i:nth-child(1) { height: 5px; } .wave i:nth-child(2) { height: 11px; animation-delay: .1s; } .wave i:nth-child(3) { height: 7px; animation-delay: .2s; } .wave i:nth-child(4) { height: 12px; animation-delay: .3s; } .wave i:nth-child(5) { height: 6px; animation-delay: .4s; }
+  @keyframes wv { 0%, 100% { transform: scaleY(.5); } 50% { transform: scaleY(1); } }
+  @keyframes phL1 { 0%, 3% { opacity: 0; transform: translateY(6px); } 6%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  @keyframes phL2 { 0%, 15% { opacity: 0; transform: translateY(6px); } 18%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  @keyframes phA1 { 0%, 34% { opacity: 0; transform: translateY(10px) scale(.98); } 38%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  @keyframes phA2 { 0%, 54% { opacity: 0; transform: translateY(10px); } 58%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  .float { display: none; position: absolute; z-index: 2; padding: 10px 14px; border-radius: 16px; background: var(--glass); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid var(--line); box-shadow: var(--shadow); font-size: 12.5px; max-width: 220px; line-height: 1.4; opacity: 0; animation: 14s infinite var(--ease); }
+  .float b { display: block; font-size: 13px; }
+  .float .ic { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; float: left; margin-right: 9px; }
+  .float .ic svg { width: 16px; height: 16px; }
+  .float.f1 { animation-name: fl1; } .float.f2 { animation-name: fl2; } .float.f3 { animation-name: fl3; }
+  @keyframes fl1 { 0%, 40% { opacity: 0; transform: translateY(8px); } 44%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  @keyframes fl2 { 0%, 62% { opacity: 0; transform: translateY(8px); } 66%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  /* сцена в телефоне стартует с середины звонка, чтобы экран не был пустым при загрузке */
+  .ph-line, .ph-art, .ph-voice, .float, .riskbar i, .swap .a, .swap .b { animation-delay: -3s; }
+  @keyframes fl3 { 0%, 72% { opacity: 0; transform: translateY(8px); } 76%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
+  /* секции */
+  section.block { padding: 0 0 64px; scroll-margin-top: 76px; }
+  .sec-h { margin-bottom: 24px; max-width: 820px; }
+  .sec-h .kicker { margin-bottom: 12px; display: block; }
+  .sec-h h2 { font-size: clamp(26px, 6vw, 40px); line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 16px; }
+  .sec-h p { color: var(--muted); font-size: 16px; line-height: 1.6; max-width: var(--measure); }
+  .lt { padding: 20px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); box-shadow: none; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .lt h4 { font-size: 18px; line-height: 1.3; }
+  .lt p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+  main p.small { font-size: 14px; line-height: 1.5; }
+  .lt .num { font-family: var(--mono); font-size: 12px; color: var(--muted2); font-weight: 500; }
+  .lt .ic { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); }
+  .lt .ic svg { width: 22px; height: 22px; }
+  .lgrid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+  .fact .v { font-family: var(--display); font-size: clamp(28px, 7vw, 40px); font-weight: 600; letter-spacing: -0.04em; line-height: 1.05; color: var(--text); font-variant-numeric: tabular-nums; padding-bottom: 2px; }
+  .fact p { color: var(--text); opacity: .9; }
+  .src { font-size: 13px; color: var(--muted2); margin-top: auto; line-height: 1.5; }
+  .src a { color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 2px; }
+  .callout { margin-top: 16px; padding: 16px 20px; border-radius: var(--radius-sm); border: 1px solid var(--line); border-left: 3px solid var(--accent); background: var(--panel); font-size: 16px; line-height: 1.6; max-width: 100%; }
+  .callout b { color: var(--accent-ink); }
+
+  /* сюжет */
+  .story { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); counter-reset: st; }
+  .story .lt { position: relative; }
+  .story .stn { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: 14px; background: var(--accent); color: var(--on-accent); box-shadow: 0 0 0 5px var(--accent-soft); }
+  .story .lt.hot { border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+  .story .lt.hot .stn { background: var(--danger); box-shadow: 0 0 0 5px var(--danger-soft); }
+  .story .chipline { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .mask { font-family: var(--mono); font-size: 12.5px; padding: 3px 8px; border-radius: 6px; background: var(--panel2); border: 1px solid var(--line); }
+  .pillar { border-top: 3px solid var(--accent); }
+  .pillar.p2 { border-top-color: var(--accent2); }
+  .pillar.p3 { border-top-color: var(--cyan); }
+  .brandline { font-size: 12px; color: var(--muted2); font-family: var(--mono); }
+  .demo-note { font-size: 13px; color: var(--text); background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; margin-top: auto; line-height: 1.5; }
+
+  /* конституция */
+  .const-band { position: relative; border-radius: var(--radius-lg); padding: 24px 16px; margin: 0 -4px; background: var(--bg2); border: 1px solid var(--line); box-shadow: none; overflow: hidden; }
+  .const-quote { font-size: 17px; line-height: 1.6; color: var(--text); border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; margin: 0 0 22px; max-width: 860px; }
+  .const-quote b { color: var(--accent-ink); }
+  .const-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .doc { border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .doc-h { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); background: var(--bg2); flex-wrap: wrap; }
+  .doc-h h3 { font-family: var(--display); font-weight: 600; font-size: 16px; letter-spacing: -0.02em; }
+  .doc-h .seal { margin-left: auto; }
+  .art { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .art:last-child { border-bottom: 0; }
+  .art .n { font-family: var(--display); font-weight: 600; font-size: 13px; color: var(--accent-ink); width: 42px; height: 42px; border-radius: 13px; background: var(--accent-soft); display: grid; place-items: center; }
+  .art.meta .n { background: var(--accent-solid); color: var(--on-accent); }
+  .art.off .n { background: var(--panel2); color: var(--muted); border: 1px dashed var(--line3); }
+  .art.off .t { color: var(--muted); }
+  .art .t { font-weight: 600; font-size: 15px; line-height: 1.45; }
+  .art .d { font-size: 14px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+  .art .badge { margin-top: 7px; }
+  .doc-f { padding: 12px 18px; font-size: 12.5px; color: var(--muted); background: var(--bg2); border-top: 1px solid var(--line); line-height: 1.5; }
+  .doc-f .mono { color: var(--text); }
+  .cmpx { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .cmpx th, .cmpx td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.5; }
+  .cmpx th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted2); background: var(--bg2); }
+  .cmpx td:first-child { color: var(--muted); font-weight: 550; width: 28%; }
+  .cmpx td:last-child { color: var(--text); font-weight: 550; }
+  .cmpx tr:last-child td { border-bottom: 0; }
+  .cmpx th:last-child { color: var(--accent-ink); }
+
+  .wow { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); margin-top: 18px; align-items: start; }
+  .wow .lt { gap: 12px; }
+  .tagw { display: inline-flex; align-self: flex-start; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); padding: 0; font-weight: 600; }
+  .demo-box { border-radius: 16px; background: var(--bg2); border: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .demo-box .lbl { font-size: 12px; color: var(--muted2); text-transform: uppercase; letter-spacing: .08em; font-weight: 650; }
+  .anchor-state { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13.5px; flex-wrap: wrap; }
+  .anchor-state b { font-family: var(--mono); font-size: 15px; }
+  .alog { display: flex; flex-direction: column; gap: 8px; }
+  .alog .e { font-size: 13px; line-height: 1.5; padding: 10px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); animation: fadeIn .25s var(--ease); }
+  .alog .e.ok { border-color: color-mix(in srgb, var(--ok) 35%, transparent); background: var(--ok-soft); }
+  .alog .e.warn { border-color: color-mix(in srgb, var(--warn) 38%, transparent); background: var(--warn-soft); }
+  .alog .e.bad { border-color: color-mix(in srgb, var(--danger) 38%, transparent); background: var(--danger-soft); }
+  .alog .e b { display: block; }
+  .alog .e .btn { margin-top: 8px; }
+  .callrow { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 14px; font-weight: 550; cursor: pointer; }
+  .bubble { border-radius: 18px; border-top-left-radius: 6px; padding: 13px 15px; background: var(--accent-soft); border: 1px solid var(--accent-soft2); color: var(--text); font-size: 14.5px; line-height: 1.55; }
+  .bubble .k { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--accent-ink); font-weight: 600; margin-bottom: 6px; }
+  .bubble.speaking { box-shadow: var(--ring); }
+  .parse-out { font-size: 13.5px; line-height: 1.55; }
+  .parse-out .res { padding: 11px 13px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); animation: fadeIn .25s var(--ease); }
+  .parse-out .res.ok { border-color: var(--accent-soft2); background: var(--accent-soft); }
+  .parse-out .res.no { border-color: color-mix(in srgb, var(--warn) 38%, transparent); background: var(--warn-soft); }
+  .parse-out .kv2 { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .ex { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ex .chip { font-size: 13px; text-align: left; }
+  .prot { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); margin-top: 18px; }
+  .prot .lt.red { border-color: color-mix(in srgb, var(--danger) 30%, transparent); background: linear-gradient(180deg, var(--danger-soft), var(--panel) 60%); }
+  .ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+  .ul li { margin-bottom: 6px; }
+  .ul b { color: var(--text); }
+
+  /* подключение к звонку */
+  .levels { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+  .lvl { position: relative; }
+  .lvl .lv { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+  .lvl .lv i { display: inline-flex; gap: 3px; }
+  .lvl .lv i span { width: 14px; height: 6px; border-radius: 3px; background: var(--panel3); }
+  .lvl .lv i span.on { background: var(--accent); }
+  .lvl .proto { font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line2); padding-top: 10px; margin-top: auto; }
+  .lvl .proto b { color: var(--text); }
+  .arch { display: flex; flex-direction: column; gap: 0; margin-top: 18px; }
+  .arch .box { min-width: 0; padding: 14px 16px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+  .arch .box b { display: block; font-size: 15px; margin-bottom: 4px; }
+  .arch .box p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .arch .box.core { border-color: var(--accent-line); background: var(--accent-soft); }
+  .arch .arrow { height: 22px; display: grid; place-items: center; color: var(--muted2); transform: rotate(90deg); }
+  .lat { display: inline-block; font-family: var(--mono); font-size: 12px; color: var(--accent-ink); margin-top: 6px; }
+
+  /* матрица кейса */
+  .matrix { display: grid; gap: 10px; }
+  .mrow { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 16px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+  .mrow .dir { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 15px; }
+  .mrow .dir .ic { width: 36px; height: 36px; border-radius: 11px; background: var(--accent-soft); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+  .mrow .dir .ic svg { width: 18px; height: 18px; }
+  .mrow .what { color: var(--muted); font-size: 14px; line-height: 1.55; }
+  .mrow .what b { color: var(--text); font-weight: 600; }
+  .mrow .where { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
+  .mrow .where a { font-size: 12.5px; }
+  .mhead { display: none; }
+
+  /* IOC, аналоги, метрики, roadmap */
+  .life { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .life .st { font-size: 13px; font-weight: 700; }
+  .life .act { font-size: 13.5px; color: var(--text); background: var(--bg2); border-radius: 12px; padding: 9px 11px; border: 1px solid var(--line); line-height: 1.5; margin-top: auto; }
+  .s-sus { color: var(--warn-ink); } .s-cor { color: var(--danger-ink); } .s-con { color: var(--violet-ink); } .s-rev { color: var(--muted); }
+  .two { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .cmp { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .cmp th, .cmp td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.5; }
+  .cmp th { color: var(--muted2); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; background: var(--bg2); }
+  .cmp td:first-child { font-weight: 650; }
+  .cmp tr:last-child td { border-bottom: 0; }
+  .cmp tr.us td { background: var(--accent-soft); }
+  .live-m { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .live-m div { padding: 14px; border-radius: 16px; background: var(--bg2); border: 1px solid var(--line); min-width: 0; }
+  .live-m b { display: block; font-family: var(--display); font-size: 26px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .live-m span { font-size: 13px; color: var(--muted); line-height: 1.4; display: block; }
+  .live-m .hold b { color: var(--warn-ink); }
+  #threatsLive { grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
+  .threats-h { font-size: 18px; margin: 28px 0 6px; }
+  #threats .two { margin-top: 10px; }
+  .road { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .road .q { font-family: var(--mono); font-size: 13px; color: var(--accent-ink); font-weight: 600; }
+  .kpi-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 4px; }
+  .kpi-list div { padding: 12px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); font-size: 14px; line-height: 1.5; }
+  .kpi-list b { display: block; font-size: 17px; color: var(--accent-ink); font-family: var(--display); font-weight: 600; letter-spacing: -.02em; }
+
+  .cta { position: relative; overflow: hidden; padding: 32px 16px; border-radius: var(--radius-lg); text-align: center; color: var(--text); border: 1px solid var(--line2); box-shadow: none; background: var(--panel); }
+  .cta h2 { font-size: clamp(26px, 6vw, 40px); margin-bottom: 12px; letter-spacing: -.03em; }
+  .cta p { color: var(--muted); max-width: 640px; margin: 0 auto 22px; line-height: 1.6; }
+  .cta .small { color: var(--muted); }
+  footer { border-top: 1px solid var(--line); padding: 28px 0 calc(40px + var(--safe-bottom)); }
+  footer .sig { font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 760px; }
+  footer .links { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; margin-top: 12px; }
+  footer .links a { color: var(--muted); display: inline-flex; align-items: center; min-height: 44px; }
+  footer .links a:hover { color: var(--text); }
+
+  /* ---------- v3: цикл DETECT → RECOVER ---------- */
+  .cyc-strip { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 22px; }
+  .hero .lead { margin-bottom: 18px; }
+  .cyc-strip span { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: .04em; padding: 4px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line2); color: var(--accent-ink); }
+  .cyc-strip i { font-style: normal; color: var(--muted2); align-self: center; font-size: 12px; }
+  .cycle { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); counter-reset: cy; }
+  .cy { position: relative; padding: 20px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); box-shadow: none; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .cy .code { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--cy-ink, var(--accent-ink)); display: flex; align-items: center; gap: 8px; }
+  .cy .code b { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: var(--panel3); color: var(--text); font-size: 12px; letter-spacing: 0; }
+  .cy h4 { font-size: 18px; line-height: 1.3; }
+  .cy .q { font-size: 15px; color: var(--muted); line-height: 1.55; }
+  .cy ul { margin: 0; padding-left: 16px; font-size: 13.5px; line-height: 1.5; color: var(--text); }
+  .cy ul li { margin-bottom: 4px; }
+  .cy ul li span { color: var(--muted); }
+  .cy .in-demo { margin-top: auto; font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line2); padding-top: 9px; }
+  .cy .in-demo b { color: var(--text); }
+  .cy.c1 { --cy: var(--info); --cy-ink: var(--info-ink); }
+  .cy.c2 { --cy: var(--accent); --cy-ink: var(--accent-ink); }
+  .cy.c3 { --cy: var(--accent2); --cy-ink: var(--violet-ink); }
+  .cy.c4 { --cy: var(--ok); --cy-ink: var(--ok-ink); }
+  .cy.c5 { --cy: var(--warn); --cy-ink: var(--warn-ink); }
+  .cy.c6 { --cy: var(--cyan); --cy-ink: var(--cyan-ink); }
+  .loop { margin-top: 14px; display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px dashed var(--line3); font-size: 14px; line-height: 1.55; color: var(--muted); }
+  .loop .ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); }
+  .loop .ic svg { width: 18px; height: 18px; }
+  .loop b { color: var(--text); }
+  .value-band { margin-top: 24px; padding: 24px 16px; border-radius: var(--radius-lg); border: 1px solid var(--line); background: var(--panel); }
+  .value-band .vs { font-family: var(--display); font-size: clamp(19px, 4.6vw, 28px); line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; margin-bottom: 16px; max-width: 900px; }
+
+  /* попробуйте механизмы */
+  .tryg { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .mx-lines { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; overscroll-behavior: contain; }
+  .mx-lines .ln { font-size: 14px; line-height: 1.5; padding: 7px 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); animation: fadeIn .25s var(--ease); }
+  .mx-lines .ln .st { display: inline-block; margin-left: 6px; font-size: 12px; font-weight: 600; color: var(--danger-ink); }
+  .mx-out { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+  .mx-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .mx-stages { display: flex; flex-wrap: wrap; gap: 5px; }
+  .mx-stages span { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); }
+  .mx-stages span.on { background: var(--danger-soft); border-color: var(--danger-line); color: var(--danger-ink); font-weight: 600; }
+  .mx-next { padding: 10px 12px; border-radius: var(--radius-xs); background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--warn); line-height: 1.5; }
+  .mx-next b { color: var(--warn-ink); }
+  .meter-l { height: 8px; border-radius: 8px; background: var(--panel3); overflow: hidden; }
+  .meter-l i { display: block; height: 100%; border-radius: 8px; transition: width .3s var(--ease), background .3s; }
+  .dna-ctl { display: grid; gap: 10px; }
+  .dna-ctl label.callrow { font-weight: 500; }
+  .dna-amt { display: flex; align-items: center; gap: 10px; }
+  .dna-amt input[type=range] { flex: 1; min-width: 0; min-height: 44px; accent-color: var(--accent); cursor: pointer; }
+  .dna-amt b { font-family: var(--mono); font-size: 14px; min-width: 96px; text-align: right; font-variant-numeric: tabular-nums; }
+  .dna-res .big { font-family: var(--display); font-size: 30px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .dna-f { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+  .dna-f li { display: flex; gap: 8px; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 4px 0; }
+  .dna-f li span:last-child { font-family: var(--mono); color: var(--muted); flex: none; }
+
+  /* INVESTIGATE / RECOVER */
+  .chain { display: flex; flex-direction: column; gap: 0; margin: 4px 0 2px; }
+  .chain .nd { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 9px 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); font-size: 13px; line-height: 1.4; min-width: 0; }
+  .chain .nd b { font-size: 13.5px; }
+  .chain .nd .mono { font-size: 11.5px; color: var(--muted); }
+  .chain .nd.v { border-color: var(--danger-line); background: var(--danger-soft); }
+  .chain .nd.x { border-color: var(--warn-line); background: var(--warn-soft); }
+  .chain .ar { text-align: center; font-size: 11.5px; color: var(--muted2); font-family: var(--mono); padding: 3px 0; }
+  .sr-steps { counter-reset: sr; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .sr-steps li { counter-increment: sr; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+  .sr-steps li::before { content: counter(sr); width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--cyan-soft); color: var(--cyan-ink); font-family: var(--mono); font-size: 12px; font-weight: 600; }
+  .sr-steps b { color: var(--text); }
+  .sr-status { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* что работает: три уровня */
+  .lv-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 16px; font-size: 14px; color: var(--muted); }
+  .lv-legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .lv-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+  .lv-dot.l1 { background: var(--ok); } .lv-dot.l2 { background: var(--warn); } .lv-dot.l3 { background: var(--accent2); }
+  .rt { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .rt th, .rt td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.5; }
+  .rt th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted2); background: var(--bg2); position: sticky; top: 0; }
+  .rt th .lv-dot { margin-right: 6px; }
+  .rt td:first-child { font-weight: 650; color: var(--text); width: 19%; }
+  .rt td:first-child small { display: block; font-weight: 500; color: var(--muted2); font-size: 12px; margin-top: 2px; }
+  .rt td { color: var(--muted); }
+  .rt td.no { color: var(--muted2); }
+  .rt tr:last-child td { border-bottom: 0; }
+  .rt tr.grp td { background: var(--panel2); color: var(--accent-ink); font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; padding: 8px 12px; }
+
+  /* ИИ-архитектура */
+  .ai4 { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+  .ai4 .lt { border-top: 1px solid var(--line); }
+  .ai4 .lt.opt { border-top-color: var(--line3); border-style: dashed; border-top-style: solid; }
+  .ai4 .role { font-family: var(--mono); font-size: 11.5px; color: var(--muted2); }
+  .ai4 .who { display: inline-flex; align-self: flex-start; font-family: var(--mono); font-size: 11.5px; padding: 3px 8px; border-radius: 6px; background: var(--panel2); border: 1px solid var(--line); color: var(--accent-ink); }
+  .caveat { margin-top: 18px; padding: 16px 18px; border-radius: var(--radius); border: 1px solid var(--warn-line); background: var(--warn-soft); font-size: 14.5px; line-height: 1.6; color: var(--text); display: flex; gap: 12px; }
+  .caveat .ic { flex: none; color: var(--warn-ink); }
+  .caveat .ic svg { width: 22px; height: 22px; }
+  .caveat b { color: var(--warn-ink); }
+
+  /* демо 0–7 */
+  .flow { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+  .flow .lt { gap: 8px; }
+  .flow .stn { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: 14px; background: var(--panel3); color: var(--text); }
+  .flow .lt.hot .stn { background: var(--accent-solid); color: var(--on-accent); }
+  .flow .stage-tag { font-family: var(--mono); font-size: 11px; color: var(--accent-ink); letter-spacing: .06em; }
+  .flow .keys { font-size: 13px; color: var(--muted); }
+
+  /* ≥ 600px */
+  @media (min-width: 600px) {
+    .cycle, .tryg, .ai4, .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .value-band { padding: 28px; }
+  }
+  @media (min-width: 900px) {
+    .cycle { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ai4, .flow { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @media (max-width: 760px) {
+    #reality .table-wrap { border: 0; background: none; box-shadow: none; border-radius: 0; overflow: visible; }
+    .rt thead { display: none; }
+    .rt, .rt tbody, .rt tr, .rt td { display: block; width: 100% !important; }
+    .rt tr { border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; background: var(--panel); overflow: hidden; }
+    .rt tr.grp { border: 0; background: none; margin: 16px 0 6px; }
+    .rt tr.grp td { background: none; padding: 0; }
+    .rt td { border-bottom: 1px solid var(--line); padding: 9px 12px; }
+    .rt td:last-child { border-bottom: 0; }
+    .rt td[data-l]::before { content: attr(data-l); display: flex; align-items: center; gap: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted2); font-weight: 650; margin-bottom: 3px; }
+    .rt td.no { display: none; }
+    .rt td:first-child { background: var(--bg2); }
+  }
+
+  /* ≥ 600px */
+  @media (min-width: 600px) {
+    .land, .lnav-in, .anchors { padding-left: 24px; padding-right: 24px; }
+    .cta-row .btn { flex: 0 0 auto; }
+    .lgrid.c2, .lgrid.c4, .story, .life, .road, .kpi-list, .wow, .prot, .two, .levels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .const-band { padding: 32px 24px; margin: 0; }
+    .float { display: block; }
+    .float.f1 { left: -6px; top: 36%; } .float.f2 { right: -8px; top: 58%; } .float.f3 { left: 0; bottom: 4%; }
+    .cta { padding: 48px 32px; }
+  }
+  /* ≥ 900px */
+  @media (min-width: 900px) {
+    .brand-link .brand-sub { display: block; }
+    .anchors { display: none; }
+    .lnav .links { display: flex; }
+    .lnav .cta-mini { margin-left: 8px; }
+    .hero { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); gap: 48px; padding: 56px 0 96px; }
+    .hero .lead { font-size: 18px; }
+    section.block { padding-bottom: 96px; }
+    .sec-h p { font-size: 18px; }
+    .lt, .cy { padding: 24px; }
+    .lgrid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .lgrid.c4, .story, .life, .road { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .levels, .road.road3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .wow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .const-grid { grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); }
+    .const-band { padding: 48px 40px; }
+    .arch { flex-direction: row; align-items: stretch; }
+    .arch .box { flex: 1 1 0; }
+    .arch .arrow { width: 26px; height: auto; transform: none; }
+    .mhead { display: grid; grid-template-columns: 220px minmax(0, 1fr) 230px; gap: 18px; padding: 0 18px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted2); font-weight: 650; }
+    .mrow { grid-template-columns: 220px minmax(0, 1fr) 230px; gap: 18px; align-items: center; padding: 16px 18px; }
+    .float.f1 { left: -40px; } .float.f2 { right: -36px; }
+  }
+  @media (min-width: 1180px) { .float.f1 { left: -70px; } .float.f2 { right: -40px; } }
+  @media (max-width: 380px) {
+    .hero .eyebrow { font-size: 12px; padding: 6px 12px; }
+    .art { grid-template-columns: 36px minmax(0, 1fr); padding: 13px 14px; }
+    .art .n { width: 36px; height: 36px; }
+    .phone { border-radius: 40px; padding: 9px; }
+    .ph-screen { border-radius: 32px; min-height: 520px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ph-line, .ph-art, .ph-voice, .float, .riskbar i, .swap .a, .swap .b, .ph-ava, .wave i { animation: none !important; }
+    .ph-line, .ph-art, .ph-voice, .float { opacity: 1; }
+    .riskbar i { width: 87%; background: var(--danger); }
+    .swap .a { opacity: 0; } .swap .b { opacity: 1; }
+  }
+  /* ---------- P6: лендинг из 8 блоков ---------- */
+  .anchors { flex-wrap: wrap; overflow-x: visible; }
+  /* на телефоне якоря переносятся в 2 строки (~150 px): такая шапка не закрепляется, чтобы не закрывать
+     пятую часть экрана; на ≥900 px — одна строка ссылок, шапка закреплена */
+  @media (max-width: 899px) { .lnav { position: relative; } }
+  .lead1 { font-size: 18px; color: var(--text); opacity: .92; margin: 16px 0 24px; max-width: 36em; line-height: 1.55; }
+  .tlink { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; font-size: 15px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line2); }
+  .tlink:hover { color: var(--text); }
+  .tlink .tl-ic { display: inline-flex; margin-left: 6px; } .tlink .tl-ic svg { width: 16px; height: 16px; }
+  .frames3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 18px 0 4px; }
+  .frames3 .fr { padding: 10px 10px 12px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--line); min-width: 0; font-size: 12.5px; line-height: 1.35; }
+  .frames3 .fr b { display: block; font-size: 14px; margin: 8px 0 2px; }
+  .frames3 .fr .ic { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; }
+  .frames3 .fr .ic svg { width: 16px; height: 16px; }
+  .frames3 .fr.f-call .ic { background: var(--danger-soft); color: var(--danger-ink); }
+  .frames3 .fr.f-hold .ic { background: var(--warn-soft); color: var(--warn-ink); }
+  .frames3 .fr.f-voice .ic { background: var(--accent-soft); color: var(--accent-ink); }
+  .frames3 .fr span { color: var(--muted); }
+  @media (min-width: 900px) { .frames3 { display: none; } }
+  @media (max-width: 899px) { .hero-vis { display: none; } }
+  .float { display: none !important; }
+  @media (min-width: 1180px) { .float { display: block !important; } }
+  /* точка уровня реальности → раздел «Честно» */
+  .lvd { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; color: var(--muted); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; align-self: flex-start; }
+  .lvd::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--muted2); flex: none; }
+  .lvd.l1::before { background: var(--ok); } .lvd.l2::before { background: var(--warn); } .lvd.l3::before { background: var(--accent2); }
+  .lvd:hover { color: var(--text); }
+  @media (max-width: 768px) { .lvd, .brand-link { min-height: 44px; } .brand-link { display: inline-flex; align-items: center; } }
+  .cy .badge-step { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: var(--radius-xs); background: var(--panel2); border: 1px solid var(--line); color: var(--muted); margin-top: auto; }
+  .cy .code { font-size: 12px; color: var(--muted2); }
+  .cy .row1 { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+  .topics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; align-items: center; }
+  .topics .lbl { font-size: 14px; color: var(--muted); font-weight: 600; margin-right: 4px; }
+  .topics .tp { font-size: 14px; line-height: 1.35; padding: 8px 12px; border-radius: var(--radius-xs); background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
+  .topics .tp b { color: var(--text); font-weight: 600; }
+  .oneline { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; padding: 16px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--line); font-size: 15px; line-height: 1.5; }
+  .oneline p { flex: 1 1 320px; margin: 0; color: var(--muted); }
+  .oneline p b { color: var(--text); }
+  .icons3 { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); margin-top: 18px; }
+  .icons3 .lt { flex-direction: row; align-items: flex-start; gap: 14px; }
+  .icons3 .lt h4 { font-size: 18px; margin-bottom: 4px; }
+  .icons3 .lt p { font-size: 15px; }
+  .after3 { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+  .nf { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+  .nf a.nfc { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--line); color: inherit; text-decoration: none; min-width: 0; transition: border-color var(--dur) ease, background-color var(--dur) ease; }
+  .nf a.nfc:hover { border-color: var(--line3); background: var(--panel2); text-decoration: none; }
+  .nf a.nfc b { font-size: 15px; }
+  .nf a.nfc span { font-size: 14px; color: var(--muted); line-height: 1.45; }
+  .nf a.nfc.new { border-color: var(--accent-soft2); }
+  .nf a.nfc .go { color: var(--accent-ink); font-size: 13px; font-weight: 600; margin-top: auto; }
+  .hon-grp { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); margin-bottom: 10px; overflow: hidden; }
+  .hon-grp > summary { cursor: pointer; padding: 12px 16px; min-height: 48px; align-items: center; font-weight: 650; font-size: 16px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  .hon-grp > summary:hover { background: var(--panel2); }
+  .hon-grp > summary::-webkit-details-marker { display: none; }
+  .hon-grp > summary::after { content: '▾'; color: var(--muted2); }
+  .hon-grp[open] > summary::after { content: '▴'; }
+  .hon-grp .rt { border-top: 1px solid var(--line); }
+  .hnum { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); margin-top: 18px; }
+  #threatsLive > div:nth-child(2), #threatsLive > div:nth-child(5) { display: none; }
+  #threatsLive { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #liveMetrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .honest-lines { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.6; color: var(--muted); max-width: var(--measure); }
+  .honest-lines b { color: var(--text); }
+  details.tech { margin-top: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+  details.tech > summary { cursor: pointer; padding: 12px 16px; min-height: 48px; display: flex; align-items: center; font-weight: 650; font-size: 16px; }
+  details.tech .tech-b { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+  details.tech .tech-b p { font-size: 15px; line-height: 1.6; color: var(--muted); margin: 0; max-width: var(--measure); }
+  details.tech .tech-b b { color: var(--text); }
+  .mx-word { font-family: var(--display); font-size: 24px; font-weight: 600; }
+  .mx-word.low { color: var(--ok-ink); } .mx-word.mid { color: var(--warn-ink); } .mx-word.high { color: var(--danger-ink); }
+  .lt details.more { font-size: 14px; }
+  @media (max-width: 420px) { #liveMetrics, #threatsLive { grid-template-columns: minmax(0, 1fr); } }
+  @media (min-width: 600px) {
+    .icons3, .hnum { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .nf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 900px) {
+    .icons3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .after3 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr); }
+    .tryg.t3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  /* v6: короткая главная — функции и 4 шага */
+  @media (min-width: 640px) { #liveMetrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .why3 { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 900px) { .why3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .why3 .lt h4 { margin: 4px 0 6px; }
+  .why3 .q { font-size: 13px; font-weight: 700; color: var(--accent-ink); letter-spacing: .04em; text-transform: uppercase; }
+  #features .nf { gap: 14px; }
+  @media (min-width: 640px) { #features .nf { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { #features .nf { grid-template-columns: repeat(4, minmax(0, 1fr)); } #how .cycle { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  #features .nf a.nfc { padding: 18px 20px; }
+  #features .nf a.nfc b { font-size: 16px; }
+</style>
+</head>
+<body>
+<header class="lnav" id="lnav">
+  <div class="lnav-in">
+    <a class="brand brand-link" href="index.html" aria-label="NEXUS AI — на главную"><div class="brand-logo">N</div><div><div class="brand-name">NEXUS AI</div><div class="brand-sub">концепт команды</div></div></a>
+    <nav class="links" aria-label="Разделы">
+      <a href="#how">Как работает</a>
+      <a href="#features">Функции</a>
+      <a href="#why">Почему работает</a>
+      <a href="#honest">Цифры</a>
+      <a href="#bank">Для банка</a>
+    </nav>
+    <a class="btn primary sm cta-mini" href="stage.html" data-icon="play">Презентация</a>
+  </div>
+</header>
+
+<div class="hero-wrap">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="land">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span>Инновации в банкинге и кибербезопасность · концепт команды</div>
+        <h1>Атака на одного человека <span class="grad-text">предотвращает потерю денег</span> другим</h1>
+        <p class="lead1">NEXUS слышит мошенника во время звонка и не даёт перевести деньги — а счёт, который он назвал, защищает следующих клиентов.</p>
+        <div class="cta-row">
+          <a class="btn primary lg" href="stage.html" data-icon="play">Презентация</a>
+          <a class="btn lg" href="client.html" target="nexus_client" data-icon="users">Панель клиента</a>
+          <a class="btn lg" href="bank.html" target="nexus_bank" data-icon="building">Панель банка</a>
+        </div>
+      </div>
+
+      <div class="hero-vis" role="img" aria-label="Иллюстрация: во время звонка мошенника риск растёт, NEXUS распознаёт схему, правило клиента удерживает перевод, всплывает сообщение от дочери, записанное заранее">
+        <div class="phone">
+          <div class="ph-notch" aria-hidden="true"></div>
+          <div class="ph-screen">
+            <div class="ph-status"><span>14:05</span><span>NEXUS</span></div>
+            <div class="ph-call">
+              <div class="ph-ava" data-icon="phone"></div>
+              <div class="grow"><b>+7 727 *** ** 41</b><div class="tiny">«Служба безопасности банка» · идёт звонок</div></div>
+            </div>
+            <div class="ph-line l1">«На вас <mark>оформляют кредит</mark>. Только <mark>не кладите трубку</mark>…»</div>
+            <div class="ph-line l2">«Переведите деньги на <mark>безопасный счёт</mark>, я продиктую номер»</div>
+            <div class="ph-risk">
+              <div class="row"><span class="muted">Риск звонка</span><span class="swap"><span class="a badge ok">низкий</span><span class="b badge high">высокий</span></span></div>
+              <div class="riskbar"><i></i></div>
+              <div class="tiny" style="margin-top:7px"><span class="swap"><span class="a muted">Схема пока не распознана</span><span class="b">Лжесотрудник банка · <b>3 из 5 этапов</b></span></span></div>
+            </div>
+            <div class="ph-art">
+              <div class="k">Ваше правило №6</div>
+              <b>Перевод новому получателю во время звонка удержан для проверки.</b>
+              <div class="tiny muted">Вы сами установили это правило заранее, в спокойный день.</div>
+            </div>
+            <div class="ph-voice">
+              <div class="k"><span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>Сообщение, которое Айгерим записала для вас заранее</div>
+              «Мама, это Айгерим. Если ты это видишь — тебе звонят мошенники. Положи трубку и перезвони мне.»
+            </div>
+          </div>
+        </div>
+        <div class="float f1"><span class="ic" style="background:var(--violet-soft);color:var(--violet-ink)" data-icon="users"></span><b>Дальше попросят открыть приложение</b>NEXUS знает следующий шаг схемы</div>
+        <div class="float f2"><span class="ic" style="background:var(--danger-soft);color:var(--danger-ink)" data-icon="graph"></span><b>Реквизит → цепочка дропов</b>Риск переходит на связанные счета</div>
+        <div class="float f3"><span class="ic" style="background:var(--ok-soft);color:var(--ok-ink)" data-icon="shieldCheck"></span><b>Деньги другого клиента на месте</b>Его перевод на этот счёт удержан</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<main class="land">
+  <section class="block" id="problem">
+    <div class="sec-h">
+      <span class="kicker">Проблема</span>
+      <h2>Чаще всего мошенник звонит «из банка»</h2>
+    </div>
+    <div class="lgrid c2">
+      <div class="lt fact">
+        <div class="v">26,3 тыс.</div>
+        <p>случаев интернет-мошенничества в РК за январь–ноябрь 2025 года, +20,3% за год.</p>
+        <div class="src">Генпрокуратура РК · <a class="ext" href="https://informburo.kz/novosti/rekordnoe-kolicestvo-skolko-slucaev-mosennicestva-v-seti-zaregistrirovali-v-kazaxstane-v-2025-godu" target="_blank" rel="noopener noreferrer">Informburo.kz</a>, 31.12.2025</div>
+      </div>
+      <div class="lt fact">
+        <div class="v">23,5%</div>
+        <p>из них — звонки и SMS от имени банков и полиции. Самая частая схема.</p>
+        <div class="src">Там же</div>
+      </div>
+    </div>
+    <div class="callout">Банк узнаёт счёт мошенника <b>после</b> первой жертвы. NEXUS — <b>во время звонка</b>.</div>
+  </section>
+
+  <section class="block" id="how">
+    <span id="cycle" aria-hidden="true"></span><span id="case" aria-hidden="true"></span>
+    <div class="sec-h">
+      <span class="kicker">Как работает</span>
+      <h2>Четыре шага</h2>
+    </div>
+    <div class="cycle">
+      <article class="cy c1"><div class="code">1</div><h4>Слышит звонок</h4><p class="q">Риск растёт с каждой фразой мошенника. Тревога — раньше, чем попросят код.</p></article>
+      <article class="cy c2"><div class="code">2</div><h4>Ловит мошенника</h4><p class="q">Робот-приманка тянет время, и мошенник сам диктует свой счёт.</p></article>
+      <article class="cy c4"><div class="code">3</div><h4>Защищает других</h4><p class="q">Счёт уходит в банк — перевод следующей жертвы на него удерживается.</p></article>
+      <article class="cy c6"><div class="code">4</div><h4>Помогает после</h4><p class="q">Если деньги ушли — «Заблокировать всё» и готовое обращение в банк.</p></article>
+    </div>
+  </section>
+
+  <section class="block" id="features">
+    <div class="sec-h">
+      <span class="kicker">Функции</span>
+      <h2>Что умеет NEXUS</h2>
+    </div>
+    <div class="nf">
+      <a class="nfc" href="client.html#shield" target="nexus_client"><b>Защита звонка</b><span>Распознаёт схему давления на русском и казахском.</span></a>
+      <a class="nfc" href="stage.html"><b>Робот-приманка</b><span>Выспрашивает у мошенника его счёт.</span></a>
+      <a class="nfc" href="client.html#constitution" target="nexus_client"><b>Правила клиента</b><span>Ослабить можно только через 24 часа и не во время звонка.</span></a>
+      <a class="nfc" href="client.html#family" target="nexus_client"><b>Близкие</b><span>Подозрительный перевод мамы подтверждает дочь.</span></a>
+      <a class="nfc" href="client.html#leak" target="nexus_client"><b>Карты для магазинов</b><span>Видно, из какого магазина утекли данные.</span></a>
+      <a class="nfc" href="client.html#deal" target="nexus_client"><b>Безопасная сделка</b><span>Деньги ждут в банке до получения товара.</span></a>
+      <a class="nfc" href="client.html#helpmore" target="nexus_client"><b>Не стань дропом</b><span>Безопасный выход, если счёт используют для чужих денег.</span></a>
+      <a class="nfc" href="client.html#credit" target="nexus_client"><b>Кредитный замок</b><span>На вас нельзя оформить заём без проверки.</span></a>
+    </div>
+  </section>
+
+  <section class="block" id="why">
+    <div class="sec-h">
+      <span class="kicker">Чем отличается</span>
+      <h2>Почему это работает</h2>
+    </div>
+    <div class="why3">
+      <div class="lt"><h4>Раньше всех</h4><p>Обычный антифрод видит только перевод. NEXUS видит звонок, давление и счёт мошенника ещё до перевода.</p></div>
+      <div class="lt"><h4>Защищает всех</h4><p>Каждая атака на одного клиента пополняет стоп-лист банка — и спасает деньги следующих людей.</p></div>
+      <div class="lt"><h4>Мошенник не уговорит</h4><p>Свои правила клиент задаёт заранее. Ослабить их во время звонка нельзя — только через 24 часа.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="honest">
+    <span id="bench" aria-hidden="true"></span>
+    <div class="sec-h">
+      <span class="kicker">Честные цифры</span>
+      <h2>Считаются прямо сейчас, в этой вкладке</h2>
+    </div>
+    <div class="live-m" id="liveMetrics">
+      <div><b id="lmTrainR">—</b><span>сообщений мошенников найдено</span></div>
+      <div class="hold"><b id="lmTrainF">—</b><span>ложных тревог на честных сообщениях</span></div>
+      <div><b id="lcBefore">—</b><span>звонков с тревогой до просьбы кода</span></div>
+    </div>
+    <p class="small muted" id="lmNote" style="margin-top:12px">Тот же движок, что в кабинете клиента, на синтетических данных команды.</p>
+    <a class="btn sm" href="bench.html" data-icon="chart" style="margin-top:12px">Все тесты</a>
+  </section>
+
+  <section class="block" id="bank">
+    <div class="sec-h">
+      <span class="kicker">Для банка</span>
+      <h2>Модуль к текущему антифроду, а не новая система</h2>
+    </div>
+    <div class="why3">
+      <div class="lt"><span class="q">Дни 1–30</span><h4>Подключение «в тени»</h4><p>NEXUS считает решения рядом с антифродом банка и ни на что не влияет.</p></div>
+      <div class="lt"><span class="q">Дни 31–60</span><h4>Проверка на истории</h4><p>Обезличенные данные: сколько мошенничества поймано и сколько честных переводов задержано зря.</p></div>
+      <div class="lt"><span class="q">Дни 61–90</span><h4>Решение банка</h4><p>Пилотная группа против контрольной. Платит банк, для клиента бесплатно.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="cta">
+      <h2>Сыграйте мошенника сами</h2>
+      <div class="cta-row" style="justify-content:center">
+        <a class="btn primary lg" href="stage.html" data-icon="play">Презентация</a>
+        <a class="btn lg" href="client.html" target="nexus_client" data-icon="users">Панель клиента</a>
+        <a class="btn lg" href="bank.html" target="nexus_bank" data-icon="building">Панель банка</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="brand" style="padding:0 0 12px"><div class="brand-logo">N</div><div><div class="brand-name">NEXUS AI</div></div></div>
+    <p class="sig">Концепт команды NEXUS AI. Не является продуктом банка-организатора. Все данные синтетические.</p>
+    <div class="links"><a href="stage.html">Презентация</a><a href="client.html">Панель клиента</a><a href="bank.html">Панель банка</a><a href="bench.html">Тесты</a></div>
+  </footer>
+</main>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/ui-kit.js"></script>
+<script src="assets/js/constitution.js"></script>
+<script src="assets/js/manip.js"></script>
+<script src="assets/js/dna.js"></script>
+<script src="assets/data/sms-corpus.js"></script>
+<script src="assets/data/call-scenarios.js"></script>
+<script src="assets/js/bench.js"></script>
+<script src="assets/js/decoy-engine.js"></script>
+<script src="assets/data/attack-corpus.js"></script>
+<script src="assets/js/selftest.js"></script>
+<script>
+(function () {
+  'use strict';
+  var NX = window.NX || {};
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return NX.esc ? NX.esc(s) : String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var fmt = function (n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₸'; };
+  var setText = function (sel, t) { var el = $(sel); if (el) el.textContent = t; };
+  var riskWord = function (score) {
+    if (NX.ui && typeof NX.ui.riskWord === 'function') return NX.ui.riskWord(score);
+    var s = Number(score) || 0, level = s >= 55 ? 'high' : s >= 25 ? 'mid' : 'low';
+    return { level: level, word: { low: 'низкий', mid: 'средний', high: 'высокий' }[level] };
+  };
+  try { if (NX.renderIcons) NX.renderIcons(); } catch (e) { /* без иконок страница работает */ }
+
+  /* --- шапка: тень при прокрутке --- */
+  var nav = $('#lnav');
+  var onScroll = function () { if (nav) nav.classList.toggle('scrolled', window.scrollY > 8); };
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* --- «Честно»: таблица из того же списка функций, что поповер «Что работает в прототипе» (NX.ui.FEATURES) --- */
+  (function honestTable() {
+    var box = $('#honTable');
+    var F = NX.ui && Array.isArray(NX.ui.FEATURES) ? NX.ui.FEATURES : null;
+    if (!box || !F) return;
+    // обе новые функции собраны в прототипе (mule-exit.js, credit-lock.js), их модули на лендинге не загружаются
+    try { NX.ui.markReady('mule_exit'); NX.ui.markReady('credit_lock'); } catch (e) { /* ignore */ }
+    var byId = {}; F.forEach(function (f) { byId[f.id] = f; });
+    var GR = [
+      { t: 'Звонок', ids: ['call', 'decoy'], open: true },
+      { t: 'Переводы и правила клиента', ids: ['transfer', 'scan', 'rules', 'family'] },
+      { t: 'Банк', ids: ['stoplist'] },
+      { t: 'После звонка и другие каналы', ids: ['help', 'leak', 'deal', 'mule_exit', 'credit_lock'] },
+    ];
+    var used = {};
+    var rows = function (ids) {
+      return ids.filter(function (id) { return byId[id]; }).map(function (id) {
+        var f = byId[id]; used[id] = 1;
+        return '<tr><td>' + esc(f.name) + '</td><td data-l="Работает в прототипе">' + esc(f.works) + '</td><td data-l="Данные симулированы">' + esc(f.sim) + '</td><td data-l="Нужна интеграция">' + esc(f.integ) + '</td></tr>';
+      }).join('');
+    };
+    var html = GR.map(function (g) {
+      var r = rows(g.ids);
+      return r ? '<details class="hon-grp"' + (g.open ? ' open' : '') + '><summary>' + esc(g.t) + '</summary><div class="table-wrap" style="border:0;border-radius:0"><table class="rt"><thead><tr><th>Функция</th><th><i class="lv-dot l1"></i>Работает в прототипе</th><th><i class="lv-dot l2"></i>Данные симулированы</th><th><i class="lv-dot l3"></i>Нужна интеграция с банком</th></tr></thead><tbody>' + r + '</tbody></table></div></details>' : '';
+    }).join('');
+    var rest = F.filter(function (f) { return !used[f.id]; }).map(function (f) { return f.id; });
+    if (rest.length) html += '<details class="hon-grp"><summary>Другое</summary><div class="table-wrap" style="border:0;border-radius:0"><table class="rt"><tbody>' + rows(rest) + '</tbody></table></div></details>';
+    box.innerHTML = html;
+  })();
+
+  /* --- Правило 24 часа: интерактивная иллюстрация --- */
+  (function anchor() {
+    var limit = 100000, amendment = 2, pending = null;
+    var log = $('#anchorLog'), lim = $('#anchorLimit'), call = $('#anchorCall');
+    if (!log || !lim || !call) return;
+    var stamp = function (d) { return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); };
+    var add = function (kind, title, text, extra) {
+      var e = document.createElement('div');
+      e.className = 'e ' + kind;
+      e.innerHTML = '<b>' + esc(title) + '</b>' + esc(text) + (extra || '');
+      log.insertBefore(e, log.firstChild);
+      while (log.children.length > 2) log.removeChild(log.lastChild);
+      return e;
+    };
+    var render = function () { lim.textContent = fmt(limit); };
+    $('#anchorStrengthen').addEventListener('click', function () {
+      if (limit <= 50000) { add('ok', 'Уже усилено', 'Порог правила 1 и так 50 000 ₸.'); return; }
+      var from = limit; limit = 50000; amendment++; render();
+      add('ok', 'Применено сразу — это усиление', 'Изменение №' + amendment + ' · ' + stamp(new Date()) + ' · правило 1: ' + fmt(from) + ' → ' + fmt(limit) + '.');
+    });
+    $('#anchorWeaken').addEventListener('click', function () {
+      if (call.checked) {
+        add('bad', 'Отказано: идёт звонок', 'Во время звонка ослаблять правила нельзя — мошенник не уговорит отключить защиту, пока он на линии. Айгерим получила уведомление о попытке.');
+        return;
+      }
+      if (pending) { add('warn', 'Изменение уже ждёт', 'Предыдущий запрос вступит в силу ' + stamp(pending) + '.'); return; }
+      pending = new Date(Date.now() + 24 * 3600 * 1000);
+      var e = add('warn', 'Ослабление ждёт 24 часа', 'Правило 1: ' + fmt(limit) + ' → 500 000 ₸ вступит в силу ' + stamp(pending) + '. Айгерим получила уведомление.',
+        '<button class="btn sm" type="button">Отменить изменение</button>');
+      e.querySelector('button').addEventListener('click', function () {
+        pending = null;
+        e.className = 'e'; e.innerHTML = '<b>Изменение отменено</b>Порог остаётся ' + esc(fmt(limit)) + '. Запись об отмене — в журнале.';
+      });
+    });
+    render();
+  })();
+
+  /* --- «Честно»: 3 числа бенчмарка (как в bench.html: без стоп-листа браузера; порог 25 «предупреждение») --- */
+  (function metrics() {
+    var C = window.NX_CORPUS;
+    var note = $('#lmNote');
+    if (!NX.scanText || !C || !Array.isArray(C.train) || !Array.isArray(C.holdout)) {
+      if (note) note.textContent = 'Движок или корпус не загрузился — откройте бенчмарк, он покажет причину.';
+      return;
+    }
+    var pct = function (x) { return isFinite(x) ? (x * 100).toFixed(1).replace('.', ',') + '%' : '—'; };
+    var orig = NX.iocHits;
+    var calc = function (list, thr) {
+      var tp = 0, fn = 0, fp = 0, tn = 0;
+      list.forEach(function (it) {
+        var s = 0; try { s = Number(NX.scanText(it.t).score) || 0; } catch (e) { s = 0; }
+        var p = s >= thr;
+        if (it.y === 1) { if (p) tp++; else fn++; } else if (p) fp++; else tn++;
+      });
+      return { r: tp / Math.max(1, tp + fn), f: fp / Math.max(1, fp + tn) };
+    };
+    var a, b;
+    try { NX.iocHits = function () { return []; }; a = calc(C.train, 25); b = calc(C.holdout, 25); } finally { NX.iocHits = orig; }
+    setText('#lmTrainR', pct(a.r)); setText('#lmTrainF', pct(a.f));
+    var calls = '';
+    var B = NX.Bench, CL = window.NX_CALLS;
+    if (B && typeof B.evalCalls === 'function' && Array.isArray(CL) && CL.length) {
+      try {
+        var s = B.callSummary(B.evalCalls(CL, 55));
+        setText('#lcBefore', s.withCode ? s.before + ' из ' + s.withCode : '—');
+        calls = ' Звонки: ' + CL.length + ' синтетических, порог 55.';
+      } catch (e) { calls = ' Звонки не посчитались — подробности в бенчмарке.'; }
+    }
+    if (note) note.textContent = (C.train.length + C.holdout.length) + ' сообщений RU+KZ, порог 25. На отложенной выборке другого стиля слабее: найдено ' + pct(b.r) + ', ложных тревог ' + pct(b.f) + '.' + calls + ' Это тест логики, а не качество на данных банка.';
+  })();
+
+  /* --- детектор манипуляций: звонок по репликам --- */
+  (function manipDemo() {
+    var root = $('#mxDemo'); if (!root) return;
+    var M = NX.Manip;
+    var box = root.querySelector('.demo-box');
+    if (!M || typeof M.analyze !== 'function') {
+      if (box) box.innerHTML = '<div class="small muted">Модуль детектора манипуляций не загрузился. Его работу можно увидеть в кабинете клиента, раздел «Звонок».</div><a class="btn sm" href="client.html#shield" target="nexus_client" data-icon="phone">Открыть «Звонок»</a>';
+      try { NX.renderIcons(box); } catch (e) { /* без иконки */ }
+      return;
+    }
+    var CALLS = {
+      bank: ['Здравствуйте, служба безопасности банка, старший специалист Ермеков.',
+        'По вашей карте подозрительная операция: на вас прямо сейчас оформляют кредит.',
+        'Только никому не говорите и не кладите трубку, это конфиденциальная процедура.',
+        'Откройте приложение банка, я подскажу, куда нажать.',
+        'Сейчас придёт код из SMS — продиктуйте его, чтобы отменить заявку.',
+        'Для защиты переведите деньги на безопасный счёт, я продиктую номер.'],
+      police: ['Сәлеметсіз бе, полиция бөлімінен хабарласып тұрмын, тергеуші Серіков.',
+        'Сіздің атыңызға алаяқтар несие рәсімдеп жатыр, бұл қылмыстық іс.',
+        'Бұл туралы ешкімге айтпаңыз, тергеу құпиясы.',
+        'Тез арада әрекет ету керек, әйтпесе ақшаңыз жоғалады.',
+        'Телефоныңызға келген кодты айтыңыз.',
+        'Ақшаны қауіпсіз шотқа аударыңыз, мен нөмірін айтамын.'],
+      courier: ['Добрый день, курьерская служба, у вас доставка на сегодня.',
+        'Буду у подъезда с 14 до 15 часов, вам удобно?',
+        'Оплата при получении — картой или наличными, как вам удобнее.',
+        'Хорошо, тогда позвоню, когда подъеду. Всего доброго.']
+    };
+    var cur = 'bank', shown = 0;
+    var lines = $('#mxLines'), out = $('#mxOut'), next = $('#mxNext');
+    var STAGES = Array.isArray(M.STAGES) ? M.STAGES : [];
+    function set(el, html) { if (el._h !== html) { el._h = html; el.innerHTML = html; } }
+    function render() {
+      var list = CALLS[cur], said = list.slice(0, shown), r = null;
+      if (shown) { try { r = M.analyze(said); } catch (e) { r = null; } }
+      var byLine = {};
+      ((r && r.stages) || []).forEach(function (s) { if (s && s.line != null) (byLine[s.line] = byLine[s.line] || []).push(s.label || s.id); });
+      set(lines, said.length ? said.map(function (t, i) {
+        return '<div class="ln"><span class="tiny muted">' + (i + 1) + '.</span> ' + esc(t) + (byLine[i] ? '<span class="st">' + esc(byLine[i].join(' · ')) + '</span>' : '') + '</div>';
+      }).join('') : '<div class="small muted">Нажмите «Следующая реплика» — звонящий начнёт говорить.</div>');
+      lines.scrollTop = lines.scrollHeight;
+      next.disabled = shown >= list.length;
+      if (!r) { set(out, ''); return; }
+      var ri = Math.max(0, Math.min(100, Number(r.riskIndex) || 0));
+      var rw = riskWord(ri);
+      var on = {}; (r.sequence || (r.stages || []).map(function (s) { return s.id; })).forEach(function (id) { on[id] = 1; });
+      var sc = r.scenario || {};
+      var at = r.attackType && r.attackType.label ? r.attackType.label : null;
+      var html = '<div class="mx-row"><span class="mx-word ' + esc(rw.level) + '">Риск: ' + esc(rw.word) + '</span>' +
+        (at ? '<span class="badge violet">' + esc(at) + '</span>' : '<span class="badge plain">схема не распознана</span>') + '</div>' +
+        (STAGES.length ? '<div class="mx-stages">' + STAGES.map(function (s) { return '<span class="' + (on[s.id] ? 'on' : '') + '">' + esc(s.label) + '</span>'; }).join('') + '</div>' : '') +
+        (r.next ? '<div class="mx-next"><b>Дальше попросят: ' + esc(r.next.label) + '.</b> ' + esc(r.next.advice || '') + '</div>' : '') +
+        '<details class="more"><summary>Подробнее</summary><div class="more-b small muted">Индекс риска ' + esc(ri) + ' из 100' +
+        (r.pressure ? ' · давление: ' + esc(r.pressure.level) : '') +
+        (sc.of ? ' · совпадение со схемой: ' + esc(sc.matched) + ' из ' + esc(sc.of) + ' этапов' + (sc.inOrder ? ', по порядку' : '') : '') +
+        '. Это не вероятность, а доля этапов шаблона.</div></details>';
+      set(out, html);
+    }
+    root.addEventListener('click', function (e) {
+      var c = e.target.closest ? e.target.closest('[data-mx]') : null;
+      if (!c) return;
+      cur = c.getAttribute('data-mx'); shown = 0;
+      root.querySelectorAll('[data-mx]').forEach(function (b) { b.classList.toggle('active', b === c); });
+      render();
+    });
+    next.addEventListener('click', function () { if (shown < CALLS[cur].length) { shown++; render(); } });
+    $('#mxAll').addEventListener('click', function () { shown = CALLS[cur].length; render(); });
+    $('#mxReset').addEventListener('click', function () { shown = 0; render(); });
+    render();
+  })();
+
+  /* --- «Ваш обычный перевод»: решение словом, причины, число — в «Подробнее» --- */
+  (function dnaDemo() {
+    var root = $('#dnaDemo'); if (!root) return;
+    var D = NX.DNA, out = $('#dnaOut');
+    if (!D || typeof D.assess !== 'function') {
+      var b = root.querySelector('.demo-box');
+      if (b) b.innerHTML = '<div class="small muted">Модуль не загрузился. Решение видно в кабинете клиента при переводе.</div><a class="btn sm" href="client.html#transfer" target="nexus_client" data-icon="send">Открыть перевод</a>';
+      try { NX.renderIcons(b); } catch (e) { /* без иконки */ }
+      return;
+    }
+    var amt = $('#dnaAmt'), amtV = $('#dnaAmtV');
+    var TIER = { normal: 'low', check: 'mid', cooling: 'mid', hold: 'high' };
+    var last = '';
+    function render() {
+      var a = Number(amt.value) || 0;
+      amtV.textContent = fmt(a);
+      var isNew = $('#dnaNew').checked;
+      var tx = { amount: a, newRecipient: isNew, recipient: isNew ? 'Ерболат К. (вымышл.)' : undefined, hour: $('#dnaNight').checked ? 2 : 14 };
+      var ctx = { callActive: $('#dnaCall').checked, scamSignal: false, weakenAttempt: $('#dnaWeak').checked, emergency: false };
+      var r = null;
+      try { r = D.assess(tx, ctx); } catch (e) { r = null; }
+      var html;
+      if (!r) html = '<div class="small muted">Не удалось оценить перевод для этих условий.</div>';
+      else {
+        var idx = Math.max(0, Math.min(100, Number(r.index) || 0));
+        var lvl = TIER[r.tier] || riskWord(idx).level;
+        var f = (r.factors || []).filter(function (x) { return x && (x.points == null || x.points > 0); });
+        html = '<div class="mx-row"><span class="mx-word ' + esc(lvl) + '">' + esc(r.tierLabel || r.tier || '') + '</span></div>' +
+          (f.length ? '<ul class="ul" style="margin-top:6px">' + f.slice(0, 3).map(function (x) { return '<li>' + esc(x.label) + '</li>'; }).join('') + '</ul>' : '<div class="small muted">Перевод похож на обычные переводы клиента.</div>') +
+          '<details class="more"><summary>Подробнее</summary><div class="more-b small muted">Индекс ' + esc(idx) + ' из 100' +
+          (f.length ? ' · ' + f.map(function (x) { return esc(x.label) + (x.points != null ? ' +' + esc(x.points) : ''); }).join(' · ') : '') +
+          '. Очки не складываются: итог учитывает сочетания.' + (r.explain ? ' ' + esc(r.explain) : '') + '</div></details>';
+      }
+      if (html !== last) { last = html; out.innerHTML = html; }
+    }
+    ['dnaNew', 'dnaCall', 'dnaNight', 'dnaWeak'].forEach(function (id) { $('#' + id).addEventListener('change', render); });
+    amt.addEventListener('input', render);
+    render();
+  })();
+})();
+</script>
+</body>
+</html>

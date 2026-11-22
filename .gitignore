@@ -1,0 +1,18 @@
+# Секреты — никогда не коммитить
+api/gemini-key.php
+.env
+.env.*
+*.key
+*.pem
+
+# Данные комнат живого демо (создаются на сервере)
+api/relay-data/
+relay-data/
+
+# Зависимости и служебное
+node_modules/
+.netlify/
+.vercel/
+.DS_Store
+Thumbs.db
+*.log

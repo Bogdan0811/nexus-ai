@@ -1,0 +1,19 @@
+{
+  "name": "nexus-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NEXUS AI — концепт pre-loss разведки мошенничества · Инновации в банкинге и кибербезопасность (концепт команды, не продукт банка-организатора)",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "serve:win": "powershell -NoProfile -ExecutionPolicy Bypass -File serve.ps1"
+  },
+  "//": [
+    "@anthropic-ai/sdk оставлен на \"latest\" намеренно: точную версию здесь не выдумываем.",
+    "Перед демо закрепите проверенную версию: npm view @anthropic-ai/sdk version -> впишите её вместо latest, выполните npm install и закоммитьте package-lock.json.",
+    "Сервер использует client.beta.messages.create с betas ['server-side-fallback-2026-07-01'], fallbacks: 'default' и output_config.effort — проверьте реальный POST /api/chat на деплое после закрепления версии."
+  ],
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest"
+  }
+}

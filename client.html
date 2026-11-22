@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070D">
+<title>NEXUS AI — Кабинет клиента</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366F1'/%3E%3Cstop offset='.55' stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%2322D3EE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='900' font-size='16' text-anchor='middle' fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
+<script>
+  /* ранние CSS-хуки (?embed=1 / ?demo=1 / ?full=1 / ?present=1) до первой отрисовки; core.js ставит те же классы повторно */
+  (function () { try { var q = window.location.search, d = document.documentElement; ['demo', 'full', 'embed', 'present'].forEach(function (k) { if (new RegExp('[?&]' + k + '(=(1|true|on|yes)?)?(&|$)').test(q)) d.classList.add('nx-' + k); }); } catch (e) { /* ignore */ } })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/constitution.css">
+<link rel="stylesheet" href="assets/css/rescue.css">
+<link rel="stylesheet" href="assets/css/client-extra.css">
+<link rel="stylesheet" href="assets/css/leak-radar.css">
+<link rel="stylesheet" href="assets/css/safe-deal.css">
+<link rel="stylesheet" href="assets/css/mule-exit.css">
+<link rel="stylesheet" href="assets/css/credit-lock.css">
+</head>
+<body class="nx-app page-client">
+<div class="scrim"></div>
+<div class="app">
+  <!-- 5 разделов: на компьютере — боковое меню, на телефоне — нижняя панель (client.js → SECTIONS) -->
+  <aside class="sidebar">
+    <a class="brand" href="index.html" style="text-decoration:none;color:inherit"><div class="brand-logo">N</div><div><div class="brand-name">NEXUS AI</div><div class="brand-sub">Кабинет клиента</div></div></a>
+    <button class="nav-btn active" data-view="overview" data-sec="home" data-icon="home" data-short="Главная">Главная</button>
+    <button class="nav-btn" data-view="shield" data-sec="call" data-icon="phone" data-short="Звонок">Звонок</button>
+    <button class="nav-btn" data-view="transfer" data-sec="pay" data-icon="send" data-short="Платежи">Платежи</button>
+    <button class="nav-btn" data-view="constitution" data-sec="rules" data-icon="book" data-short="Правила">Правила <span class="nav-badge hidden" id="constBadge"></span></button>
+    <button class="nav-btn nav-help" data-view="recover" data-sec="help" data-icon="lifebuoy" data-short="Помощь">Помощь</button>
+    <div class="sidebar-foot">
+      <div class="demo-panel nx-demo-only">
+        <div class="tiny muted">Демо-сценарии</div>
+        <button class="btn sm block" id="demoBtn" type="button" data-icon="bolt">Демо: атака на аккаунт</button>
+        <button class="btn ghost sm block" type="button" data-mx="demo" data-icon="users">Демо: мне предложили подработку</button>
+        <button class="btn ghost sm block" type="button" data-cl="demo" data-icon="lock">Демо: на меня пытаются оформить кредит</button>
+        <a class="btn ghost sm block" href="stage.html" target="_blank" rel="noopener" data-icon="play">Презентация</a>
+        <a class="btn ghost sm block" href="bank.html" target="nexus_bank" data-icon="building">Панель банка <svg class="nx-ic nx-ext" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (откроется в новой вкладке)</span></a>
+        <a class="btn ghost sm block" href="bench.html" target="_blank" rel="noopener" data-icon="chart">Бенчмарк</a>
+      </div>
+      <div class="demo-panel nx-full-only">
+        <div class="tiny muted">Вне демо (?full=1)</div>
+        <button class="btn ghost sm block" type="button" data-goto="finance" data-icon="chart">Финансы</button>
+        <button class="btn ghost sm block" type="button" data-goto="voice" data-icon="mic">Голос: эксперимент</button>
+      </div>
+      <button class="btn ghost sm block" id="resetBtn" type="button" data-icon="reset">Сбросить демо</button>
+      <p class="disclaimer mt-s">Концепт команды NEXUS AI. Не является продуктом банка-организатора.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="burger" data-icon="menu" aria-label="Меню"></button>
+      <div class="grow"><h1 id="viewTitle">Главная</h1><div class="sub" id="viewSub">Счёт и защита в одном месте</div></div>
+      <span id="honestyTagMount"></span>
+      <button class="cx-sos" id="sosBtn" type="button" aria-label="SOS: заблокировать всё">SOS</button>
+      <div class="avatar" id="avatar">АН</div>
+    </header>
+
+    <div class="cx-protect hidden" id="protectBanner" role="alert" aria-live="assertive"></div>
+
+    <div class="content">
+      <!-- подразделы раздела (Платежи: Перевод | Покупка | Проверить; Правила: Правила | Кредиты | Близкие | Карты) -->
+      <div class="sec-nav hidden" id="secNav"></div>
+
+      <!-- ============ ГЛАВНАЯ ============ -->
+      <section class="view active" id="view-overview">
+        <div class="home col gap-l">
+          <div id="bankCallMount" aria-live="polite"></div>
+          <div class="bank-card" id="bankCard">
+            <div class="row between"><b>NEXUS Card</b><span class="small muted">Дебетовая · KZT</span></div>
+            <div><div class="small muted">Доступный баланс</div><div class="bal" id="balance">—</div></div>
+            <div class="row between"><span class="num" id="cardNum"></span><span class="small" id="userName"></span></div>
+          </div>
+          <div id="homeStatus"></div>
+          <div class="home-quick">
+            <button class="home-act" type="button" data-goto="scam" data-icon="shield">Проверить сообщение</button>
+            <button class="home-act" type="button" data-goto="transfer" data-icon="send">Перевести</button>
+          </div>
+          <div id="homeRules"></div>
+          <div class="card">
+            <div class="card-h"><h3>Последние операции</h3><button class="btn sm ghost nx-full-only" type="button" data-goto="finance">Все →</button></div>
+            <div class="list" id="recentTx"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ СПРОСИТЬ NEXUS (чат, «Почему NEXUS так решил») ============ -->
+      <section class="view" id="view-banker">
+        <div class="grid g-main">
+          <div class="card chat">
+            <div class="chat-log" id="chatLog"></div>
+            <div class="suggest" id="chatSuggest"></div>
+            <form class="chat-input" id="chatForm" autocomplete="off">
+              <input class="input" id="chatInput" placeholder="Например: мне звонят из банка — что делать?">
+              <button class="btn primary" type="submit" data-icon="send">Отправить</button>
+            </form>
+          </div>
+          <div class="col gap-l hide-m">
+            <div class="card">
+              <div class="card-h"><h3>Что умеет NEXUS в чате</h3></div>
+              <div class="feat">Объясняет, почему перевод задержан</div>
+              <div class="feat">Подсказывает, что делать, если звонят «из банка»</div>
+              <div class="feat">Проверяет подозрительное сообщение прямо в чате</div>
+              <div class="feat">Блокирует карту одной фразой</div>
+            </div>
+            <div class="notice">Свободные вопросы может обрабатывать языковая модель через серверную функцию. Ей уходит снимок без имени, номеров карт и счетов, названий магазинов и геолокации (см. «Что отправляется в модель»). Операции выполняет только встроенный движок и только с вашим подтверждением.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ЗВОНОК ============ -->
+      <section class="view" id="view-shield">
+        <div class="grid g2">
+          <div class="card phone-card">
+            <div class="call-head">
+              <div class="call-ava" data-icon="phone"></div>
+              <div class="grow"><b id="callerId">Входящий звонок · +7 727 *** ** 41</b><div class="small muted" id="callStatus">NEXUS слушает звонящего и предупредит до просьбы кода</div></div>
+              <span class="mono call-timer" id="callTimer">00:00</span>
+            </div>
+            <div id="bankCallShield" class="hidden"></div>
+            <div class="call-alert hidden" id="callAlert"></div>
+            <div class="transcript" id="transcript"><div class="empty"><div class="empty-ic" data-icon="phone"></div><b>Здесь появится текст звонка</b><p class="small mt-s">Запустите демо-звонок «службы безопасности банка» или сыграйте мошенника сами. NEXUS предупредит до того, как у вас попросят код из SMS.</p></div></div>
+            <div class="row wrap mt">
+              <button class="btn primary" id="shieldDemo" type="button" data-icon="play">Демо: звонок мошенника</button>
+              <button class="btn ghost" id="shieldMic" type="button" data-icon="mic" data-needs-consent>Говорить самому</button>
+              <button class="btn" id="shieldStop" type="button" disabled>Завершить</button>
+            </div>
+            <details class="more mt-s"><summary>Как это работает в прототипе</summary><div class="more-b"><p class="tiny muted">Речь распознаёт браузер (Chrome или Edge): нужны HTTPS или localhost, микрофон и интернет. Демо-звонок работает везде, в том числе без сети. В продукте распознавание идёт на телефоне, аудио не сохраняется.</p></div></details>
+          </div>
+          <div class="col gap-l">
+            <div class="card call-verdict">
+              <div class="row gap-l">
+                <div class="gauge sm" id="shieldGauge"></div>
+                <div class="col gap-s grow"><h3 id="shieldVerdict">Звонок не начат</h3><p class="small muted" id="shieldSub">NEXUS оценивает звонок после каждой фразы</p></div>
+              </div>
+            </div>
+            <div class="card mp-card" id="manipCard">
+              <div class="card-h"><h3>Как действует мошенник</h3></div>
+              <div id="manipPanel" aria-live="polite"></div>
+            </div>
+            <div class="card">
+              <div class="card-h"><h3>Что услышал NEXUS</h3></div>
+              <ul class="reasons" id="shieldReasons"><li class="muted">Пока ничего подозрительного</li></ul>
+              <div id="shieldIocs" class="mt"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ РОБОТ-ПРИМАНКА (скрытый вид: из «Звонка» и Stage.goto('decoy')) ============ -->
+      <section class="view" id="view-decoy">
+        <div class="card mb">
+          <div class="row wrap between gap-l">
+            <div class="grow" style="min-width:240px">
+              <h3 style="font-size:18px">Робот-приманка</h3>
+              <p class="small muted mt-s">Вы положили трубку, а мошенник говорит с роботом банка. Робот тянет время и узнаёт, куда мошенник просит перевести деньги.</p>
+            </div>
+            <button class="btn primary" id="decoyStart" type="button" data-icon="target">Передать звонок роботу</button>
+          </div>
+        </div>
+        <div class="grid g-main">
+          <div class="card messenger">
+            <div class="row between wrap" style="padding-bottom:10px;border-bottom:1px solid var(--line)">
+              <div class="row gap-s"><span class="mini-ava scam" data-icon="alert"></span><div><b class="small">Мошенник</b><div class="tiny muted">«служба безопасности банка»</div></div></div>
+              <span class="muted decoy-vs" aria-hidden="true"><svg class="nx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span>
+              <div class="row gap-s"><div style="text-align:right"><b class="small">Робот-приманка</b><div class="tiny muted">номер-ловушка банка</div></div><span class="mini-ava decoy" data-icon="target"></span></div>
+            </div>
+            <div class="chat-log" id="decoyLog"><div class="empty"><div class="empty-ic" data-icon="target"></div><b>Сыграйте мошенника</b><p class="small mt-s">Пишите реплики за звонящего — робот ответит и выяснит реквизиты. Робот не знает ваших данных, не совершает операций и не называет цифр.</p></div></div>
+            <div class="row between tiny muted" style="padding-top:8px"><span id="decoyEngine">Движок: —</span><span id="decoyState">ожидание</span></div>
+          </div>
+          <div class="col gap-l">
+            <div class="card">
+              <div class="kpi"><div class="label">Время мошенника на роботе · оценка</div><div class="value" id="decoyTime" style="font-size:34px">0 мин</div><div class="delta muted" id="decoyMsgs">0 сообщений</div></div>
+            </div>
+            <div class="card">
+              <div class="card-h"><h3>Реквизиты мошенника</h3><span class="badge high plain" id="decoyIocCount">0</span></div>
+              <div class="col gap-s" id="decoyIocs"><p class="small muted">Реквизиты появятся здесь, как только мошенник их назовёт.</p></div>
+            </div>
+            <div id="decoyResult"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ПЛАТЕЖИ → ПРОВЕРИТЬ ============ -->
+      <section class="view" id="view-scam">
+        <div class="grid g2">
+          <div class="card">
+            <div class="tabs mb" id="scamTabs">
+              <button class="tab active" type="button" data-tab="text">Сообщение</button>
+              <button class="tab" type="button" data-tab="url">Ссылка</button>
+              <button class="tab" type="button" data-tab="img">Картинка</button>
+            </div>
+            <div data-pane="text">
+              <div class="field"><label for="scamText">Вставьте текст сообщения</label><textarea class="input" id="scamText" rows="6" placeholder="Вставьте текст SMS, сообщения в мессенджере или письма…"></textarea></div>
+              <div class="row wrap gap-s mt-s" id="scamExamples"></div>
+              <button class="btn primary mt" id="scanTextBtn" type="button" data-icon="search">Проверить сообщение</button>
+            </div>
+            <div data-pane="url" class="hidden">
+              <div class="field"><label for="scamUrl">Адрес ссылки</label><input class="input mono" id="scamUrl" placeholder="https://…"></div>
+              <div class="row wrap gap-s mt-s">
+                <button class="chip" type="button" data-url="secure-bank-kz.test/login">secure-bank-kz.test/login</button>
+                <button class="chip" type="button" data-url="https://demobank-bonus.test/prize">demobank-bonus.test/prize</button>
+                <button class="chip" type="button" data-url="bit.ly/3xQwErT">bit.ly/3xQwErT</button>
+                <button class="chip" type="button" data-url="https://egov.kz">egov.kz</button>
+                <button class="chip" type="button" data-url="http://203.0.113.14/egov-refund">203.0.113.14/egov-refund</button>
+              </div>
+              <p class="tiny muted mt-s">Адреса в зоне .test и 203.0.113.x — вымышленные примеры.</p>
+              <button class="btn primary mt" id="scanUrlBtn" type="button" data-icon="link">Проверить ссылку</button>
+            </div>
+            <div data-pane="img" class="hidden">
+              <label class="drop" id="shotDrop"><input type="file" accept="image/*" id="shotFile" hidden><div data-icon="image"></div><div><b>Скриншот переписки</b></div><div class="small">Текст распознаётся прямо в браузере</div></label>
+              <label class="drop mt" id="qrDrop"><input type="file" accept="image/*" id="qrFile" hidden><div data-icon="qr"></div><div><b>Фото QR-кода</b></div><div class="small">или перетащите изображение сюда</div></label>
+              <div class="row wrap gap-s mt-s"><button class="btn sm" id="qrDemoBtn" type="button">Тестовый QR мошенников</button></div>
+              <canvas id="qrCanvas" class="hidden mt" style="max-height:220px;border-radius:12px"></canvas>
+              <div class="mt-s small muted" id="ocrStatus"></div>
+              <img id="shotPreview" class="hidden mt" style="max-width:100%;max-height:240px;border-radius:12px" alt="">
+            </div>
+          </div>
+          <div class="card" id="scamResult">
+            <div class="empty"><div class="empty-ic" data-icon="shield"></div><b>Здесь появится ответ</b><p class="small mt-s">NEXUS ищет приёмы мошенников (на русском и казахском), поддельные ссылки и реквизиты, которые уже известны банку.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ПЛАТЕЖИ → ПЕРЕВОД / ПОКУПКА У ЧАСТНОГО ЛИЦА ============ -->
+      <section class="view" id="view-transfer">
+        <!-- «Покупка у частного лица» — safe-deal.js → NX.SafeDeal (переключатель — в #secNav) -->
+        <div id="sdView" class="hidden"></div>
+        <div class="grid g2" id="trNormal">
+          <div class="col gap-l">
+          <div class="card">
+            <div class="card-h"><h3>Новый перевод</h3><span class="hint">Баланс: <b id="trBalance"></b></span></div>
+            <form id="trForm" class="col" autocomplete="off">
+              <div class="field"><label for="trRecipient">Получатель</label><select class="input" id="trRecipient"></select></div>
+              <div class="field" id="trAccountWrap"><label for="trAccount">Номер телефона, карта или IBAN</label><input class="input mono" id="trAccount" placeholder="+7 7__ ___ __ __ или KZ…"></div>
+              <div class="row wrap gap-s" id="trMuleHints"></div>
+              <div class="field"><label for="trAmount">Сумма, ₸</label><input class="input" id="trAmount" inputmode="numeric" placeholder="0"></div>
+              <div class="field"><label for="trPurpose">Назначение (необязательно)</label><input class="input" id="trPurpose" placeholder="Например: за ужин"></div>
+              <input type="checkbox" id="trCall" hidden aria-hidden="true" tabindex="-1">
+              <div class="row wrap gap-s tr-call" id="trCallChip"></div>
+              <label class="check"><input type="checkbox" id="trThird">Перевод делаю по просьбе другого человека</label>
+              <button class="btn primary block" type="submit" data-icon="send">Перевести</button>
+            </form>
+          </div>
+          </div>
+          <div class="col gap-l">
+            <div class="card" id="trPanel">
+              <div id="trRisk"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ПРАВИЛА → ПРАВИЛА ============ -->
+      <section class="view" id="view-constitution">
+        <div class="cx-layout">
+          <div class="cx-main">
+            <article class="cx-doc" id="cxDoc" aria-labelledby="cxDocTitle"></article>
+            <div id="cxPending"></div>
+            <div class="cx-articles" id="cxArticles" aria-label="Мои правила"></div>
+            <div class="card cx-crash" id="cxCrash"></div>
+            <details class="more cx-more" id="cxMore">
+              <summary>Ещё: свои правила, голос, история</summary>
+              <div class="more-b col gap-l">
+                <div class="card cx-nl" id="cxNl">
+                  <div class="card-h"><h3>Правило своими словами</h3></div>
+                  <form class="cx-nl-form" id="cxNlForm" autocomplete="off">
+                    <label class="sr-only" for="cxNlInput">Новое правило</label>
+                    <input class="input" id="cxNlInput" maxlength="200" placeholder="Например: не переводить больше 50 тысяч ночью">
+                    <button class="btn" type="submit" data-icon="search">Разобрать</button>
+                  </form>
+                  <div class="row wrap gap-s mt-s" id="cxNlExamples"></div>
+                  <div id="cxNlPreview" aria-live="polite"></div>
+                </div>
+                <div class="card cx-anchor-card" id="cxAnchor"></div>
+                <div class="card" id="cxProtectCard"></div>
+                <div class="card">
+                  <div class="card-h"><h3>История изменений</h3><span class="hint" id="cxHistHint"></span></div>
+                  <div class="timeline cx-history" id="cxHistory"></div>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ПРАВИЛА → КРЕДИТЫ (credit-lock.js → NX.CreditLock.renderClient) ============ -->
+      <section class="view" id="view-credit"></section>
+
+      <!-- ============ ПРАВИЛА → БЛИЗКИЕ ============ -->
+      <section class="view" id="view-family">
+        <div class="grid g-main">
+          <div class="col gap-l">
+            <div class="card tc-card"><div class="card-h"><h3>Запросы на проверку</h3><button class="btn sm primary" id="famSimBtn" type="button" data-icon="play">Демо: маме звонит мошенник</button></div><div id="tcRequests" aria-live="polite"></div></div>
+            <div class="card" id="cxGuardian"></div>
+            <div class="card"><div class="card-h"><h3>Кого защищаю я</h3><button class="btn sm" id="addMemberBtn" type="button">+ Добавить</button></div><div class="col" id="familyList"></div></div>
+            <details class="more"><summary>Журнал и памятка</summary><div class="more-b col gap-l">
+              <div class="card"><div class="card-h"><h3>Журнал</h3></div><div class="timeline" id="famFeed"></div></div>
+              <div class="card">
+                <div class="card-h"><h3>Памятка для родителей</h3></div>
+                <ol class="small memo">
+                  <li>Банк никогда не просит назвать код из SMS.</li>
+                  <li>«Безопасного счёта» не существует.</li>
+                  <li>Если звонят «из полиции» или «из банка» — положите трубку и перезвоните сами по номеру на карте.</li>
+                  <li>Родственник с «нового номера» просит деньги — позвоните ему на старый номер.</li>
+                  <li>Не устанавливайте приложения по просьбе звонящего.</li>
+                </ol>
+              </div>
+            </div></details>
+          </div>
+          <div class="col gap-l">
+            <div class="card">
+              <div class="card-h"><h3>Как это работает</h3></div>
+              <div class="feat">Близкий получает не просто уведомление, а <b>запрос на проверку</b>: «Маме звонит предполагаемый мошенник, она пытается отправить ≈350 000 ₸ новому получателю»</div>
+              <div class="feat">Два ответа: «Нужна проверка — задержать» или «Всё в порядке — я рядом»</div>
+              <div class="feat">Реквизиты, баланс и история операций близкому не видны. Распоряжаться деньгами он не может</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ПРАВИЛА → КАРТЫ (leak-radar.js → NX.LeakRadar.renderClient) ============ -->
+      <section class="view" id="view-leak"></section>
+
+      <!-- ============ ПОМОЩЬ: «Меня обманули — заблокировать всё» ============ -->
+      <section class="view" id="view-helpsos">
+        <div class="em-mount" id="emergencyMount" aria-label="Заблокировать всё"></div>
+      </section>
+
+      <!-- ============ ПОМОЩЬ → заявление «Меня обманули» (rescue.js → NX.SafeReturn.render) ============ -->
+      <section class="view" id="view-recover"></section>
+
+      <!-- ============ ПОМОЩЬ → ПРОВЕРКА ЗАЩИТЫ ============ -->
+      <section class="view" id="view-security">
+        <div class="grid g2">
+          <div class="col gap-l">
+            <div class="card sec-score" id="secScore"></div>
+          </div>
+          <div class="col gap-l">
+            <div class="card">
+              <div class="card-h"><h3>Устройства и сеансы</h3><button class="btn sm danger" id="killSessions" type="button">Завершить другие сеансы</button></div>
+              <div class="list" id="devList"></div>
+              <details class="more mt-s"><summary>Сигналы этого устройства</summary><div class="more-b"><div id="devCheck"></div><button class="btn sm mt-s" id="devCheckBtn" type="button" data-icon="search">Проверить ещё раз</button></div></details>
+            </div>
+            <div class="card">
+              <div class="card-h"><h3>Карта</h3></div>
+              <div class="row between"><div><b id="secCardNum"></b><div class="small muted" id="secCardState"></div></div><button class="btn" id="cardToggle" type="button"></button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ПОМОЩЬ → подработка с картой и «Спросить NEXUS» ============ -->
+      <section class="view" id="view-helpmore">
+        <div class="grid g2">
+          <div id="muleEntryMount"></div>
+          <div class="card std">
+            <div class="card-h"><h3>Спросить NEXUS</h3></div>
+            <p class="small muted">Почему перевод задержали, что делать, если звонят «из банка», и проверка сообщения прямо в чате.</p>
+            <div class="card-f"><button class="btn" type="button" data-goto="banker" data-icon="chat">Открыть чат</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ГОЛОС: эксперимент (только ?full=1) ============ -->
+      <section class="view" id="view-voice">
+        <div class="notice warn mb exp-notice"><b>Экспериментальный индикатор, не доказательство мошенничества.</b> Он показывает признаки, похожие на синтез речи. Одного этого сигнала недостаточно, чтобы задержать перевод.</div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="card-h"><h3>Источник аудио</h3></div>
+            <label class="drop" id="voiceDrop"><input type="file" accept="audio/*,video/*" id="voiceFile" hidden><div data-icon="upload"></div><div><b>Загрузите запись звонка или голосового</b></div><div class="small">MP3, WAV, OGG, M4A, WEBM</div></label>
+            <div class="row wrap mt">
+              <button class="btn" id="recBtn" type="button" data-icon="mic">Записать с микрофона</button>
+              <button class="btn sm" id="sampleHuman" type="button">Эталон: живая речь</button>
+              <button class="btn sm" id="sampleAI" type="button">Эталон: похоже на синтез</button>
+            </div>
+            <div class="mt"><canvas id="waveCanvas" height="110" style="width:100%;height:110px;background:var(--bg2);border-radius:12px"></canvas></div>
+            <div class="mt-s"><canvas id="specCanvas" height="130" style="width:100%;height:130px;background:var(--bg2);border-radius:12px"></canvas></div>
+            <div class="row between mt-s small muted"><span>Волна / спектрограмма</span><span id="voiceMeta"></span></div>
+            <audio id="voiceAudio" controls class="hidden mt" style="width:100%"></audio>
+          </div>
+          <div class="card" id="voiceResult">
+            <div class="empty"><div class="empty-ic" data-icon="mic"></div><b>Загрузите аудио для анализа</b><p class="small mt-s">Это эвристика для прототипа, а не обученный детектор; эталоны — синтетические сигналы.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ФИНАНСЫ (только ?full=1) ============ -->
+      <section class="view" id="view-finance">
+        <div class="grid g4 mb" id="finKpis"></div>
+        <div class="grid g-main">
+          <div class="col gap-l">
+            <div class="card"><div class="card-h"><h3>Доходы и расходы по месяцам</h3><div class="legend"><span><i style="background:var(--ok)"></i>Доход</span><span><i style="background:var(--accent2)"></i>Расход</span></div></div><div id="finBars"></div></div>
+            <div class="card"><div class="card-h"><h3>Подсказки</h3></div><div class="list" id="finInsights"></div></div>
+            <div class="card"><div class="card-h"><h3>Операции</h3><select class="input" id="finFilter" style="width:auto;padding:6px 34px 6px 10px"></select></div><div class="list" id="finTx" style="max-height:420px;overflow:auto"></div></div>
+          </div>
+          <div class="col gap-l">
+            <div class="card"><div class="card-h"><h3>Структура расходов · 30 дней</h3></div><div id="finDonut"></div></div>
+            <div class="card"><div class="card-h"><h3>Подписки</h3><span class="hint" id="subTotal"></span></div><div class="list" id="finSubs"></div></div>
+            <div class="card"><div class="card-h"><h3>Цель накоплений</h3></div><div id="finGoal"></div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<!-- «Не стань дропом»: лист поверх кабинета (mule-exit.js), не пункт меню -->
+<div class="sheet mx-sheet" id="view-mule" hidden></div>
+<div id="toasts"></div>
+<div class="modal" id="modal"></div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/ui-kit.js"></script>
+<script src="assets/data/voice-manifest.js"></script>
+<script src="assets/js/tts.js"></script>
+<script src="assets/js/constitution.js"></script>
+<script src="assets/js/manip.js"></script>
+<script src="assets/js/dna.js"></script>
+<script src="assets/js/voice.js"></script>
+<script src="assets/js/rescue.js"></script>
+<script src="assets/js/client.js"></script>
+<script src="assets/vendor/qrcode.js"></script>
+<script src="assets/js/relay.js"></script>
+<script src="assets/js/client-phone.js"></script>
+<script src="assets/js/decoy-engine.js"></script>
+<script src="assets/js/shield.js"></script>
+<script src="assets/js/leak-radar.js"></script>
+<script src="assets/js/safe-deal.js"></script>
+<script src="assets/js/mule-exit.js"></script>
+<script src="assets/js/credit-lock.js"></script>
+</body>
+</html>

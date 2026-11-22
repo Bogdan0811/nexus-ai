@@ -1,0 +1,46 @@
+/* NEXUS AI — «Кредитный замок» (credit-lock.js). Токены из style.css, без анимаций появления. */
+
+/* «Правила → Кредиты» */
+.cl-wrap { display: flex; flex-direction: column; gap: var(--s-5); max-width: 760px; }
+.cl-card .seg { margin-top: var(--s-4); max-width: 100%; }
+.cl-card .seg button { white-space: normal; }
+.cl-rule { margin: var(--s-2) 0 0; }
+.cl-lead { display: flex; align-items: flex-start; gap: var(--s-2); margin: var(--s-4) 0 0; font-size: var(--fs-md); line-height: var(--lh-text); }
+.cl-lead.on { font-weight: 600; }
+.cl-lead.on svg { flex: none; margin-top: 3px; color: var(--ok-ink); }
+.cl-card .notice { margin-top: var(--s-3); }
+.notice.cl-ok { background: var(--ok-soft); border-color: var(--ok-line, var(--line)); }
+.cl-card .card-f, .cl-feed .card-f { margin-top: var(--s-4); }
+.cl-card .card-f .btn, .cl-feed .card-f .btn { white-space: normal; }
+
+/* лента заявок */
+.cl-list { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: flex; flex-direction: column; }
+.cl-list li { display: grid; grid-template-columns: 1fr auto auto; gap: var(--s-3); align-items: center; padding: var(--s-2) 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.cl-list li:last-child { border-bottom: 0; }
+.cl-l { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.cl-a { white-space: nowrap; }
+.cl-reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+.cl-reasons li { position: relative; padding-left: 20px; font-size: var(--fs-sm); line-height: var(--lh-text); overflow-wrap: anywhere; }
+.cl-reasons li::before { content: ''; position: absolute; left: 4px; top: .55em; width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+@media (max-width: 560px) {
+  .cl-list li { grid-template-columns: 1fr auto; }
+  .cl-list li .badge { grid-column: 1 / -1; justify-self: start; }
+}
+
+/* окно «Это вы?» (каркас .sheet / .sheet-box из style.css; на ≤560px — во весь экран, кнопки внизу) */
+.cl-sheet[hidden] { display: none; }
+.cl-sheet.open { z-index: 210; } /* поверх тостов */
+.cl-box .sheet-b { display: flex; flex-direction: column; gap: var(--s-3); }
+.cl-box p { margin: 0; }
+.cl-state { display: flex; align-items: flex-start; gap: var(--s-2); padding: var(--s-3); border-radius: 12px; font-weight: 600; }
+.cl-state svg { flex: none; margin-top: 2px; }
+.cl-state.frozen { background: var(--ok-soft); border: 1px solid var(--ok-line, var(--line)); }
+.cl-state.frozen svg { color: var(--ok-ink); }
+.cl-state.held { background: var(--warn-soft); border: 1px solid var(--warn-line); }
+.cl-state.held svg { color: var(--warn-ink); }
+.cl-final { padding: var(--s-3); border-radius: 12px; background: var(--ok-soft); border: 1px solid var(--ok-line, var(--line)); }
+.cl-apps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cl-apps li { display: grid; grid-template-columns: auto 1fr auto; gap: var(--s-2); align-items: baseline; min-width: 0; }
+
+/* банк: карточка инцидента */
+.cl-h4 { font-size: 13px; display: flex; align-items: center; gap: 6px; }

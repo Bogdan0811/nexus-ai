@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070D">
+<title>NEXUS AI — телефон Ерлана</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Inter:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  body { background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; font-family: Inter, Arial, sans-serif; }
+  .ph { max-width: 460px; margin: 0 auto; padding: 20px 16px calc(28px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 16px; min-height: 100vh; box-sizing: border-box; }
+  .ph-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .ph-brand { display: flex; align-items: center; gap: 10px; }
+  .ph-logo { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-solid); color: #fff; display: grid; place-items: center; font-family: Unbounded, Arial, sans-serif; font-weight: 700; }
+  .ph-dot { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .ph-dot i { width: 9px; height: 9px; border-radius: 50%; background: var(--warn); display: inline-block; }
+  .ph-dot.on i { background: var(--ok); }
+  .ph-card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+  .ph-card h1 { font-family: Unbounded, Arial, sans-serif; font-size: 22px; line-height: 1.25; margin: 0; }
+  .ph-card p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; }
+  .ph-card.alert { border-color: var(--danger); background: var(--danger-soft, rgba(255,84,112,.12)); }
+  .ph-card.good { border-color: var(--ok); }
+  .ph-big { font-family: Unbounded, Arial, sans-serif; font-size: 34px; font-weight: 700; color: var(--text); }
+  .ph-btn { min-height: 56px; border-radius: 14px; border: 1px solid var(--line2); background: var(--panel2); color: var(--text); font-size: 17px; font-weight: 700; cursor: pointer; width: 100%; }
+  .ph-btn.primary { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .ph-btn.go { background: var(--accent-solid); border-color: var(--accent-solid); color: #fff; }
+  .ph-btn:focus-visible { outline: 2px solid var(--focus, #818CF8); outline-offset: 2px; }
+  .ph-foot { margin-top: auto; font-size: 12px; color: var(--muted2); text-align: center; line-height: 1.5; }
+  .ph-ring { animation: ring 1s ease-in-out infinite; }
+  @keyframes ring { 0%,100% { transform: none; } 20% { transform: rotate(-3deg); } 40% { transform: rotate(3deg); } 60% { transform: rotate(-2deg); } }
+  @media (prefers-reduced-motion: reduce) { .ph-ring { animation: none; } }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main class="ph">
+  <div class="ph-top">
+    <div class="ph-brand"><div class="ph-logo">N</div><div><b>NEXUS AI</b><div class="ph-dot" id="dot"><i></i><span id="dotTxt">подключаемся…</span></div></div></div>
+  </div>
+
+  <section class="ph-card" id="vJoin">
+    <h1>Вы — Ерлан, сын Сауле-апа</h1>
+    <p>Держите телефон в руке и смотрите на экран. Если маме позвонит мошенник, запрос придёт сюда.</p>
+  </section>
+
+  <section class="ph-card hidden" id="vWait">
+    <h1>Ждём…</h1>
+    <p>Держите телефон в руке. Смотрите на экран сцены: сейчас маме позвонит «служба безопасности банка».</p>
+  </section>
+
+  <section class="ph-card alert hidden ph-ring" id="vReq">
+    <h1>Ерлан, маме звонит мошенник?</h1>
+    <div class="ph-big" id="reqAmt">≈ 380 тыс ₸</div>
+    <p>Мама переводит деньги новому получателю прямо во время звонка. NEXUS задержал перевод и ждёт вашего ответа.</p>
+    <button class="ph-btn primary" id="ansCheck" type="button">Остановить перевод</button>
+    <button class="ph-btn" id="ansOk" type="button">Всё в порядке, я рядом</button>
+  </section>
+
+  <section class="ph-card good hidden" id="vDone">
+    <h1 id="doneH">Перевод остановлен</h1>
+    <p id="doneP">Деньги мамы остались на её счёте. Банк проверит получателя.</p>
+  </section>
+
+  <p class="ph-foot">Демо проекта NEXUS AI · концепт команды, не продукт банка · все данные синтетические.<br>Комната: <span id="roomId">—</span></p>
+</main>
+<script src="assets/js/relay.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var qs = new URLSearchParams(location.search);
+  var room = (qs.get('room') || '').toLowerCase();
+  // кто держит телефон: по умолчанию Ерлан (сцена), who=aigerim — дочь Гульнары-апа (кабинет клиента)
+  if (qs.get('who') === 'aigerim') {
+    document.title = 'NEXUS AI — телефон Айгерим';
+    document.querySelector('#vJoin h1').textContent = 'Вы — Айгерим, дочь Гульнары-апа';
+    document.querySelector('#vReq h1').textContent = 'Айгерим, маме звонит мошенник?';
+  }
+  $('roomId').textContent = room || 'нет';
+  var views = ['vJoin', 'vWait', 'vReq', 'vDone'];
+  function show(v) { views.forEach(function (x) { $(x).classList.toggle('hidden', x !== v); }); }
+  if (!/^[a-z0-9]{6,24}$/.test(room)) { $('dotTxt').textContent = 'нет комнаты — отсканируйте QR со сцены'; return; }
+
+  var R = NX.Relay.join(room, 'phone');
+  var ready = false, audioCtx = null, reqId = null;
+  function setDot() {
+    var on = R.mode === 'php' || R.mode === 'ntfy';
+    $('dot').classList.toggle('on', on);
+    $('dotTxt').textContent = on ? 'связь со сценой есть' : (R.mode === 'offline' ? 'нет связи' : 'подключаемся…');
+  }
+  var dotT = setInterval(setDot, 700);
+  function beep() {
+    try {
+      if (!audioCtx) return;
+      [0, 0.35, 0.7].forEach(function (d) {
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.value = 880; g.gain.value = 0.0001;
+        o.connect(g); g.connect(audioCtx.destination);
+        var t = audioCtx.currentTime + d;
+        g.gain.exponentialRampToValueAtTime(0.25, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+        o.start(t); o.stop(t + 0.3);
+      });
+    } catch (e) { /* без звука */ }
+  }
+  // подключаемся сразу, без кнопок; звук браузер разрешит после первого касания экрана
+  ready = true;
+  R.send({ type: 'hello' });
+  function unlock() {
+    try { if (!audioCtx) { var AC = window.AudioContext || window.webkitAudioContext; if (AC) audioCtx = new AC(); } if (audioCtx) audioCtx.resume(); } catch (e) { /* без звука */ }
+  }
+  document.addEventListener('pointerdown', unlock, { passive: true });
+  function answer(v) {
+    if (!reqId) return;
+    R.send({ type: 'answer', v: v, req: reqId });
+    reqId = null;
+    $('doneH').textContent = v === 'check' ? 'Перевод остановлен' : 'Ответ отправлен';
+    $('doneP').textContent = v === 'check' ? 'Деньги мамы остались на её счёте. Банк проверит получателя.' : 'Вы сказали, что вы рядом. Решение всё равно за банком: получатель в стоп-листе.';
+    show('vDone');
+  }
+  $('ansCheck').addEventListener('click', function () { answer('check'); });
+  $('ansOk').addEventListener('click', function () { answer('ok'); });
+  R.on(function (m) {
+    if (!m || !m.type) return;
+    if (m.type === 'request') {
+      reqId = m.req || 'r';
+      if (m.amountText) $('reqAmt').textContent = m.amountText;
+      show('vReq');
+      beep();
+      try { if (navigator.vibrate) navigator.vibrate([400, 150, 400, 150, 600]); } catch (e) { /* нет вибро */ }
+    } else if (m.type === 'answered') {
+      // на сцене ответили раньше (ведущий или автопилот)
+      if (reqId) { reqId = null; $('doneH').textContent = 'Ответ уже дан'; $('doneP').textContent = m.text || 'Перевод остаётся удержанным.'; show('vDone'); }
+    } else if (m.type === 'reset') {
+      reqId = null; show('vJoin');
+    } else if (m.type === 'saved') {
+      $('doneP').textContent = m.text || $('doneP').textContent;
+    } else if (m.type === 'ping' && ready) {
+      R.send({ type: 'hello' });
+    }
+  });
+  window.addEventListener('pagehide', function () { clearInterval(dotT); R.close(); });
+})();
+</script>
+</body>
+</html>

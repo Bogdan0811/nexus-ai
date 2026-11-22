@@ -1,0 +1,1116 @@
+/* =====================================================================
+   NEXUS AI — сцена для жюри (stage.html)
+   Идея дизайна: тёмный «зал» в единой тёмной дизайн-системе (как все страницы:
+   фон body — общий --bg с общим индиго/фиолетовым свечением из style.css),
+   в нём два мира рядом — телефон клиентки (тёмный экран клиента, рамка устройства)
+   и окно консоли Fraud Fusion Center банка. Все цвета — токены :root из style.css
+   (var(--…)), без собственных тем; оттенки с прозрачностью — color-mix() от тех же токенов.
+   1) Страница сцены — всё под html.nx-stage-host (размеры в rem, rem = 16px × --stage-scale)
+   2) Встроенные страницы — html.nx-stage-frame (stage.js подключает этот файл в iframe
+      и ставит классы nx-stage-frame + nx-stage-client / nx-stage-bank, на мобильном — nx-stage-mobile)
+   Цели: 1366×768, 1920×1080, масштаб Windows 125% (≈1093×615) без горизонтального скролла;
+   ≤ 900px — вертикальная раскладка (степпер, вкладки «Телефон / Банк», одна панель).
+   Инновации в банкинге и кибербезопасность · концепт команды, не продукт банка-организатора.
+   ===================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 1. Страница сцены                                                   */
+/* ------------------------------------------------------------------ */
+html.nx-stage-host {
+  /* цвета, шрифты, радиусы и тени — общие токены :root (style.css), без переопределений */
+  --stage-scale: 1;
+  --top-h: 3.7rem;
+  --gap: 0.75rem;
+  --phone-w: 330px;
+  --mid-w: 19.5rem;
+  /* рамки семантических оттенков — производные общих токенов (без своих цветов) */
+  --st-tint-ok: color-mix(in srgb, var(--ok) 34%, transparent);
+  --st-tint-warn: color-mix(in srgb, var(--warn) 34%, transparent);
+  --st-tint-bad: color-mix(in srgb, var(--danger) 34%, transparent);
+  --st-tint-accent: color-mix(in srgb, var(--accent) 38%, transparent);
+  --st-tint-violet: color-mix(in srgb, var(--accent2) 38%, transparent);
+  --st-tint-cyan: color-mix(in srgb, var(--accent3) 34%, transparent);
+  /* физическая рамка устройства и «остров» — единственное, что отличается от UI */
+  --st-bezel: color-mix(in srgb, var(--bg) 70%, black);
+  --st-hi: color-mix(in srgb, var(--text) 6%, transparent);
+  --sb-h: 1.75rem;
+  font-size: calc(16px * var(--stage-scale));
+  height: 100%;
+  overflow: hidden;
+  color-scheme: dark;
+}
+/* фон зала — общий body из style.css (--bg + общее свечение), здесь не переопределяется */
+html.nx-stage-host body.st-body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font);
+  font-size: 0.875rem;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+html.nx-stage-host .st-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html.nx-stage-host .mono { font-family: var(--mono); }
+html.nx-stage-host ::selection { background: var(--accent-soft2); color: var(--text); }
+
+/* кнопки и бейджи сцены — те же, что во всей системе */
+html.nx-stage-host .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  font: 600 0.82rem/1.2 var(--font); padding: 0.55rem 0.95rem; border-radius: 999px;
+  background: var(--panel); border: 1px solid var(--line2); color: var(--text); box-shadow: var(--shadow-sm);
+  cursor: pointer; transition: background 0.18s, border-color 0.18s, transform 0.12s, box-shadow 0.18s;
+  text-decoration: none; white-space: nowrap;
+}
+html.nx-stage-host .btn:hover { background: var(--panel2); border-color: var(--line3); }
+html.nx-stage-host .btn:active { transform: translateY(1px); }
+html.nx-stage-host .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+html.nx-stage-host .btn.primary { background: var(--accent-solid); background-image: linear-gradient(180deg, color-mix(in srgb, var(--on-accent) 14%, transparent), transparent); border-color: transparent; color: var(--on-accent); box-shadow: var(--shadow-accent); }
+html.nx-stage-host .btn.primary:hover { filter: brightness(1.07); background-color: var(--accent-solid); }
+html.nx-stage-host .btn.ghost { background: transparent; box-shadow: none; }
+html.nx-stage-host .btn.ghost:hover { background: var(--hover); }
+html.nx-stage-host .btn.danger { background: var(--danger-soft); border-color: var(--st-tint-bad); color: var(--danger-ink); }
+html.nx-stage-host .btn.sm { font-size: 0.75rem; padding: 0.38rem 0.75rem; }
+html.nx-stage-host .btn.block { width: 100%; }
+html.nx-stage-host .btn svg { width: 1rem; height: 1rem; }
+html.nx-stage-host .btn:focus-visible, html.nx-stage-host .st-tool:focus-visible, html.nx-stage-host .st-step:focus-visible, html.nx-stage-host .st-mtab:focus-visible, html.nx-stage-host .st-mbar-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+html.nx-stage-host .badge { font-size: 0.7rem; }
+
+/* справка и тосты — общие тёмные поверхности системы */
+html.nx-stage-host .modal { background: var(--scrim); backdrop-filter: blur(6px); }
+html.nx-stage-host .modal-box { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 1.4rem; box-shadow: var(--shadow-lg); }
+html.nx-stage-host .modal-box h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+html.nx-stage-host .toast { background: var(--panel); color: var(--text); border: 1px solid var(--line); box-shadow: var(--shadow); }
+html.nx-stage-host .muted { color: var(--muted); }
+
+/* ---------- верхняя панель ---------- */
+html.nx-stage-host .st-top {
+  height: var(--top-h);
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0 0.95rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--topbar-bg);
+  backdrop-filter: blur(14px) saturate(140%);
+  position: relative; z-index: 20;
+}
+html.nx-stage-host .st-brand { display: flex; align-items: center; gap: 0.6rem; color: var(--ink); text-decoration: none; flex: none; }
+html.nx-stage-host .st-logo {
+  width: 2.1rem; height: 2.1rem; border-radius: 0.7rem; background: var(--grad); color: var(--on-accent);
+  display: grid; place-items: center; font: 700 1rem/1 var(--display);
+  box-shadow: var(--shadow-accent);
+}
+html.nx-stage-host .st-brand-t { display: flex; flex-direction: column; line-height: 1.15; }
+html.nx-stage-host .st-brand-t b { font: 600 0.9rem/1.1 var(--display); letter-spacing: 0.02em; }
+html.nx-stage-host .st-brand-t b i { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+html.nx-stage-host .st-brand-t small { font-size: 0.64rem; color: var(--muted); letter-spacing: 0.01em; }
+
+html.nx-stage-host .st-stepper { flex: 1; min-width: 0; display: flex; gap: 0.3rem; align-items: center; justify-content: center; }
+html.nx-stage-host .st-step {
+  display: inline-flex; align-items: center; gap: 0.42rem; min-width: 0;
+  border: 1px solid var(--line); background: var(--panel); color: var(--muted);
+  border-radius: 999px; padding: 0.26rem 0.7rem 0.26rem 0.28rem; cursor: pointer;
+  font: 500 0.75rem/1.2 var(--font); white-space: nowrap; transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+html.nx-stage-host .st-step:hover { color: var(--text); border-color: var(--line2); background: var(--panel2); }
+html.nx-stage-host .st-step .n { width: 1.4rem; height: 1.4rem; border-radius: 50%; display: grid; place-items: center; background: var(--panel3); color: var(--text); font: 600 0.68rem/1 var(--display); flex: none; }
+html.nx-stage-host .st-step.done { color: var(--text); }
+html.nx-stage-host .st-step.done .n { background: var(--ok-soft); color: var(--ok-ink); }
+html.nx-stage-host .st-step.active { color: var(--on-accent); background: var(--grad); border-color: transparent; font-weight: 650; box-shadow: var(--shadow-accent); }
+html.nx-stage-host .st-step.active .n { background: color-mix(in srgb, var(--on-accent) 24%, transparent); color: var(--on-accent); }
+html.nx-stage-host .st-step .lbl { overflow: hidden; text-overflow: ellipsis; }
+
+html.nx-stage-host .st-status { display: flex; gap: 0.35rem; flex: none; }
+html.nx-stage-host .st-chip {
+  display: inline-flex; align-items: center; gap: 0.38rem; white-space: nowrap;
+  font-size: 0.68rem; padding: 0.26rem 0.6rem; border-radius: 999px;
+  border: 1px solid var(--line2); color: var(--muted); background: var(--panel);
+}
+html.nx-stage-host .st-chip::before { content: ''; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--muted2); flex: none; }
+html.nx-stage-host .st-chip.ok { color: var(--ok-ink); border-color: var(--st-tint-ok); background: var(--ok-soft); }
+html.nx-stage-host .st-chip.ok::before { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+html.nx-stage-host .st-chip.warn { color: var(--warn-ink); border-color: var(--st-tint-warn); background: var(--warn-soft); }
+html.nx-stage-host .st-chip.warn::before { background: var(--warn); }
+html.nx-stage-host .st-chip.bad { color: var(--danger-ink); border-color: var(--st-tint-bad); background: var(--danger-soft); }
+html.nx-stage-host .st-chip.bad::before { background: var(--danger); }
+html.nx-stage-host .st-chip.busy::before { background: var(--accent); animation: stPulse 1s infinite; }
+@keyframes stPulse { 50% { opacity: 0.25; } }
+
+html.nx-stage-host .st-tools { display: flex; gap: 0.3rem; flex: none; }
+html.nx-stage-host .st-tool {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.38rem; height: 2.05rem; min-width: 2.05rem; padding: 0 0.6rem;
+  border-radius: 999px; border: 1px solid var(--line2); background: var(--panel); color: var(--text); box-shadow: var(--shadow-sm);
+  cursor: pointer; font: 500 0.75rem/1 var(--font); transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+html.nx-stage-host .st-tool:hover { background: var(--panel2); border-color: var(--line3); }
+html.nx-stage-host .st-tool .k { font-family: var(--mono); font-weight: 700; font-size: 0.74rem; color: var(--accent-ink); }
+html.nx-stage-host .st-tool.on { border-color: transparent; background: var(--grad); color: var(--on-accent); box-shadow: var(--shadow-accent); }
+html.nx-stage-host .st-tool.on .k { color: var(--on-accent); }
+
+/* ---------- сетка: телефон | центр | банк ---------- */
+html.nx-stage-host .st-grid {
+  position: relative;
+  height: calc(100% - var(--top-h));
+  display: grid;
+  grid-template-columns: var(--phone-w) var(--mid-w) minmax(0, 1fr);
+  gap: var(--gap);
+  padding: var(--gap);
+  transition: grid-template-columns 0.35s ease;
+}
+html.nx-stage-host .st-mtabs, html.nx-stage-host .st-mbar { display: none; }
+html.nx-stage-host .st-pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+html.nx-stage-host .st-pane-label { display: flex; align-items: center; gap: 0.45rem; font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; height: 1.2rem; flex: none; letter-spacing: 0.01em; }
+html.nx-stage-host .st-pane-label span { overflow: hidden; text-overflow: ellipsis; }
+html.nx-stage-host .st-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--muted2); flex: none; }
+html.nx-stage-host .st-dot.ok { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+html.nx-stage-host .st-dot.bad { background: var(--danger); box-shadow: 0 0 0 3px var(--danger-soft); }
+html.nx-stage-host .st-tag { font-size: 0.62rem; padding: 0.06rem 0.45rem; border-radius: 999px; background: var(--panel3); color: var(--muted); flex: none; }
+
+/* телефон: тёмная рамка устройства (как на лендинге), тёмный экран клиентки */
+html.nx-stage-host .st-phone { align-items: center; }
+html.nx-stage-host .st-phone-shell {
+  position: relative; flex: 1; min-height: 0; width: 100%;
+  border-radius: 2.5rem; padding: 0.5rem;
+  background: linear-gradient(160deg, var(--panel3), var(--st-bezel) 55%, var(--panel2));
+  border: 1px solid var(--line2);
+  box-shadow: 0 1px 0 var(--st-hi) inset, 0 0 0 1px var(--st-bezel) inset, var(--shadow-lg);
+}
+html.nx-stage-host .st-phone-shell::before, html.nx-stage-host .st-phone-shell::after {
+  content: ''; position: absolute; width: 0.22rem; border-radius: 0.2rem; background: linear-gradient(90deg, var(--panel3), var(--line2));
+}
+html.nx-stage-host .st-phone-shell::before { left: -0.24rem; top: 18%; height: 9%; box-shadow: 0 3.2rem 0 var(--panel3); }
+html.nx-stage-host .st-phone-shell::after { right: -0.24rem; top: 24%; height: 13%; }
+html.nx-stage-host .st-phone-screen { position: relative; width: 100%; height: 100%; border-radius: 2.05rem; overflow: hidden; background: var(--bg); box-shadow: 0 0 0 1px var(--line); }
+html.nx-stage-host .st-phone-status {
+  position: absolute; left: 0; right: 0; top: 0; height: var(--sb-h); z-index: 3;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 1.25rem 0 1.4rem;
+  background: var(--bg); color: var(--ink); font: 600 0.7rem/1 var(--font); font-variant-numeric: tabular-nums;
+}
+html.nx-stage-host .st-phone-island { position: absolute; left: 50%; top: 0.32rem; transform: translateX(-50%); width: 31%; height: 1.1rem; border-radius: 1rem; background: var(--st-bezel); box-shadow: 0 0 0 1px var(--line); }
+html.nx-stage-host .st-sb-icons { display: inline-flex; align-items: center; gap: 0.25rem; }
+html.nx-stage-host .st-sb-icons i { display: block; background: var(--ink); border-radius: 0.1rem; }
+html.nx-stage-host .st-sb-icons .sig { width: 0.75rem; height: 0.5rem; clip-path: polygon(0 100%, 100% 0, 100% 100%); }
+html.nx-stage-host .st-sb-icons .wifi { width: 0.62rem; height: 0.5rem; clip-path: polygon(50% 100%, 0 25%, 20% 0, 80% 0, 100% 25%); }
+html.nx-stage-host .st-sb-icons .bat { width: 1.05rem; height: 0.52rem; border-radius: 0.16rem; background: linear-gradient(90deg, var(--ink) 78%, color-mix(in srgb, var(--ink) 25%, transparent) 78%); }
+html.nx-stage-host .st-frame-host { position: absolute; inset: 0; overflow: hidden; }
+html.nx-stage-host .st-phone-screen .st-frame-host { top: var(--sb-h); }
+html.nx-stage-host .st-frame-host iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; display: block; background: transparent; }
+html.nx-stage-host #frClient { background: var(--bg); }
+html.nx-stage-host #frBank { background: var(--bg); }
+
+/* банк: тёмное окно консоли (та же система, плотнее) */
+html.nx-stage-host .st-browser {
+  flex: 1; min-height: 0; display: flex; flex-direction: column; border-radius: 1.1rem; overflow: hidden;
+  border: 1px solid var(--line2); background: var(--panel);
+  box-shadow: 0 1px 0 var(--st-hi) inset, var(--shadow-lg);
+}
+html.nx-stage-host .st-browser-bar { height: 1.8rem; flex: none; display: flex; align-items: center; gap: 0.32rem; padding: 0 0.7rem; background: var(--panel2); border-bottom: 1px solid var(--line); font-size: 0.66rem; color: var(--muted2); }
+/* «светофор» окна — нейтральные точки в цветах системы */
+html.nx-stage-host .st-browser-bar i { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--line2); display: inline-block; flex: none; }
+html.nx-stage-host .st-browser-bar i:nth-child(1) { background: var(--danger); opacity: 0.75; }
+html.nx-stage-host .st-browser-bar i:nth-child(2) { background: var(--warn); opacity: 0.75; }
+html.nx-stage-host .st-browser-bar i:nth-child(3) { background: var(--ok); opacity: 0.75; }
+html.nx-stage-host .st-url { margin-left: 0.6rem; flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0.18rem 0.65rem; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); }
+html.nx-stage-host .st-url b { color: var(--accent-ink); font-weight: 700; letter-spacing: 0.04em; }
+html.nx-stage-host .st-live { flex: none; font: 700 0.58rem/1 var(--mono); letter-spacing: 0.12em; color: var(--accent-ink); background: var(--accent-soft); padding: 0.18rem 0.42rem; border: 1px solid var(--st-tint-accent); border-radius: 0.35rem; }
+html.nx-stage-host .st-browser-body { position: relative; flex: 1; min-height: 0; }
+
+/* обложка загрузки поверх iframe */
+html.nx-stage-host .st-cover { position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; gap: 0.75rem; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg) 94%, transparent); color: var(--muted); font-size: 0.82rem; text-align: center; padding: 1rem; transition: opacity 0.25s; }
+html.nx-stage-host .st-phone-screen .st-cover { background: color-mix(in srgb, var(--bg) 96%, transparent); color: var(--muted); }
+html.nx-stage-host .st-cover { transition: opacity 0.25s, visibility 0s linear 0s; }
+html.nx-stage-host .st-cover.off { opacity: 0; pointer-events: none; visibility: hidden; transition: opacity 0.25s, visibility 0s linear 0.25s; }
+html.nx-stage-host .st-spin { width: 1.8rem; height: 1.8rem; border-radius: 50%; border: 3px solid var(--line2); border-top-color: var(--accent2); animation: stSpin 0.8s linear infinite; }
+@keyframes stSpin { to { transform: rotate(360deg); } }
+
+/* ленточка на телефоне (звонок переадресован / якорь) */
+html.nx-stage-host .st-ribbon { position: absolute; left: 0.55rem; right: 0.55rem; top: calc(var(--sb-h) + 0.35rem); z-index: 5; border-radius: 1rem; padding: 0.6rem 0.75rem; font-size: 0.74rem; line-height: 1.38; background: var(--glass); color: var(--text); border: 1px solid var(--st-tint-ok); box-shadow: var(--shadow); backdrop-filter: blur(10px); animation: stDrop 0.35s cubic-bezier(.2, .8, .2, 1); }
+html.nx-stage-host .st-ribbon b { display: flex; align-items: center; gap: 0.35rem; color: var(--ok-ink); font-size: 0.8rem; margin-bottom: 0.1rem; }
+html.nx-stage-host .st-ribbon.anchor { border-color: var(--st-tint-accent); }
+html.nx-stage-host .st-ribbon.anchor b { color: var(--accent-ink); }
+@keyframes stDrop { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+
+/* центральная колонка */
+html.nx-stage-host .st-mid { overflow-y: auto; overflow-x: hidden; padding-right: 0.15rem; gap: var(--gap); scrollbar-width: thin; scrollbar-color: var(--line3) transparent; }
+html.nx-stage-host .st-card {
+  position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 1.1rem;
+  padding: 0.85rem 0.95rem; flex: none; animation: stFade 0.25s ease;
+  box-shadow: 0 1px 0 var(--st-hi) inset, var(--shadow-sm);
+}
+@keyframes stFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+html.nx-stage-host .st-card h2 { font: 600 1rem/1.3 var(--display); letter-spacing: -0.01em; margin: 0.25rem 0 0.4rem; color: var(--ink); }
+html.nx-stage-host .st-card h3 { font: 600 0.82rem/1.3 var(--display); margin-bottom: 0.45rem; color: var(--ink); }
+html.nx-stage-host .st-stepcard { border-color: var(--st-tint-accent); box-shadow: 0 1px 0 var(--st-hi) inset, var(--shadow); }
+html.nx-stage-host .st-stepcard::before { content: ''; position: absolute; left: 1rem; right: 1rem; top: -1px; height: 2px; border-radius: 2px; background: var(--grad); }
+html.nx-stage-host .st-sub { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
+html.nx-stage-host .st-kicker { font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink); font-weight: 700; }
+html.nx-stage-host .st-cap { font-size: 0.8rem; line-height: 1.5; color: var(--text); }
+html.nx-stage-host .st-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.65rem; }
+html.nx-stage-host .st-state { margin-top: 0.6rem; font-size: 0.74rem; color: var(--muted); display: flex; gap: 0.45rem; align-items: flex-start; line-height: 1.45; padding: 0.5rem 0.6rem; border-radius: 0.75rem; background: var(--panel2); }
+html.nx-stage-host .st-state.ok { color: var(--ok-ink); background: var(--ok-soft); }
+html.nx-stage-host .st-state.warn { color: var(--warn-ink); background: var(--warn-soft); }
+html.nx-stage-host .st-state.bad { color: var(--danger-ink); background: var(--danger-soft); }
+html.nx-stage-host .st-state svg { width: 1rem; height: 1rem; flex: none; margin-top: 0.05rem; }
+html.nx-stage-host .st-disclaimer { font-size: 0.62rem; color: var(--muted2); line-height: 1.45; margin: 0 0.2rem 0.2rem; flex: none; }
+
+/* пуш опекуну */
+html.nx-stage-host .st-push { border-color: var(--st-tint-violet); background: linear-gradient(180deg, var(--violet-soft), transparent 75%), var(--panel); }
+html.nx-stage-host .st-push-app { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.66rem; color: var(--muted); margin-bottom: 0.3rem; }
+html.nx-stage-host .st-push-app span { display: inline-flex; align-items: center; gap: 0.3rem; }
+html.nx-stage-host .st-push b { font-size: 0.9rem; color: var(--ink); }
+html.nx-stage-host .st-push p { font-size: 0.76rem; margin-top: 0.25rem; line-height: 1.45; }
+html.nx-stage-host .st-quote { font-style: italic; color: var(--text); }
+
+/* пульт судьи */
+html.nx-stage-host .st-judge { display: flex; flex-direction: column; gap: 0.5rem; border-color: var(--st-tint-bad); }
+html.nx-stage-host .st-judge-head { display: flex; gap: 0.6rem; align-items: flex-start; }
+html.nx-stage-host .st-judge-head .grow { flex: 1; min-width: 0; }
+html.nx-stage-host .st-judge-head b { font-size: 0.86rem; color: var(--ink); }
+html.nx-stage-host .st-timer { font-family: var(--mono); font-size: 1.05rem; color: var(--accent-ink); flex: none; font-variant-numeric: tabular-nums; }
+html.nx-stage-host .st-log { min-height: 8rem; max-height: clamp(9rem, calc(100vh - 31rem), 26rem); overflow-y: auto; display: flex; flex-direction: column; gap: 0.42rem; padding: 0.3rem 0.1rem; scrollbar-width: thin; scrollbar-color: var(--line3) transparent; }
+html.nx-stage-host .st-msg { max-width: 92%; padding: 0.48rem 0.65rem; border-radius: 0.85rem; font-size: 0.78rem; line-height: 1.42; animation: stFade 0.2s; word-wrap: break-word; color: var(--text); }
+html.nx-stage-host .st-msg .who { font-size: 0.64rem; color: var(--muted); font-weight: 650; margin-bottom: 0.12rem; display: flex; gap: 0.35rem; align-items: center; }
+html.nx-stage-host .st-msg.scam { align-self: flex-start; background: var(--danger-soft); border: 1px solid var(--st-tint-bad); border-top-left-radius: 0.2rem; }
+html.nx-stage-host .st-msg.decoy { align-self: flex-end; background: var(--violet-soft); border: 1px solid var(--st-tint-violet); border-top-right-radius: 0.2rem; }
+html.nx-stage-host .st-msg.sys { align-self: center; max-width: 100%; background: var(--accent-soft); border: 1px dashed var(--st-tint-accent); font-size: 0.72rem; }
+html.nx-stage-host .st-msg mark { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger-ink); border-radius: 0.2rem; padding: 0 0.15rem; }
+html.nx-stage-host .st-eng { font-size: 0.6rem; padding: 0.02rem 0.38rem; border-radius: 999px; background: var(--panel3); color: var(--muted); font-weight: 600; }
+html.nx-stage-host .st-typing { display: inline-flex; gap: 0.2rem; }
+html.nx-stage-host .st-typing i { width: 0.35rem; height: 0.35rem; border-radius: 50%; background: var(--muted); animation: stPulse 1s infinite; }
+html.nx-stage-host .st-typing i:nth-child(2) { animation-delay: 0.15s; }
+html.nx-stage-host .st-typing i:nth-child(3) { animation-delay: 0.3s; }
+html.nx-stage-host .st-ap { font-size: 0.72rem; color: var(--warn-ink); background: var(--warn-soft); border: 1px solid var(--st-tint-warn); border-radius: 0.6rem; padding: 0.32rem 0.55rem; }
+html.nx-stage-host .st-judge textarea { width: 100%; resize: none; border-radius: 0.8rem; border: 1px solid var(--line2); background: var(--panel); color: var(--text); padding: 0.55rem 0.65rem; font: 0.82rem/1.42 var(--font); transition: border-color 0.18s, box-shadow 0.18s; }
+html.nx-stage-host .st-judge textarea::placeholder { color: var(--muted2); }
+html.nx-stage-host .st-judge textarea:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+html.nx-stage-host .st-judge-actions { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+html.nx-stage-host .st-judge-actions .on { border-color: var(--st-tint-bad); color: var(--danger-ink); background: var(--danger-soft); }
+html.nx-stage-host .st-judge-foot { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.64rem; color: var(--muted2); flex-wrap: wrap; }
+html.nx-stage-host .st-ioc { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
+html.nx-stage-host .st-ioc .v { font-family: var(--mono); font-size: 0.72rem; word-break: break-all; }
+
+/* результат шага */
+html.nx-stage-host .st-result.held { border-color: var(--st-tint-ok); background: linear-gradient(180deg, var(--ok-soft), transparent 75%), var(--panel); }
+html.nx-stage-host .st-result.stepup { border-color: var(--st-tint-warn); background: linear-gradient(180deg, var(--warn-soft), transparent 75%), var(--panel); }
+html.nx-stage-host .st-result.anchor { border-color: var(--st-tint-accent); background: linear-gradient(180deg, var(--accent-soft2), transparent 75%), var(--panel); }
+html.nx-stage-host .st-result .big { font: 700 1.6rem/1.1 var(--display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin-top: 0.2rem; color: var(--ink); }
+html.nx-stage-host .st-result .title { display: flex; gap: 0.45rem; align-items: center; font-weight: 750; font-size: 0.92rem; }
+html.nx-stage-host .st-result .title.ok { color: var(--ok-ink); }
+html.nx-stage-host .st-result .title.warn { color: var(--warn-ink); }
+html.nx-stage-host .st-result .title.bad { color: var(--danger-ink); }
+html.nx-stage-host .st-result .title.indigo { color: var(--accent-ink); }
+html.nx-stage-host .st-result .title svg { width: 1.2rem; height: 1.2rem; flex: none; }
+html.nx-stage-host .st-result p { font-size: 0.76rem; line-height: 1.48; margin-top: 0.38rem; }
+html.nx-stage-host .st-result .sep { height: 1px; background: var(--line); margin: 0.7rem 0 0.2rem; }
+html.nx-stage-host .st-list { margin: 0.45rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.32rem; }
+html.nx-stage-host .st-list li { font-size: 0.74rem; display: flex; gap: 0.45rem; align-items: baseline; color: var(--muted); line-height: 1.4; }
+html.nx-stage-host .st-list li .m { font-family: var(--mono); color: var(--muted2); font-size: 0.66rem; flex: none; }
+html.nx-stage-host .st-list li.on { color: var(--text); }
+html.nx-stage-host .st-list li.alert { color: var(--danger-ink); }
+html.nx-stage-host .st-list li.good { color: var(--ok-ink); }
+html.nx-stage-host .st-list.checks li .m { width: 1rem; text-align: center; font-weight: 700; }
+html.nx-stage-host .st-list.checks li.good .m { color: var(--ok-ink); }
+html.nx-stage-host .st-ioc-status { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; font-weight: 650; padding: 0.12rem 0.5rem; border-radius: 999px; }
+html.nx-stage-host .st-ioc-status.suspected { background: var(--warn-soft); color: var(--warn-ink); }
+html.nx-stage-host .st-ioc-status.corroborated, html.nx-stage-host .st-ioc-status.confirmed { background: var(--danger-soft); color: var(--danger-ink); }
+html.nx-stage-host .st-ioc-status.revoked, html.nx-stage-host .st-ioc-status.expired { background: var(--panel3); color: var(--muted); }
+html.nx-stage-host .st-voice { margin-top: 0.55rem; padding: 0.6rem 0.7rem; border-radius: 0.85rem; background: var(--accent-soft); border: 1px solid var(--st-tint-accent); font-size: 0.76rem; line-height: 1.45; }
+html.nx-stage-host .st-voice .vh { display: flex; align-items: center; gap: 0.4rem; font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ink); font-weight: 700; margin-bottom: 0.25rem; }
+html.nx-stage-host .st-voice .wave { display: inline-flex; gap: 2px; align-items: center; height: 0.8rem; }
+html.nx-stage-host .st-voice .wave i { width: 2px; border-radius: 1px; background: var(--accent); animation: stWave 1s ease-in-out infinite; }
+html.nx-stage-host .st-voice .wave i:nth-child(1) { height: 40%; }
+html.nx-stage-host .st-voice .wave i:nth-child(2) { height: 90%; animation-delay: 0.1s; }
+html.nx-stage-host .st-voice .wave i:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+html.nx-stage-host .st-voice .wave i:nth-child(4) { height: 100%; animation-delay: 0.3s; }
+html.nx-stage-host .st-voice .wave i:nth-child(5) { height: 50%; animation-delay: 0.4s; }
+@keyframes stWave { 50% { transform: scaleY(0.4); } }
+
+/* живые замеры */
+html.nx-stage-host .st-metrics h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+html.nx-stage-host .st-metrics h3 small { font: 500 0.6rem/1.2 var(--font); color: var(--muted2); }
+html.nx-stage-host .st-mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+html.nx-stage-host .st-m { background: var(--bg2); border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.45rem 0.55rem; min-width: 0; transition: border-color 0.3s, background 0.3s; }
+html.nx-stage-host .st-m .l { font-size: 0.6rem; color: var(--muted); line-height: 1.25; }
+html.nx-stage-host .st-m .v { font: 600 0.98rem/1.25 var(--display); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0.12rem 0; color: var(--ink); }
+html.nx-stage-host .st-m .s { font-size: 0.58rem; color: var(--muted); line-height: 1.28; }
+html.nx-stage-host .st-m.hit { border-color: var(--st-tint-accent); background: var(--accent-soft); }
+html.nx-stage-host .st-m.hit .v { color: var(--accent-ink); }
+html.nx-stage-host .st-m.anchor.hit { border-color: var(--st-tint-violet); background: var(--violet-soft); }
+html.nx-stage-host .st-m.anchor.hit .v { color: var(--violet-ink); }
+html.nx-stage-host .st-m.wide { grid-column: 1 / -1; }
+
+/* раскладки по шагам: телефон крупнее (client), пульт шире (decoy), банк шире (bank) */
+html.nx-stage-host body.lay-decoy { --mid-w: clamp(19.5rem, 30vw, 27rem); }
+html.nx-stage-host body.lay-decoy .st-grid { grid-template-columns: calc(var(--phone-w) * 0.82) var(--mid-w) minmax(0, 1fr); }
+html.nx-stage-host body.lay-bank .st-grid { grid-template-columns: calc(var(--phone-w) * 0.82) var(--mid-w) minmax(0, 1fr); }
+html.nx-stage-host body.focus-bank .st-grid { grid-template-columns: 0 var(--mid-w) minmax(0, 1fr); }
+html.nx-stage-host body.focus-bank .st-phone { visibility: hidden; }
+
+/* ---------- слайды (типографика лендинга) ---------- */
+html.nx-stage-host .st-slides {
+  position: absolute; inset: 0; z-index: 10;
+  background-color: var(--bg); background-image: var(--bg-glow); background-repeat: no-repeat;
+  display: flex; flex-direction: column;
+  padding: 1.4rem clamp(1rem, 4vw, 3rem) 0.8rem;
+  color: var(--text);
+}
+html.nx-stage-host .st-slides-body { flex: 1; min-height: 0; position: relative; }
+html.nx-stage-host .st-slide { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column; justify-content: center; justify-content: safe center; max-width: 74rem; margin: 0 auto; padding-bottom: 0.5rem; scrollbar-width: thin; scrollbar-color: var(--line3) transparent; }
+html.nx-stage-host .st-slide.active { display: flex; animation: stFade 0.3s ease; }
+html.nx-stage-host .st-slide.top { justify-content: flex-start; }
+html.nx-stage-host .st-slides-nav { flex: none; display: flex; align-items: center; justify-content: center; gap: 0.8rem; padding-top: 0.5rem; }
+html.nx-stage-host .st-dots { display: flex; gap: 0.35rem; }
+html.nx-stage-host .st-dots i { width: 0.5rem; height: 0.5rem; border-radius: 999px; background: var(--line2); display: block; transition: width 0.25s; }
+html.nx-stage-host .st-dots i.on { background: var(--grad); width: 1.5rem; }
+
+html.nx-stage-host .sl-kicker { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-ink); font-weight: 700; margin-bottom: 0.7rem; }
+html.nx-stage-host .sl-kicker::before { content: ''; width: 1.6rem; height: 2px; border-radius: 2px; background: var(--grad); }
+html.nx-stage-host .sl-h1 { font: 700 clamp(1.7rem, 3.9vw, 3rem)/1.12 var(--display); letter-spacing: -0.02em; max-width: 60rem; color: var(--ink); }
+html.nx-stage-host .sl-h2 { font: 600 clamp(1.25rem, 2.3vw, 1.9rem)/1.2 var(--display); letter-spacing: -0.015em; margin-bottom: 0.9rem; max-width: 62rem; color: var(--ink); }
+html.nx-stage-host .sl-grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+html.nx-stage-host .sl-lead { font-size: clamp(0.95rem, 1.45vw, 1.18rem); color: var(--muted); line-height: 1.55; margin-top: 0.95rem; max-width: 54rem; }
+html.nx-stage-host .sl-tag { margin-top: 1.3rem; font-size: 1.02rem; color: var(--accent-ink); font-weight: 650; }
+html.nx-stage-host .sl-foot { margin-top: 0.9rem; font-size: 0.7rem; color: var(--muted2); line-height: 1.5; }
+html.nx-stage-host .sl-foot a { color: var(--muted); text-decoration: underline; }
+html.nx-stage-host .sl-grid { display: grid; gap: 0.8rem; }
+html.nx-stage-host .sl-g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+html.nx-stage-host .sl-g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+html.nx-stage-host .sl-g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+html.nx-stage-host .sl-card { background: var(--panel); border: 1px solid var(--line); border-radius: 1.2rem; padding: 1rem 1.1rem; min-width: 0; box-shadow: 0 1px 0 var(--st-hi) inset, var(--shadow); }
+html.nx-stage-host .sl-card.hl { border-color: var(--st-tint-cyan); background: linear-gradient(180deg, color-mix(in srgb, var(--accent3) 8%, transparent), transparent 75%), var(--panel); }
+html.nx-stage-host .sl-card.vi { border-color: var(--st-tint-accent); background: linear-gradient(180deg, var(--accent-soft2), transparent 75%), var(--panel); }
+html.nx-stage-host .sl-card h4 { font: 600 0.95rem/1.3 var(--display); margin-bottom: 0.38rem; letter-spacing: -0.005em; color: var(--ink); }
+html.nx-stage-host .sl-card p, html.nx-stage-host .sl-card li { font-size: 0.84rem; line-height: 1.5; color: var(--muted); }
+html.nx-stage-host .sl-card ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
+html.nx-stage-host .sl-num { font: 700 clamp(1.6rem, 3vw, 2.4rem)/1 var(--display); letter-spacing: -0.02em; color: var(--ink); margin-bottom: 0.4rem; font-variant-numeric: tabular-nums; }
+html.nx-stage-host .sl-num.acc { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+html.nx-stage-host .sl-src { font-size: 0.66rem; color: var(--muted2); margin-top: 0.5rem; line-height: 1.38; }
+html.nx-stage-host .sl-src a { color: var(--muted); text-decoration: underline; }
+html.nx-stage-host .sl-q { font-size: 0.66rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 0.2rem; }
+html.nx-stage-host .sl-thesis { margin-top: 1rem; padding: 0.85rem 1.05rem; border-left: 3px solid var(--accent2); background: var(--accent-soft); color: var(--text); border-radius: 0 0.8rem 0.8rem 0; font-size: 1rem; line-height: 1.5; }
+html.nx-stage-host .sl-live { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.85rem; }
+html.nx-stage-host .sl-live span { font-size: 0.82rem; padding: 0.38rem 0.75rem; border-radius: 999px; background: var(--panel); border: 1px solid var(--line2); color: var(--text); box-shadow: var(--shadow-sm); }
+html.nx-stage-host .sl-live span b { color: var(--accent-ink); }
+html.nx-stage-host .sl-pills { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1.1rem; }
+html.nx-stage-host .sl-pills span { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; padding: 0.38rem 0.8rem; border-radius: 999px; border: 1px solid var(--line2); background: var(--panel); color: var(--text); box-shadow: var(--shadow-sm); }
+html.nx-stage-host .sl-pills span i { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--grad); display: block; }
+html.nx-stage-host .sl-team .av { width: 2.8rem; height: 2.8rem; border-radius: 0.9rem; background: var(--grad); display: grid; place-items: center; color: var(--on-accent); margin-bottom: 0.6rem; box-shadow: var(--shadow-accent); }
+html.nx-stage-host .sl-team .av svg { width: 1.3rem; height: 1.3rem; }
+
+/* слайд «Финансовая конституция» */
+html.nx-stage-host .sl-const { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+html.nx-stage-host .sl-doc { position: relative; border-radius: 1.2rem; padding: 0.95rem 1.05rem 0.8rem; background: linear-gradient(180deg, var(--panel2), var(--panel)); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--shadow-lg); }
+html.nx-stage-host .sl-doc-h { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; padding-bottom: 0.55rem; border-bottom: 1px solid var(--line2); margin-bottom: 0.35rem; }
+html.nx-stage-host .sl-doc-h b { font: 600 0.92rem/1.2 var(--display); }
+html.nx-stage-host .sl-doc-h small { display: block; font-size: 0.66rem; color: var(--muted); margin-top: 0.15rem; }
+html.nx-stage-host .sl-seal { flex: none; font: 600 0.6rem/1.2 var(--mono); color: var(--accent-ink); border: 1px dashed var(--st-tint-accent); border-radius: 0.5rem; padding: 0.25rem 0.45rem; text-align: right; }
+html.nx-stage-host .sl-const + .sl-thesis { margin-top: 0.8rem; padding: 0.7rem 1rem; font-size: 0.95rem; }
+html.nx-stage-host .sl-art { display: grid; grid-template-columns: 2.1rem minmax(0, 1fr) auto; gap: 0.55rem; align-items: center; padding: 0.17rem 0; border-bottom: 1px dashed var(--line); }
+html.nx-stage-host .sl-art:last-child { border-bottom: 0; }
+html.nx-stage-host .sl-art .no { width: 2.1rem; height: 2.1rem; border-radius: 0.65rem; display: grid; place-items: center; font: 700 0.72rem/1 var(--display); color: var(--accent-ink); background: var(--accent-soft2); }
+html.nx-stage-host .sl-art p { font-size: 0.8rem; line-height: 1.38; color: var(--ink); margin: 0; }
+html.nx-stage-host .sl-art .dec { font-size: 0.64rem; font-weight: 700; padding: 0.18rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+html.nx-stage-host .sl-art .dec.confirm { background: var(--warn-soft); color: var(--warn-ink); }
+html.nx-stage-host .sl-art .dec.hold { background: var(--danger-soft); color: var(--danger-ink); }
+html.nx-stage-host .sl-art .dec.protect { background: var(--violet-soft); color: var(--violet-ink); }
+html.nx-stage-host .sl-art .dec.guard { background: var(--ok-soft); color: var(--ok-ink); }
+html.nx-stage-host .sl-art.anchor .no { background: var(--grad); color: var(--on-accent); }
+html.nx-stage-host .sl-art.off { padding: 0.12rem 0; }
+html.nx-stage-host .sl-art.off p { color: var(--muted); font-size: 0.7rem; }
+html.nx-stage-host .sl-art.off .no { width: 1.5rem; height: 1.5rem; font-size: 0.62rem; justify-self: center; background: var(--panel2); color: var(--muted); }
+html.nx-stage-host .sl-art .dec.off { background: var(--panel2); color: var(--muted); font-weight: 600; }
+html.nx-stage-host .sl-wow { display: flex; flex-direction: column; gap: 0.6rem; }
+html.nx-stage-host .sl-wow .sl-card { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: 0.7rem; align-items: start; padding: 0.8rem 0.95rem; }
+html.nx-stage-host .sl-wow .ico { width: 2.4rem; height: 2.4rem; border-radius: 0.8rem; display: grid; place-items: center; background: var(--accent-soft2); color: var(--accent-ink); }
+html.nx-stage-host .sl-wow .sl-card.vi .ico { background: var(--grad); color: var(--on-accent); }
+html.nx-stage-host .sl-wow .ico svg { width: 1.25rem; height: 1.25rem; }
+html.nx-stage-host .sl-wow h4 { margin-bottom: 0.2rem; }
+html.nx-stage-host .sl-wow p { font-size: 0.8rem; }
+
+/* архитектура (inline SVG) */
+html.nx-stage-host .sl-arch-wrap { width: 100%; }
+html.nx-stage-host .sl-arch { width: 100%; height: auto; max-height: calc(100vh - 23.5rem); display: block; }
+html.nx-stage-host .sl-arch .box { fill: var(--panel); stroke: var(--line3); stroke-width: 1.5; }
+html.nx-stage-host .sl-arch .box.core { fill: color-mix(in srgb, var(--accent3) 8%, var(--panel)); stroke: var(--accent3); }
+html.nx-stage-host .sl-arch .box.intel { fill: color-mix(in srgb, var(--accent2) 8%, var(--panel)); stroke: var(--accent2); }
+html.nx-stage-host .sl-arch .box.ext { fill: color-mix(in srgb, var(--info) 6%, var(--panel)); stroke: var(--info); stroke-dasharray: 5 4; }
+html.nx-stage-host .sl-arch .t { fill: var(--ink); font: 700 15px var(--font); }
+html.nx-stage-host .sl-arch .s { fill: var(--muted); font: 500 11.5px var(--font); }
+html.nx-stage-host .sl-arch .s.hl { fill: var(--accent-ink); font-weight: 700; }
+html.nx-stage-host .sl-arch .lane { fill: var(--muted2); font: 700 11px var(--font); letter-spacing: 0.1em; }
+html.nx-stage-host .sl-arch .ar { stroke: var(--accent); stroke-width: 2; fill: none; }
+html.nx-stage-host .sl-arch .ar.v { stroke: var(--accent2); }
+html.nx-stage-host .sl-arch .ah { fill: var(--accent); }
+html.nx-stage-host .sl-arch .ah.v { fill: var(--accent2); }
+
+/* ---------- ROI (roi.js) ---------- */
+html.nx-stage-host .roi { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+html.nx-stage-host .roi-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem 0.8rem; }
+html.nx-stage-host .roi-presets { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+html.nx-stage-host .roi-assume { grid-column: 1 / -1; font-size: 0.7rem; line-height: 1.4; color: var(--warn-ink); background: var(--warn-soft); border: 1px solid var(--st-tint-warn); border-radius: 0.7rem; padding: 0.4rem 0.6rem; }
+html.nx-stage-host .roi-field { background: var(--panel); border: 1px solid var(--line); border-radius: 0.85rem; padding: 0.4rem 0.65rem; min-width: 0; box-shadow: var(--shadow-sm); }
+html.nx-stage-host .roi-field.main { grid-column: 1 / -1; border-color: var(--st-tint-accent); background: linear-gradient(180deg, var(--accent-soft), transparent 80%), var(--panel); }
+html.nx-stage-host .roi-field.main output { font-size: 1.1rem; color: var(--accent-ink); }
+html.nx-stage-host .roi-fh { display: flex; justify-content: space-between; gap: 0.5rem; align-items: baseline; }
+html.nx-stage-host .roi-fh label { font-size: 0.74rem; color: var(--text); }
+html.nx-stage-host .roi-fh output { font-weight: 750; font-variant-numeric: tabular-nums; font-size: 0.85rem; white-space: nowrap; color: var(--ink); }
+html.nx-stage-host .roi-field input[type=range] { width: 100%; accent-color: var(--accent); margin: 0.25rem 0 0.1rem; height: 1.1rem; }
+html.nx-stage-host .roi-note { font-size: 0.62rem; color: var(--muted2); line-height: 1.32; }
+html.nx-stage-host .roi-note b { color: var(--muted); font-weight: 650; }
+html.nx-stage-host .roi-cap { font-size: 0.64rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+html.nx-stage-host .roi-out { display: flex; flex-direction: column; gap: 0.7rem; }
+html.nx-stage-host .roi-big { background: linear-gradient(180deg, var(--ok-soft), transparent 80%), var(--panel); border: 1px solid var(--st-tint-ok); border-radius: 1.1rem; padding: 0.85rem 1rem; box-shadow: var(--shadow); }
+html.nx-stage-host .roi-val { font: 700 clamp(1.6rem, 3.2vw, 2.5rem)/1.12 var(--display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin: 0.2rem 0; color: var(--ink); }
+html.nx-stage-host .roi-val.ok, html.nx-stage-host .roi-num.ok { color: var(--ok-ink); }
+html.nx-stage-host .roi-num.bad { color: var(--danger-ink); }
+html.nx-stage-host .roi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+html.nx-stage-host .roi-grid > div { background: var(--panel); border: 1px solid var(--line); border-radius: 0.85rem; padding: 0.5rem 0.65rem; min-width: 0; box-shadow: var(--shadow-sm); }
+html.nx-stage-host .roi-num { font: 700 1.1rem/1.3 var(--display); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.15rem; color: var(--ink); }
+html.nx-stage-host .roi-sub { font-size: 0.64rem; color: var(--muted); line-height: 1.32; margin-top: 0.15rem; }
+html.nx-stage-host .roi-case { display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start; }
+html.nx-stage-host .roi-cases { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+html.nx-stage-host .roi-chip { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: var(--ok-soft); border: 1px solid var(--st-tint-ok); color: var(--ok-ink); }
+html.nx-stage-host .roi-foot { font-size: 0.64rem; color: var(--muted2); line-height: 1.45; }
+
+/* ---------- справка ---------- */
+html.nx-stage-host .st-keys { display: grid; grid-template-columns: auto 1fr; gap: 0.38rem 0.85rem; font-size: 0.82rem; margin-top: 0.6rem; }
+html.nx-stage-host .st-keys kbd { font-family: var(--mono); font-size: 0.74rem; padding: 0.12rem 0.5rem; border-radius: 0.4rem; background: var(--panel2); border: 1px solid var(--line2); border-bottom-width: 2px; color: var(--accent-ink); white-space: nowrap; justify-self: start; }
+html.nx-stage-host .st-help-story { margin-top: 0.7rem; display: grid; gap: 0.3rem; font-size: 0.8rem; line-height: 1.45; color: var(--muted); }
+html.nx-stage-host .st-help-story b { color: var(--text); }
+html.nx-stage-host .st-help-h { margin-top: 0.9rem; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink); font-weight: 700; }
+html.nx-stage-host .st-api { margin-top: 0.4rem; font-size: 0.74rem; color: var(--muted); line-height: 1.65; }
+html.nx-stage-host .st-api .y { color: var(--ok-ink); }
+html.nx-stage-host .st-api .n { color: var(--warn-ink); }
+html.nx-stage-host .st-help-foot { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin-top: 1rem; }
+html.nx-stage-host .st-help-foot p { font-size: 0.74rem; color: var(--muted); line-height: 1.45; flex: 1; min-width: 14rem; margin: 0; }
+html.nx-stage-host .st-noscript { position: fixed; inset: 0; display: grid; place-items: center; background: var(--bg); color: var(--text); z-index: 999; }
+html.nx-stage-host #toasts { right: 0.9rem; bottom: 0.9rem; max-width: min(22rem, calc(100vw - 2rem)); }
+
+/* ---------- 3.0: степпер из 8 шагов — на ПК подпись только у активного ---------- */
+html.nx-stage-host .st-stepper { overflow: hidden; justify-content: safe center; }
+html.nx-stage-host .st-step:not(.active) .lbl { display: none; }
+html.nx-stage-host .st-step:not(.active) { padding-right: 0.28rem; }
+html.nx-stage-host .st-step.active { flex-shrink: 1; min-width: 0; max-width: 22rem; }
+
+/* ---------- 3.0: детектор манипуляций, Scam Chain, Transaction DNA, Trust Circle, цикл ---------- */
+html.nx-stage-host .st-src { margin-left: auto; font: 600 0.6rem/1 var(--font); letter-spacing: 0.04em; padding: 0.2rem 0.45rem; border-radius: 999px; background: var(--panel3); color: var(--muted); }
+html.nx-stage-host .st-attack { font-size: 0.84rem; color: var(--ink); }
+html.nx-stage-host .st-kv { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.45rem; }
+html.nx-stage-host .st-kv span { font-size: 0.7rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); }
+html.nx-stage-host .st-kv b { color: var(--ink); font-weight: 700; }
+html.nx-stage-host .st-kv .bad { background: var(--danger-soft); border-color: var(--st-tint-bad); color: var(--danger-ink); }
+html.nx-stage-host .st-kv .warn { background: var(--warn-soft); border-color: var(--st-tint-warn); color: var(--warn-ink); }
+html.nx-stage-host .st-kv .ok { background: var(--ok-soft); border-color: var(--st-tint-ok); color: var(--ok-ink); }
+html.nx-stage-host .st-kv .bad b, html.nx-stage-host .st-kv .warn b, html.nx-stage-host .st-kv .ok b { color: inherit; }
+html.nx-stage-host .st-stages { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; margin-top: 0.55rem; }
+html.nx-stage-host .st-stage { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; line-height: 1.25; padding: 0.22rem 0.55rem 0.22rem 0.25rem; border-radius: 999px; border: 1px solid var(--line2); background: var(--panel2); color: var(--text); }
+html.nx-stage-host .st-stage i { font-style: normal; width: 1.1rem; height: 1.1rem; border-radius: 50%; display: grid; place-items: center; font: 700 0.6rem/1 var(--display); background: var(--panel3); color: var(--text); flex: none; }
+html.nx-stage-host .st-stage.on { border-color: var(--st-tint-bad); background: var(--danger-soft); color: var(--danger-ink); }
+html.nx-stage-host .st-stage.on i { background: var(--danger); color: var(--on-accent); }
+html.nx-stage-host .st-stage.next { border-style: dashed; border-color: var(--st-tint-accent); background: var(--accent-soft); color: var(--accent-ink); }
+html.nx-stage-host .st-stage.next i { background: var(--accent-soft2); color: var(--accent-ink); }
+html.nx-stage-host .st-stage-ar { color: var(--muted2); font-size: 0.7rem; }
+html.nx-stage-host .st-next { display: flex; gap: 0.4rem; align-items: flex-start; padding: 0.45rem 0.55rem; border-radius: 0.7rem; background: var(--accent-soft); border: 1px solid var(--st-tint-accent); color: var(--text); }
+html.nx-stage-host .st-next svg { width: 0.95rem; height: 0.95rem; flex: none; margin-top: 0.12rem; color: var(--accent-ink); }
+html.nx-stage-host .st-chain { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.25rem; margin-top: 0.5rem; }
+html.nx-stage-host .st-cn { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; max-width: 100%; padding: 0.35rem 0.5rem; border-radius: 0.65rem; background: var(--panel2); border: 1px solid var(--line2); }
+html.nx-stage-host .st-cn .r { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--muted); }
+html.nx-stage-host .st-cn .a { font-size: 0.68rem; color: var(--ink); word-break: break-all; }
+html.nx-stage-host .st-cn .x { font-size: 0.62rem; color: var(--muted); }
+html.nx-stage-host .st-cn.vic { border-color: var(--st-tint-violet); background: var(--violet-soft); }
+html.nx-stage-host .st-cn.hit { border-color: var(--st-tint-bad); background: var(--danger-soft); }
+html.nx-stage-host .st-cn.hit .r { color: var(--danger-ink); }
+html.nx-stage-host .st-cn.out { border-style: dashed; border-color: var(--st-tint-warn); }
+html.nx-stage-host .st-cn-ar { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--accent-ink); font-weight: 700; font-size: 0.8rem; line-height: 1; padding: 0 0.1rem; }
+html.nx-stage-host .st-cn-ar small { font: 600 0.55rem/1.2 var(--mono); color: var(--muted); }
+html.nx-stage-host .st-dna { margin-top: 0.6rem; padding: 0.55rem 0.65rem; border-radius: 0.85rem; background: var(--bg2); border: 1px solid var(--line); }
+html.nx-stage-host .st-dna-h { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--ink); }
+html.nx-stage-host .st-dna-h svg { width: 1rem; height: 1rem; color: var(--accent3); }
+html.nx-stage-host .st-dna-i { margin-left: auto; font: 700 1.25rem/1 var(--display); font-variant-numeric: tabular-nums; }
+html.nx-stage-host .st-dna-i small { font-size: 0.62rem; color: var(--muted); font-weight: 600; margin-left: 0.1rem; }
+html.nx-stage-host .st-dna-i.bad, html.nx-stage-host .st-dna-t.bad { color: var(--danger-ink); }
+html.nx-stage-host .st-dna-i.warn, html.nx-stage-host .st-dna-t.warn { color: var(--warn-ink); }
+html.nx-stage-host .st-dna-i.ok, html.nx-stage-host .st-dna-t.ok { color: var(--ok-ink); }
+html.nx-stage-host .st-dna-t { font-size: 0.7rem; font-weight: 700; margin-top: 0.1rem; }
+html.nx-stage-host .st-dna-f { list-style: none; margin: 0.45rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.32rem; }
+html.nx-stage-host .st-dna-f li { display: grid; grid-template-columns: minmax(0, 1fr) 3.2rem 2rem; gap: 0.4rem; align-items: center; font-size: 0.7rem; color: var(--text); }
+html.nx-stage-host .st-dna-f .l small { display: block; font-size: 0.6rem; color: var(--muted); line-height: 1.3; }
+html.nx-stage-host .st-dna-f .b { height: 0.35rem; border-radius: 999px; background: var(--panel3); overflow: hidden; }
+html.nx-stage-host .st-dna-f .b i { display: block; height: 100%; border-radius: inherit; background: var(--grad); }
+html.nx-stage-host .st-dna-f .p { font: 600 0.66rem/1 var(--mono); color: var(--accent-ink); text-align: right; }
+html.nx-stage-host .st-result .st-why { padding: 0.4rem 0.55rem; border-radius: 0.65rem; background: var(--accent-soft); border-left: 2px solid var(--accent2); }
+html.nx-stage-host .st-trust-ans { display: flex; gap: 0.4rem; align-items: flex-start; margin-top: 0.5rem; padding: 0.45rem 0.55rem; border-radius: 0.7rem; background: var(--panel2); font-size: 0.74rem; line-height: 1.42; color: var(--text); }
+html.nx-stage-host .st-trust-ans.ok { background: var(--ok-soft); color: var(--ok-ink); }
+/* 3-минутный показ (?short=1), бит 5: реплика до и после маскирования ПДн */
+html.nx-stage-host .st-mask { margin: 0.2rem 0 0.35rem; padding: 0.4rem 0.55rem; border-radius: 0.6rem; background: var(--panel2); border: 1px solid var(--line2); font-size: 0.72rem; line-height: 1.45; overflow-wrap: anywhere; word-break: break-word; color: var(--text); }
+html.nx-stage-host .st-trust-ans svg { width: 0.95rem; height: 0.95rem; flex: none; margin-top: 0.1rem; }
+html.nx-stage-host .st-cycle { list-style: none; margin: 0.45rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+html.nx-stage-host .st-cycle li { display: grid; grid-template-columns: 5.6rem minmax(0, 1fr); gap: 0.45rem; align-items: baseline; font-size: 0.72rem; line-height: 1.4; color: var(--muted); }
+html.nx-stage-host .st-cycle .ph { font: 700 0.58rem/1.4 var(--mono); letter-spacing: 0.06em; color: var(--muted2); padding: 0.05rem 0.35rem; border-radius: 0.35rem; background: var(--panel2); text-align: center; }
+html.nx-stage-host .st-cycle li.good { color: var(--text); }
+html.nx-stage-host .st-cycle li.good .ph { background: var(--accent-soft2); color: var(--accent-ink); }
+html.nx-stage-host .st-result .st-thesis { margin-top: 0.6rem; padding: 0.45rem 0.6rem; border-left: 3px solid var(--accent2); background: var(--accent-soft); border-radius: 0 0.6rem 0.6rem 0; color: var(--ink); font-weight: 600; }
+
+/* слайды 3.0: цикл, архитектура ИИ, три уровня реальности, перспектива */
+html.nx-stage-host .sl-pills span b { font: 700 0.7rem/1 var(--mono); letter-spacing: 0.06em; color: var(--accent-ink); }
+html.nx-stage-host .sl-cycle .sl-card { display: flex; flex-direction: column; }
+html.nx-stage-host .sl-cycle .sl-src { margin-top: auto; padding-top: 0.5rem; }
+html.nx-stage-host .sl-ph { display: flex; align-items: center; gap: 0.45rem; font: 700 0.72rem/1 var(--mono); letter-spacing: 0.08em; color: var(--accent-ink); margin-bottom: 0.45rem; }
+html.nx-stage-host .sl-ph span { width: 1.5rem; height: 1.5rem; border-radius: 0.5rem; display: grid; place-items: center; background: var(--grad); color: var(--on-accent); font: 700 0.72rem/1 var(--display); letter-spacing: 0; }
+html.nx-stage-host .sl-ai .sl-card { display: flex; flex-direction: column; }
+html.nx-stage-host .sl-ai-h { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.45rem; }
+html.nx-stage-host .sl-ai-h .sl-q { margin: 0; }
+html.nx-stage-host .sl-ico { width: 2.1rem; height: 2.1rem; border-radius: 0.7rem; display: grid; place-items: center; background: var(--accent-soft2); color: var(--accent-ink); flex: none; }
+html.nx-stage-host .sl-ico svg { width: 1.1rem; height: 1.1rem; }
+html.nx-stage-host .sl-lvl { align-self: flex-start; margin-top: auto; font-size: 0.66rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
+html.nx-stage-host .sl-ai p { margin-bottom: 0.55rem; }
+html.nx-stage-host .sl-tiers { margin-top: 0.8rem; padding: 0.7rem 0.9rem; border-radius: 1rem; background: var(--panel); border: 1px solid var(--line); }
+html.nx-stage-host .sl-tiers-h { font-size: 0.8rem; color: var(--text); font-weight: 600; margin-bottom: 0.5rem; }
+html.nx-stage-host .sl-tiers-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; }
+html.nx-stage-host .sl-tiers-row span { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.6rem; border-radius: 0.7rem; font-size: 0.74rem; border: 1px solid var(--line); }
+html.nx-stage-host .sl-tiers-row b { font: 700 0.95rem/1 var(--display); font-variant-numeric: tabular-nums; }
+html.nx-stage-host .sl-tiers-row .t0 { background: var(--ok-soft); color: var(--ok-ink); }
+html.nx-stage-host .sl-tiers-row .t1 { background: var(--warn-soft); color: var(--warn-ink); }
+html.nx-stage-host .sl-tiers-row .t2 { background: var(--violet-soft); color: var(--violet-ink); }
+html.nx-stage-host .sl-tiers-row .t3 { background: var(--danger-soft); color: var(--danger-ink); }
+html.nx-stage-host .sl-real { border: 1px solid var(--line); border-radius: 1.1rem; overflow: hidden; background: var(--panel); box-shadow: var(--shadow); }
+html.nx-stage-host .sl-real-row { display: grid; grid-template-columns: minmax(9rem, 0.8fr) repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+html.nx-stage-host .sl-real-row:first-child { border-top: 0; }
+html.nx-stage-host .sl-real-row > span { padding: 0.42rem 0.7rem; font-size: 0.76rem; line-height: 1.38; color: var(--muted); border-left: 1px solid var(--line); min-width: 0; }
+html.nx-stage-host .sl-real-row > span:first-child { border-left: 0; color: var(--ink); }
+html.nx-stage-host .sl-real-row.head > span { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: var(--panel2); color: var(--muted); }
+html.nx-stage-host .sl-real-row.head .l1 { color: var(--ok-ink); }
+html.nx-stage-host .sl-real-row.head .l2 { color: var(--warn-ink); }
+html.nx-stage-host .sl-real-row.head .l3 { color: var(--accent-ink); }
+html.nx-stage-host .sl-real-row:not(.head) .l1 { color: var(--text); }
+html.nx-stage-host .sl-persp { margin-top: 0.8rem; }
+/* слайд «6 тем брифа»: цикл слева, темы справа, линии между ними (SVG тянется по высоте строк) */
+html.nx-stage-host .sl-tp { display: grid; grid-template-columns: minmax(10rem, 0.62fr) minmax(3rem, 0.32fr) minmax(0, 2fr); align-items: stretch; }
+html.nx-stage-host .sl-tp-cyc, html.nx-stage-host .sl-tp-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-rows: repeat(6, minmax(0, 1fr)); gap: 0.45rem; min-width: 0; }
+html.nx-stage-host .sl-tp-cyc li { display: flex; align-items: center; gap: 0.55rem; padding: 0.4rem 0.7rem; border-radius: 0.9rem; background: var(--panel); border: 1px solid var(--line); min-width: 0; }
+html.nx-stage-host .sl-tp-cyc b { font: 700 0.74rem/1.1 var(--mono); letter-spacing: 0.06em; color: var(--accent-ink); }
+html.nx-stage-host .sl-tp-cyc small { margin-left: auto; font-size: 0.72rem; color: var(--muted); }
+html.nx-stage-host .sl-tp-n { width: 1.4rem; height: 1.4rem; flex: none; border-radius: 0.45rem; display: grid; place-items: center; background: var(--grad); color: var(--on-accent); font: 700 0.7rem/1 var(--display); }
+/* contain: size — у SVG нет своей высоты (иначе viewBox 100×600 растягивает слайд), он только тянется по строке сетки */
+html.nx-stage-host .sl-tp-svg { width: 100%; height: auto; align-self: stretch; contain: size; display: block; overflow: visible; }
+html.nx-stage-host .sl-tp-svg path { fill: none; stroke: var(--accent2); stroke-opacity: 0.55; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+html.nx-stage-host .sl-tp-list li { padding: 0.45rem 0.85rem; border-radius: 0.9rem; background: var(--panel); border: 1px solid var(--line); min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+html.nx-stage-host .sl-tp-list h4 { font: 600 0.9rem/1.25 var(--display); color: var(--ink); margin: 0 0 0.15rem; }
+html.nx-stage-host .sl-tp-list p { font-size: 0.76rem; line-height: 1.4; color: var(--muted); margin: 0; }
+html.nx-stage-host .sl-tp-list .sl-src { margin-top: 0.2rem; }
+@media (max-width: 900px) {
+  html.nx-stage-host .sl-tp { grid-template-columns: minmax(0, 1fr); }
+  html.nx-stage-host .sl-tp-cyc, html.nx-stage-host .sl-tp-svg { display: none; }
+  html.nx-stage-host .sl-tp-list { grid-template-rows: none; }
+}
+html.nx-stage-host .sl-live-h { margin-top: 0.9rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink); font-weight: 700; }
+html.nx-stage-host .sl-live-h + .sl-live { margin-top: 0.4rem; }
+html.nx-stage-host .sl-live-h + .sl-foot { margin-top: 0.35rem; }
+
+/* проектор: ?present=1 — чуть крупнее */
+html.nx-stage-host.nx-present { font-size: calc(17px * var(--stage-scale)); }
+
+/* узкие экраны ПК: подписи шагов только у активного */
+@media (max-width: 1500px) {
+  html.nx-stage-host .st-step:not(.active) .lbl { display: none; }
+  html.nx-stage-host .st-step:not(.active) { padding-right: 0.28rem; }
+  html.nx-stage-host .st-step.active { flex-shrink: 1; min-width: 0; max-width: 22rem; }
+  html.nx-stage-host .st-stepper { overflow: hidden; justify-content: safe center; }
+  html.nx-stage-host #chipVoice { display: none; }
+}
+@media (max-width: 1250px) {
+  html.nx-stage-host .st-tool .t { display: none; }
+}
+@media (max-width: 1100px) {
+  html.nx-stage-host .st-brand-t small { display: none; }
+  html.nx-stage-host .sl-g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html.nx-stage-host .roi { grid-template-columns: minmax(0, 1fr); }
+  html.nx-stage-host .sl-const { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Мобильная сцена ≤ 900px: степпер сверху, вкладки «Телефон / Банк»,  */
+/* одна панель на всю ширину, крупные кнопки, без горячих клавиш       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 900px) {
+  html.nx-stage-host { font-size: 16px; height: auto; overflow-x: hidden; overflow-y: auto; --gap: 12px; --sb-h: 26px; }
+  html.nx-stage-host body.st-body { height: auto; min-height: 100vh; overflow-x: hidden; overflow-y: visible; }
+
+  html.nx-stage-host .st-top {
+    position: relative; height: auto; flex-wrap: wrap; gap: 8px 10px; padding: 10px 16px 8px;
+    background: var(--topbar-bg);
+  }
+  html.nx-stage-host .st-brand { flex: 1; min-width: 0; }
+  html.nx-stage-host .st-brand-t { min-width: 0; }
+  html.nx-stage-host .st-brand-t small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+  html.nx-stage-host .st-tools { gap: 6px; }
+  html.nx-stage-host .st-tool { height: 44px; min-width: 44px; padding: 0 12px; font-size: 13px; }
+  html.nx-stage-host .st-tool .t { display: none; }
+  html.nx-stage-host .st-tool-auto .t { display: inline; }
+  html.nx-stage-host .st-hide-m { display: none; }
+  html.nx-stage-host .st-stepper {
+    order: 3; flex-basis: 100%; justify-content: flex-start; overflow-x: auto; gap: 6px;
+    margin: 0 -16px; padding: 2px 16px 4px; scrollbar-width: none; scroll-snap-type: x proximity;
+  }
+  html.nx-stage-host .st-stepper::-webkit-scrollbar { display: none; }
+  html.nx-stage-host .st-step, html.nx-stage-host .st-step:not(.active) { min-height: 40px; padding: 4px 14px 4px 5px; font-size: 13px; flex: none; scroll-snap-align: start; }
+  html.nx-stage-host .st-step .n { width: 28px; height: 28px; font-size: 12px; }
+  html.nx-stage-host .st-step:not(.active) .lbl { display: inline; }
+  html.nx-stage-host .st-status {
+    order: 4; flex-basis: 100%; min-width: 0; overflow-x: auto; flex-wrap: nowrap;
+    margin: 0 -16px; padding: 0 16px; scrollbar-width: none;
+  }
+  html.nx-stage-host .st-status::-webkit-scrollbar { display: none; }
+  html.nx-stage-host .st-chip { font-size: 11px; flex: none; }
+  html.nx-stage-host #chipVoice { display: inline-flex; }
+
+  html.nx-stage-host .st-grid,
+  html.nx-stage-host body.lay-decoy .st-grid,
+  html.nx-stage-host body.lay-bank .st-grid,
+  html.nx-stage-host body.focus-bank .st-grid {
+    display: flex; flex-direction: column; height: auto; gap: 12px;
+    padding: 12px 16px calc(88px + var(--safe-bottom));
+  }
+  html.nx-stage-host .st-mid { display: contents; }
+  html.nx-stage-host #slides { order: 0; }
+  html.nx-stage-host #stepCard { order: 1; }
+  html.nx-stage-host #judgeCard { order: 2; }
+  html.nx-stage-host #mTabs { order: 3; }
+  html.nx-stage-host .st-phone, html.nx-stage-host .st-bankpane { order: 4; }
+  html.nx-stage-host #resultCard { order: 5; }
+  html.nx-stage-host #pushCard { order: 6; }
+  html.nx-stage-host #metricsCard { order: 7; }
+  html.nx-stage-host .st-disclaimer { order: 8; }
+
+  html.nx-stage-host .st-mtabs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px;
+    border-radius: 999px; background: var(--glass); border: 1px solid var(--line2); box-shadow: var(--shadow-sm);
+    position: sticky; top: 8px; z-index: 15; backdrop-filter: blur(10px);
+  }
+  html.nx-stage-host .st-mtab {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px;
+    border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 600 15px/1 var(--font); cursor: pointer;
+  }
+  html.nx-stage-host .st-mtab[aria-selected="true"] { background: var(--grad); color: var(--on-accent); box-shadow: var(--shadow-accent); }
+  html.nx-stage-host .st-mtab .st-dot { background: currentColor; opacity: 0.7; }
+  html.nx-stage-host body.m-tab-phone .st-bankpane { display: none; }
+  html.nx-stage-host body.m-tab-bank .st-phone { display: none; }
+  html.nx-stage-host body.focus-bank .st-phone { visibility: visible; }
+
+  html.nx-stage-host .st-pane-label { font-size: 12px; }
+  html.nx-stage-host .st-phone-shell {
+    flex: none; width: 100%; max-width: 430px; margin: 0 auto; border-radius: 34px; padding: 6px;
+    height: clamp(560px, calc(100vh - 210px), 880px);
+  }
+  html.nx-stage-host .st-phone-shell::before, html.nx-stage-host .st-phone-shell::after { display: none; }
+  html.nx-stage-host .st-phone-screen { border-radius: 28px; }
+  html.nx-stage-host .st-phone-status { font-size: 12px; padding: 0 22px 0 26px; }
+  html.nx-stage-host .st-phone-island { height: 18px; top: 5px; }
+  html.nx-stage-host .st-browser { flex: none; height: clamp(560px, calc(100vh - 200px), 900px); border-radius: 18px; }
+  html.nx-stage-host .st-browser-bar { height: 30px; font-size: 11px; }
+  html.nx-stage-host .st-ribbon { font-size: 13px; }
+  html.nx-stage-host .st-ribbon b { font-size: 14px; }
+
+  html.nx-stage-host .st-card { padding: 14px 16px; border-radius: 18px; }
+  html.nx-stage-host .st-card h2 { font-size: 18px; }
+  html.nx-stage-host .st-card h3 { font-size: 14px; }
+  html.nx-stage-host .st-kicker { font-size: 11px; }
+  html.nx-stage-host .st-cap { font-size: 14px; }
+  /* длинная подпись шага — 4 строки, полностью по нажатию */
+  html.nx-stage-host .st-stepcard .st-cap { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; line-clamp: 4; overflow: hidden; cursor: pointer; }
+  html.nx-stage-host .st-stepcard .st-cap.open { display: block; -webkit-line-clamp: unset; line-clamp: none; }  html.nx-stage-host .st-sub, html.nx-stage-host .st-state { font-size: 13px; }
+  html.nx-stage-host .st-actions .btn, html.nx-stage-host .st-judge-actions .btn { min-height: 44px; font-size: 14px; padding: 10px 16px; }
+  html.nx-stage-host .st-stepcard .st-actions .btn.primary { flex: 1 1 100%; }
+  html.nx-stage-host .st-judge textarea { font-size: 16px; }
+  html.nx-stage-host .st-log { max-height: 46vh; }
+  html.nx-stage-host .st-msg { font-size: 14px; }
+  html.nx-stage-host .st-result p, html.nx-stage-host .st-list li { font-size: 13px; }
+  html.nx-stage-host .st-result .title { font-size: 16px; }
+  html.nx-stage-host .st-m .l, html.nx-stage-host .st-m .s { font-size: 11px; }
+  html.nx-stage-host .st-m .v { font-size: 16px; }
+  html.nx-stage-host .st-disclaimer { font-size: 11px; }
+
+  /* слайды — в потоке страницы, без перекрытия */
+  html.nx-stage-host body.lay-slides #mTabs,
+  html.nx-stage-host body.lay-slides .st-phone,
+  html.nx-stage-host body.lay-slides .st-bankpane,
+  html.nx-stage-host body.lay-slides .st-mid > :not(.st-disclaimer) { display: none; }
+  html.nx-stage-host .st-slides { position: static; z-index: auto; padding: 4px 0 0; background: none; }
+  html.nx-stage-host .st-slides-body { position: static; }
+  html.nx-stage-host .st-slide { position: static; inset: auto; overflow: visible; padding: 0; justify-content: flex-start; }
+  html.nx-stage-host .st-slides-nav { display: none; }
+  html.nx-stage-host .sl-h1 { font-size: 26px; }
+  html.nx-stage-host .sl-h2 { font-size: 20px; }
+  html.nx-stage-host .sl-lead { font-size: 15px; }
+  html.nx-stage-host .sl-card p, html.nx-stage-host .sl-card li { font-size: 14px; }
+  html.nx-stage-host .sl-g2, html.nx-stage-host .sl-g3, html.nx-stage-host .sl-g4,
+  html.nx-stage-host .roi-inputs, html.nx-stage-host .roi-grid, html.nx-stage-host .sl-const { grid-template-columns: minmax(0, 1fr); }
+  html.nx-stage-host .sl-art { grid-template-columns: 34px minmax(0, 1fr); }
+  html.nx-stage-host .sl-art .dec { grid-column: 2; justify-self: start; }
+  html.nx-stage-host .sl-art p { font-size: 14px; }
+  html.nx-stage-host .sl-arch-wrap { overflow-x: auto; margin: 0 -16px; padding: 0 16px; }
+  html.nx-stage-host .sl-arch { min-width: 760px; max-height: none; }
+  html.nx-stage-host .roi-fh label { font-size: 14px; }
+  html.nx-stage-host .roi-note { font-size: 12px; }
+  html.nx-stage-host .roi-field input[type=range] { height: 32px; }
+  html.nx-stage-host .roi-presets .btn { min-height: 40px; }
+
+  /* нижняя панель: ← действие шага → */
+  html.nx-stage-host .st-mbar {
+    display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; gap: 8px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    padding: 10px 16px calc(10px + var(--safe-bottom));
+    background: var(--topbar-bg); border-top: 1px solid var(--line); backdrop-filter: blur(14px); box-shadow: 0 -10px 30px -12px color-mix(in srgb, black 60%, transparent);
+  }
+  html.nx-stage-host .st-mbar-btn {
+    min-height: 50px; border-radius: 999px; border: 1px solid var(--line2); background: var(--panel); box-shadow: var(--shadow-sm);
+    color: var(--text); font: 600 18px/1 var(--font); cursor: pointer; padding: 0 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  }
+  html.nx-stage-host .st-mbar-btn.main { display: block; line-height: 50px; }
+  html.nx-stage-host .st-mbar-btn.main { background: var(--grad); border: 0; color: var(--on-accent); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: var(--shadow-accent); }
+  html.nx-stage-host .st-mbar-btn:disabled { opacity: 0.4; }
+
+  html.nx-stage-host #toasts { top: calc(12px + env(safe-area-inset-top, 0px)); bottom: auto; left: 16px; right: 16px; max-width: none; }
+  html.nx-stage-host .modal-box { max-height: calc(100vh - 32px); }
+  html.nx-stage-host .st-keys { grid-template-columns: 1fr; gap: 2px 0; }
+  html.nx-stage-host .st-keys span { margin-bottom: 6px; }
+}
+/* 3.0 на мобильной сцене: таблица уровней реальности — карточками, шкала решений — 2 × 2 */
+@media (max-width: 900px) {
+  html.nx-stage-host .st-step.active { flex: none; max-width: none; }
+  html.nx-stage-host .st-stepper { overflow-x: auto; justify-content: flex-start; }
+  html.nx-stage-host .sl-real-row.head { display: none; }
+  html.nx-stage-host .sl-real-row { grid-template-columns: minmax(0, 1fr); padding: 6px 0; }
+  html.nx-stage-host .sl-real-row > span { border-left: 0; padding: 4px 14px; font-size: 13px; }
+  html.nx-stage-host .sl-real-row > span:first-child { font-size: 15px; padding-top: 8px; }
+  html.nx-stage-host .sl-real-row > span[data-l]::before { content: attr(data-l); display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+  html.nx-stage-host .sl-real-row > span.l1::before { color: var(--ok-ink); }
+  html.nx-stage-host .sl-real-row > span.l2::before { color: var(--warn-ink); }
+  html.nx-stage-host .sl-real-row > span.l3::before { color: var(--accent-ink); }
+  html.nx-stage-host .sl-tiers-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html.nx-stage-host .st-kv span, html.nx-stage-host .st-stage { font-size: 12px; }
+  html.nx-stage-host .st-cn .a { font-size: 12px; }
+  html.nx-stage-host .st-dna-f li, html.nx-stage-host .st-cycle li { font-size: 13px; }
+  html.nx-stage-host .st-cycle li { grid-template-columns: 96px minmax(0, 1fr); }
+}
+@media (max-width: 1100px) and (min-width: 901px) {
+  html.nx-stage-host .sl-real-row > span { font-size: 0.7rem; padding: 0.35rem 0.5rem; }
+}
+@media (max-width: 380px) {
+  html.nx-stage-host .st-brand-t small { display: none; }
+  html.nx-stage-host .st-tool { padding: 0 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.nx-stage-host *, html.nx-stage-host *::before, html.nx-stage-host *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* ------------------------------------------------------------------ */
+/* P6: «7 шагов + финал», одна точка готовности, полоса из 3 замеров, */
+/* мин. шрифт 14 px на сцене, слайды ≤ 40 слов (база ≥ 18 px)          */
+/* ------------------------------------------------------------------ */
+html.nx-stage-host .st-status[hidden] { display: none !important; }
+/* style.css (самопроверка bench) задаёт «.st-grid span { 12px }» — на сцене #stGrid тоже .st-grid: снимаем, не перебивая правила сцены */
+html.nx-stage-host :where(.st-grid) span { font-size: inherit; color: inherit; line-height: inherit; }
+html.nx-stage-host :where(.st-grid) b { font: inherit; font-weight: 700; letter-spacing: inherit; }
+html.nx-stage-host .st-ready {
+  flex: none; display: inline-flex; align-items: center; gap: 0.45rem; height: 2.05rem; padding: 0 0.7rem;
+  border-radius: 999px; border: 1px solid var(--line2); background: var(--panel); color: var(--muted);
+  font: 500 max(14px, 0.875rem)/1 var(--font); cursor: pointer; white-space: nowrap;
+}
+html.nx-stage-host .st-ready i { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--muted2); flex: none; }
+html.nx-stage-host .st-ready.ok i { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+html.nx-stage-host .st-ready.warn i { background: var(--warn); }
+html.nx-stage-host .st-ready.bad i { background: var(--danger); }
+html.nx-stage-host .st-ready.bad { color: var(--danger-ink); border-color: var(--st-tint-bad); }
+html.nx-stage-host .st-ready.busy i { background: var(--accent); }
+html.nx-stage-host .st-ready:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 1500px) { html.nx-stage-host .st-ready .t { display: none; } html.nx-stage-host .st-ready { padding: 0; width: 2.05rem; justify-content: center; } }
+
+/* степпер: вступление и финал — значки; дальний прыжок вперёд закрыт */
+html.nx-stage-host .st-step { font-size: max(14px, 0.875rem); }
+html.nx-stage-host .st-step .n { font-size: max(14px, 0.8rem); width: 1.55rem; height: 1.55rem; }
+html.nx-stage-host .st-step.gated { opacity: 0.42; cursor: not-allowed; }
+html.nx-stage-host .st-step.gated:hover { background: var(--panel); color: var(--muted); border-color: var(--line); }
+
+/* пуш с действием заменяет карточку шага: остаётся одна строка */
+html.nx-stage-host .st-stepcard.st-collapsed .st-cap,
+html.nx-stage-host .st-stepcard.st-collapsed .st-actions,
+html.nx-stage-host .st-stepcard.st-collapsed .st-state { display: none; }
+html.nx-stage-host .st-stepcard.st-collapsed h2 { margin-bottom: 0; }
+
+/* средняя колонка помещается в высоту без прокрутки: шире, плотнее, строка состояния — только пока нет карточки результата */
+html.nx-stage-host { --mid-w: 21.5rem; }
+html.nx-stage-host body.lay-decoy { --mid-w: clamp(21.5rem, 30vw, 27rem); }
+/* когда шаг выполнен (есть карточка результата или открыт пульт судьи), подпись шага уступает место результату:
+   в карточке шага остаются строка «на что смотреть» и кнопка; подпись — в заметках ведущего (N) */
+html.nx-stage-host #paneMid:has(#resultCard:not(.hidden)) .st-stepcard .st-state,
+html.nx-stage-host #paneMid:has(#resultCard:not(.hidden)) .st-stepcard .st-cap,
+html.nx-stage-host #paneMid:has(#judgeCard:not(.hidden)) .st-stepcard .st-cap,
+html.nx-stage-host #paneMid:has(#judgeCard:not(.hidden)) .st-stepcard .st-state { display: none; }
+html.nx-stage-host .st-log { max-height: clamp(5rem, calc(100vh - 43rem), 24rem); min-height: 5rem; }
+html.nx-stage-host .st-judge-foot { flex-wrap: nowrap; overflow: hidden; }
+html.nx-stage-host .st-judge-foot span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+html.nx-stage-host .st-judge-foot #judgeEquiv { display: none; }
+html.nx-stage-host .st-judge-head .st-sub { display: none; }
+html.nx-stage-host .st-judge-actions .btn.sm { padding: 0.3rem 0.6rem; }
+html.nx-stage-host .st-judge textarea { padding: 0.4rem 0.6rem; }
+html.nx-stage-host .st-judge { gap: 0.3rem; }
+html.nx-stage-host .st-judge textarea { min-height: 0; }
+html.nx-stage-host .st-disclaimer { line-height: 1.35; margin: 0 0.2rem; }
+html.nx-stage-host .st-metrics h3 { margin-bottom: 0.3rem; }
+html.nx-stage-host .st-mstrip .st-m .l { line-height: 1.2; }
+html.nx-stage-host .st-mstrip .st-m .v { margin: 0.05rem 0 0; }
+html.nx-stage-host .st-stepcard h2 { margin: 0.15rem 0 0.3rem; }
+html.nx-stage-host .st-actions { margin-top: 0.5rem; }
+html.nx-stage-host .st-push b { font-size: max(15px, 0.95rem); }
+html.nx-stage-host .st-push p { margin-top: 0.15rem; }
+html.nx-stage-host .st-push-app { margin-bottom: 0.15rem; }
+
+/* живые замеры: полоса из 3 чисел */
+html.nx-stage-host .st-mstrip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; }
+html.nx-stage-host .st-mstrip .st-m { padding: 0.4rem 0.5rem; }
+html.nx-stage-host .st-mstrip .st-m .v { font-size: max(14px, 0.92rem); white-space: normal; overflow-wrap: anywhere; }
+html.nx-stage-host .st-mstrip .st-m .s:empty { display: none; }
+
+/* минимальный шрифт сцены — 14 px (iframe кабинета и банка масштабируются отдельно) */
+html.nx-stage-host .st-sub, html.nx-stage-host .st-kicker, html.nx-stage-host .st-cap, html.nx-stage-host .st-state,
+html.nx-stage-host .st-list li, html.nx-stage-host .st-list li .m, html.nx-stage-host .st-result p, html.nx-stage-host .st-kv span,
+html.nx-stage-host .st-stage, html.nx-stage-host .st-stage i, html.nx-stage-host .st-stage-ar, html.nx-stage-host .st-cn .r, html.nx-stage-host .st-cn .a, html.nx-stage-host .st-cn .x, html.nx-stage-host .st-cn-ar small,
+html.nx-stage-host .st-push-app, html.nx-stage-host .st-push p, html.nx-stage-host .st-disclaimer, html.nx-stage-host .st-pane-label,
+html.nx-stage-host .st-tag, html.nx-stage-host .st-browser-bar, html.nx-stage-host .st-live, html.nx-stage-host .st-tool, html.nx-stage-host .st-tool .k,
+html.nx-stage-host .btn.sm, html.nx-stage-host .btn, html.nx-stage-host .st-chip, html.nx-stage-host .st-m .l, html.nx-stage-host .st-m .s,
+html.nx-stage-host .st-cycle li, html.nx-stage-host .st-cycle .ph, html.nx-stage-host .st-msg, html.nx-stage-host .st-msg .who, html.nx-stage-host .st-msg.sys,
+html.nx-stage-host .st-judge-foot, html.nx-stage-host .st-eng, html.nx-stage-host .st-ap, html.nx-stage-host .st-ioc .v, html.nx-stage-host .st-mask,
+html.nx-stage-host .st-voice, html.nx-stage-host .st-voice .vh, html.nx-stage-host .st-trust-ans, html.nx-stage-host .st-next, html.nx-stage-host .st-src,
+html.nx-stage-host .st-ioc-status, html.nx-stage-host .badge, html.nx-stage-host .st-metrics h3 small, html.nx-stage-host .st-dna-h,
+html.nx-stage-host .st-judge textarea, html.nx-stage-host .st-sb-icons, html.nx-stage-host .st-phone-status, html.nx-stage-host .st-cover,
+html.nx-stage-host .st-ribbon, html.nx-stage-host .st-attack, html.nx-stage-host .sm-list li, html.nx-stage-host .toast, html.nx-stage-host .st-keys, html.nx-stage-host .st-keys kbd,
+html.nx-stage-host .st-help-story, html.nx-stage-host .st-help-h, html.nx-stage-host .st-api, html.nx-stage-host .st-help-foot p, html.nx-stage-host .st-mtab, html.nx-stage-host .st-brand-t small { font-size: max(14px, 0.875rem); }
+html.nx-stage-host .st-kicker { letter-spacing: 0.06em; }
+html.nx-stage-host .st-judge-head b, html.nx-stage-host .st-cn-ar, html.nx-stage-host .st-dna-t { font-size: max(14px, 0.9rem); }
+html.nx-stage-host .st-cap { line-height: 1.45; }
+html.nx-stage-host .st-card h2 { font-size: max(16px, 1.02rem); }
+html.nx-stage-host .st-card h3 { font-size: max(14px, 0.9rem); }
+html.nx-stage-host .st-card { padding: 0.75rem 0.85rem; }
+html.nx-stage-host .st-mid { gap: 0.6rem; }
+html.nx-stage-host .st-cycle li { grid-template-columns: 6.6rem minmax(0, 1fr); line-height: 1.35; }
+html.nx-stage-host .st-cycle .ph { letter-spacing: 0; text-align: left; font-family: var(--font); font-weight: 600; }
+html.nx-stage-host .st-stages { gap: 0.2rem; }
+html.nx-stage-host .st-stage { padding: 0.15rem 0.5rem 0.15rem 0.2rem; }
+html.nx-stage-host .st-result .big { font-size: 1.4rem; }
+html.nx-stage-host .st-voice { padding: 0.45rem 0.6rem; }
+html.nx-stage-host .st-voice .vh { letter-spacing: 0.02em; text-transform: none; }
+html.nx-stage-host .st-dna { margin-top: 0.4rem; padding: 0.4rem 0.55rem; }
+html.nx-stage-host .st-list { gap: 0.2rem; margin-top: 0.3rem; }
+html.nx-stage-host .st-result p { margin-top: 0.28rem; line-height: 1.4; }
+html.nx-stage-host .st-result .sep { margin: 0.5rem 0 0.15rem; }
+html.nx-stage-host .st-result .st-thesis { margin-top: 0.45rem; padding: 0.35rem 0.55rem; }
+
+/* слайды: база ≥ 18 px, источники ≥ 14 px */
+html.nx-stage-host .st-slide { max-width: 64rem; }
+html.nx-stage-host .sl-kicker { font-size: max(14px, 0.95rem); letter-spacing: 0.1em; }
+html.nx-stage-host .sl-h1 { font-size: clamp(2.1rem, 4.4vw, 3.4rem); }
+html.nx-stage-host .sl-h2 { font-size: clamp(1.6rem, 2.9vw, 2.4rem); margin-bottom: 1.1rem; }
+html.nx-stage-host .sl-lead { font-size: max(18px, 1.35rem); color: var(--text); }
+html.nx-stage-host .sl-card p, html.nx-stage-host .sl-card li { font-size: max(18px, 1.2rem); color: var(--text); }
+html.nx-stage-host .sl-card h4 { font-size: max(20px, 1.35rem); }
+html.nx-stage-host .sl-num { font-size: clamp(2.4rem, 4.4vw, 3.6rem); }
+html.nx-stage-host .sl-src, html.nx-stage-host .sl-foot { font-size: max(14px, 0.95rem); color: var(--muted); }
+html.nx-stage-host .sl-src { margin-top: 0.8rem; }
+html.nx-stage-host .sl-thesis { font-size: max(18px, 1.3rem); margin-top: 1.3rem; }
+html.nx-stage-host .sl-icons { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.8rem; }
+html.nx-stage-host .sl-ic { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.45rem; padding: 1.1rem 0.6rem; border-radius: 1.2rem; background: var(--panel); border: 1px solid var(--line); }
+html.nx-stage-host .sl-ic .sl-ico { width: 3.2rem; height: 3.2rem; border-radius: 1rem; }
+html.nx-stage-host .sl-ic .sl-ico svg { width: 1.6rem; height: 1.6rem; }
+html.nx-stage-host .sl-ic b { font: 600 max(18px, 1.15rem)/1.2 var(--display); color: var(--ink); }
+html.nx-stage-host .sl-ic small { font-size: max(16px, 1rem); color: var(--muted); line-height: 1.3; }
+html.nx-stage-host .sl-topics { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; counter-reset: tp; }
+html.nx-stage-host .sl-topics li { counter-increment: tp; display: flex; gap: 0.7rem; align-items: center; padding: 0.85rem 1rem; border-radius: 1rem; background: var(--panel); border: 1px solid var(--line); font-size: max(18px, 1.2rem); line-height: 1.3; color: var(--ink); }
+html.nx-stage-host .sl-topics li::before { content: counter(tp); flex: none; width: 2rem; height: 2rem; border-radius: 0.6rem; display: grid; place-items: center; background: var(--grad); color: var(--on-accent); font: 700 max(14px, 0.95rem)/1 var(--display); }
+html.nx-stage-host .sl-bul { margin: 0; padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.7rem; }
+html.nx-stage-host .sl-bul li { font-size: max(18px, 1.3rem); line-height: 1.4; color: var(--text); }
+html.nx-stage-host .sl-bul li b { color: var(--ink); }
+html.nx-stage-host .sl-bul a { color: var(--accent-ink); }
+html.nx-stage-host .sl-card .sl-bul li { font-size: max(18px, 1.2rem); }
+html.nx-stage-host .sl-new { margin-top: 1rem; font-size: max(18px, 1.25rem); color: var(--accent-ink); font-weight: 600; }
+html.nx-stage-host .st-dots i { width: 0.6rem; height: 0.6rem; }
+@media (max-width: 1100px) { html.nx-stage-host .sl-icons { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* мобильная сцена: шапка ≤ 56 px, степпер — в нижней панели «Шаг 3/7», без чипов */
+@media (max-width: 900px) {
+  html.nx-stage-host .st-top { flex-wrap: nowrap; height: 56px; padding: 6px 16px; gap: 8px; }
+  html.nx-stage-host .st-stepper { display: none; }
+  html.nx-stage-host .st-brand-t small { display: none; }
+  html.nx-stage-host .st-logo { width: 34px; height: 34px; }
+  html.nx-stage-host .st-ready { width: 44px; height: 44px; padding: 0; justify-content: center; }
+  html.nx-stage-host .st-ready .t { display: none; }
+  html.nx-stage-host .st-tool { height: 44px; }
+  html.nx-stage-host .st-mbar { grid-template-columns: 52px auto minmax(0, 1fr) 52px; align-items: center; }
+  html.nx-stage-host .st-mstep { font: 600 14px/1.2 var(--font); color: var(--muted); white-space: nowrap; text-align: center; min-width: 52px; }
+  html.nx-stage-host .sl-h1 { font-size: 28px; }
+  html.nx-stage-host .sl-h2 { font-size: 22px; }
+  html.nx-stage-host .sl-topics { grid-template-columns: minmax(0, 1fr); }
+  html.nx-stage-host .sl-card p, html.nx-stage-host .sl-card li, html.nx-stage-host .sl-bul li, html.nx-stage-host .sl-topics li { font-size: 16px; }
+  html.nx-stage-host .sl-thesis, html.nx-stage-host .sl-lead { font-size: 17px; }
+  html.nx-stage-host .sl-num { font-size: 36px; }
+}
+@media (max-width: 420px) {
+  html.nx-stage-host .st-brand-t { display: none; }
+}
+html.nx-stage-host .st-mstep { display: none; }
+@media (max-width: 900px) { html.nx-stage-host .st-mstep { display: block; } }
+
+/* ------------------------------------------------------------------ */
+/* P7 · полировка: спокойная сцена для проектора (Swiss, плоские        */
+/* поверхности, один акцент, цели 44 px, видимый фокус --focus)         */
+/* ------------------------------------------------------------------ */
+html.nx-stage-host { --top-h: 4rem; --st-ctl: 2.75rem; }
+
+/* фокус и отклик — одинаковые у всех элементов сцены */
+html.nx-stage-host :is(.btn, .st-tool, .st-step, .st-ready, .st-mtab, .st-mbar-btn, .st-brand, .st-tag, a):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+html.nx-stage-host :is(.btn, .st-tool, .st-step, .st-ready, .st-mtab, .st-mbar-btn) { transition: background-color var(--dur), border-color var(--dur), color var(--dur), opacity var(--dur); }
+html.nx-stage-host .btn.primary { background-image: none; box-shadow: none; }
+html.nx-stage-host .btn.primary:hover { filter: none; background-color: var(--accent); }
+
+/* шапка: бренд · степпер · готовность · пульт ведущего */
+html.nx-stage-host .st-top { gap: 1rem; padding: 0 1rem; }
+html.nx-stage-host .st-brand { min-height: var(--st-ctl); border-radius: var(--radius-xs); }
+html.nx-stage-host .st-logo { width: 2.25rem; height: 2.25rem; border-radius: 0.625rem; background: var(--accent-solid); box-shadow: none; }
+html.nx-stage-host .st-brand-t b i { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--accent-ink); }
+
+html.nx-stage-host .st-stepper { gap: 0.375rem; }
+html.nx-stage-host .st-step { height: var(--st-ctl); padding: 0 1rem 0 0.4rem; gap: 0.5rem; border-color: var(--line2); box-shadow: none; }
+html.nx-stage-host .st-step:not(.active) { width: var(--st-ctl); padding: 0; justify-content: center; flex: none; }
+html.nx-stage-host .st-step .n { width: 1.9rem; height: 1.9rem; background: transparent; font-variant-numeric: tabular-nums; }
+html.nx-stage-host .st-step .n svg { width: 0.9rem; height: 0.9rem; }
+html.nx-stage-host .st-step:not(.active) .n { background: transparent; }
+html.nx-stage-host .st-step.done { border-color: var(--ok-line); }
+html.nx-stage-host .st-step.done .n { background: transparent; color: var(--ok-ink); }
+html.nx-stage-host .st-step.active { background: var(--accent-solid); border-color: var(--accent-solid); color: var(--on-accent); box-shadow: none; font-weight: 600; }
+html.nx-stage-host .st-step.active .n { background: color-mix(in srgb, var(--on-accent) 20%, transparent); color: var(--on-accent); }
+html.nx-stage-host .st-step.gated { opacity: 0.45; border-style: dashed; }
+
+html.nx-stage-host .st-tools { gap: 0.5rem; }
+html.nx-stage-host .st-tool { height: var(--st-ctl); min-width: var(--st-ctl); padding: 0 0.9rem; gap: 0.5rem; box-shadow: none; font-weight: 600; }
+html.nx-stage-host .st-tool .k { display: inline-grid; place-items: center; min-width: 1.4rem; height: 1.4rem; padding: 0 0.25rem; border-radius: 0.375rem; border: 1px solid var(--line2); background: var(--bg2); color: var(--accent-ink); line-height: 1; }
+html.nx-stage-host .st-tool:not(:has(.t)) { padding: 0; }
+html.nx-stage-host .st-tool:not(:has(.t)) .k { border: 0; background: none; }
+html.nx-stage-host .st-tool-auto { border-color: var(--accent-line); }
+html.nx-stage-host .st-tool.on { background: var(--accent-solid); border-color: var(--accent-solid); color: var(--on-accent); box-shadow: none; }
+html.nx-stage-host .st-tool.on .k { background: color-mix(in srgb, var(--on-accent) 18%, transparent); border-color: transparent; color: var(--on-accent); }
+html.nx-stage-host .st-ready { height: var(--st-ctl); min-width: var(--st-ctl); padding: 0 0.9rem; }
+@media (max-width: 1500px) { html.nx-stage-host .st-ready { width: var(--st-ctl); padding: 0; } }
+html.nx-stage-host .st-slides-nav .st-tool { width: var(--st-ctl); padding: 0; }
+html.nx-stage-host .st-slides-nav .st-tool svg, html.nx-stage-host .st-mbar-btn svg { width: 1.25rem; height: 1.25rem; }
+
+/* средняя колонка: одинаковые карточки, плоские, цвет состояния — полоса слева + слово в заголовке */
+html.nx-stage-host .st-card { border-radius: var(--radius); box-shadow: var(--shadow-sm); animation: none; }
+html.nx-stage-host .st-stepcard { border-color: var(--accent-line); }
+html.nx-stage-host .st-stepcard::before { display: none; }
+html.nx-stage-host .st-stepcard { box-shadow: inset 3px 0 0 var(--accent), var(--shadow-sm); }
+html.nx-stage-host .st-stepcard h2 { font-size: max(17px, 1.08rem); line-height: 1.25; }
+html.nx-stage-host .st-kicker { color: var(--accent-ink); font-weight: 600; }
+html.nx-stage-host .st-push { background: var(--panel); border-color: var(--violet-line); box-shadow: inset 3px 0 0 var(--accent2), var(--shadow-sm); }
+html.nx-stage-host .st-result.held { background: var(--panel); border-color: var(--ok-line); box-shadow: inset 3px 0 0 var(--ok), var(--shadow-sm); }
+html.nx-stage-host .st-result.stepup { background: var(--panel); border-color: var(--warn-line); box-shadow: inset 3px 0 0 var(--warn), var(--shadow-sm); }
+html.nx-stage-host .st-result.anchor { background: var(--panel); border-color: var(--accent-line); box-shadow: inset 3px 0 0 var(--accent), var(--shadow-sm); }
+html.nx-stage-host .st-judge { box-shadow: inset 3px 0 0 var(--danger), var(--shadow-sm); }
+html.nx-stage-host .st-list.checks li .m { display: inline-flex; align-items: center; justify-content: center; align-self: center; }
+html.nx-stage-host .st-list li .m svg, html.nx-stage-host .st-api svg { width: 0.9rem; height: 0.9rem; vertical-align: -0.12em; }
+html.nx-stage-host .st-dna-f .b i { background: var(--accent); }
+
+/* живые замеры: три плитки, крупные табличные цифры */
+html.nx-stage-host .st-metrics h3 { font: 600 max(14px, 0.875rem)/1.3 var(--font); color: var(--muted); }
+html.nx-stage-host .st-mstrip { gap: 0.5rem; }
+html.nx-stage-host .st-mstrip .st-m { border-radius: var(--radius-xs); padding: 0.45rem 0.5rem; background: var(--bg2); }
+html.nx-stage-host .st-mstrip .st-m .v { font: 700 max(17px, 1.06rem)/1.2 var(--font); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; margin-top: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+html.nx-stage-host .st-m .l, html.nx-stage-host .st-m .s { color: var(--muted); }
+
+/* окна: телефон и банк */
+html.nx-stage-host .st-browser { border-radius: var(--radius); box-shadow: var(--shadow); }
+html.nx-stage-host .st-live { font-weight: 600; }
+html.nx-stage-host .st-tag { border: 1px solid var(--line2); cursor: pointer; }
+
+/* слайды: крупная типографика, один акцент, без градиентных заливок */
+html.nx-stage-host .st-slides { padding-top: 2rem; }
+html.nx-stage-host .sl-grad, html.nx-stage-host .sl-num.acc { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--accent-ink); }
+html.nx-stage-host .sl-kicker::before { background: var(--accent); }
+html.nx-stage-host .sl-h1, html.nx-stage-host .sl-h2 { line-height: 1.15; text-wrap: balance; }
+html.nx-stage-host .sl-lead { max-width: 46rem; }
+html.nx-stage-host .sl-card { border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm); }
+html.nx-stage-host .sl-card.hl, html.nx-stage-host .sl-card.vi { background: var(--panel); border-color: var(--accent-line); }
+html.nx-stage-host .sl-card p, html.nx-stage-host .sl-card li { line-height: 1.45; }
+html.nx-stage-host .sl-thesis { border-left-color: var(--accent); background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 1rem 1.25rem; }
+html.nx-stage-host .sl-icons { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+html.nx-stage-host .sl-ic { flex-direction: row; align-items: center; text-align: left; gap: 1rem; padding: 1.25rem; border-radius: var(--radius-lg); min-width: 0; }
+html.nx-stage-host .sl-ic > div { min-width: 0; }
+html.nx-stage-host .sl-ic b { display: block; overflow-wrap: anywhere; }
+html.nx-stage-host .sl-ic small { display: block; margin-top: 0.25rem; }
+html.nx-stage-host .sl-ic .sl-ico { flex: none; }
+html.nx-stage-host :is(.sl-ph span, .sl-tp-n, .sl-team .av, .sl-art.anchor .no, .sl-wow .sl-card.vi .ico) { background: var(--accent-solid); box-shadow: none; }
+html.nx-stage-host .sl-topics li::before { background: var(--accent-solid); }
+html.nx-stage-host .st-dots { gap: 0.5rem; }
+html.nx-stage-host .st-dots i.on { background: var(--accent); }
+html.nx-stage-host .st-slides-nav { gap: 1rem; }
+/* ROI (только ?full=1) — тоже плоско */
+html.nx-stage-host .roi-field.main { background: var(--panel); border-color: var(--accent-line); }
+html.nx-stage-host .roi-big { background: var(--panel); border-color: var(--ok-line); box-shadow: inset 3px 0 0 var(--ok), var(--shadow-sm); }
+html.nx-stage-host :is(.roi-note, .roi-cap, .roi-sub, .roi-foot, .roi-assume, .roi-chip, .roi-fh label) { font-size: max(14px, 0.875rem); }
+html.nx-stage-host .roi-cap { letter-spacing: 0.04em; }
+html.nx-stage-host :is(.roi-field, .roi-grid > div) { border-radius: var(--radius-sm); }
+
+/* мобильная сцена 375: бренд — цель 44 px, вкладки и нижняя панель — сплошной акцент */
+@media (max-width: 900px) {
+  html.nx-stage-host .st-top { gap: 8px; }
+  html.nx-stage-host .st-brand { min-width: 44px; min-height: 44px; justify-content: center; }
+  html.nx-stage-host .st-logo { width: 36px; height: 36px; }
+  html.nx-stage-host .st-tool, html.nx-stage-host .st-ready { height: 44px; min-width: 44px; }
+  html.nx-stage-host .st-tool:not(:has(.t)) { width: 44px; }
+  html.nx-stage-host .st-tool .k { min-width: 22px; height: 22px; }
+  html.nx-stage-host .st-mtab[aria-selected="true"] { background: var(--accent-solid); box-shadow: none; }
+  html.nx-stage-host .st-mbar-btn { box-shadow: none; }
+  html.nx-stage-host .st-mbar-btn.main { background: var(--accent-solid); box-shadow: none; }
+  html.nx-stage-host .st-mbar-btn:not(.main) { display: grid; place-items: center; padding: 0; }
+  html.nx-stage-host .st-card { border-radius: var(--radius); }
+  html.nx-stage-host .st-mstrip .st-m .v { font-size: 18px; }
+  html.nx-stage-host .st-slides { padding-top: 4px; }
+  html.nx-stage-host .sl-icons { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  html.nx-stage-host .sl-ic { padding: 14px 16px; }
+  html.nx-stage-host .sl-card { padding: 16px; }
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+  html.nx-stage-host .sl-icons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ------------------------------------------------------------------ */
+/* 2. Встроенные страницы (client.html / bank.html внутри сцены)       */
+/* ------------------------------------------------------------------ */
+html.nx-stage-frame body { overflow-x: hidden; }
+/* демо-кнопки, сброс и ссылки-переходы — на сцене, а не в продукте */
+html.nx-stage-frame #demoBtn,
+html.nx-stage-frame #resetBtn,
+html.nx-stage-frame #bankReset,
+html.nx-stage-frame .sidebar-foot .btn,
+html.nx-stage-frame [data-demo-run] { display: none !important; }
+/* мелкий текст читаемее на проекторе */
+html.nx-stage-frame .tiny { font-size: 12px; }
+html.nx-stage-frame .small { font-size: 13px; }
+html.nx-stage-frame .modal-box { max-height: calc(100vh - 24px); }
+
+/* клиент в рамке телефона: статус-бар рисует сцена, высоты под экран телефона */
+html.nx-stage-client .transcript { height: clamp(220px, calc(100vh - 430px), 360px); }
+html.nx-stage-client .messenger { height: clamp(380px, calc(100vh - 220px), 600px); }
+
+/* банк на ПК: сайдбар — узкая полоса иконок, больше места под данные
+   (на мобильной сцене — собственная мобильная раскладка bank.html) */
+html.nx-stage-bank:not(.nx-stage-mobile) .app { grid-template-columns: 60px minmax(0, 1fr); }
+html.nx-stage-bank:not(.nx-stage-mobile) .sidebar { padding: 14px 8px; overflow-x: hidden; }
+html.nx-stage-bank:not(.nx-stage-mobile) .sidebar .brand { padding: 2px 0 12px; justify-content: center; }
+html.nx-stage-bank:not(.nx-stage-mobile) .sidebar .brand > div:not(.brand-logo) { display: none; }
+html.nx-stage-bank:not(.nx-stage-mobile) .sidebar .nav-btn { font-size: 0; justify-content: center; padding: 10px 0; position: relative; }
+html.nx-stage-bank:not(.nx-stage-mobile) .sidebar .nav-btn svg { width: 20px; height: 20px; }
+html.nx-stage-bank:not(.nx-stage-mobile) .sidebar .nav-btn .nav-badge { font-size: 10px; position: absolute; top: 2px; right: 2px; margin: 0; }
+html.nx-stage-bank:not(.nx-stage-mobile) .sidebar .nav-label,
+html.nx-stage-bank:not(.nx-stage-mobile) .sidebar .sidebar-foot { display: none; }
+html.nx-stage-bank:not(.nx-stage-mobile) .topbar { padding: 10px 18px; }
+html.nx-stage-bank:not(.nx-stage-mobile) .content { padding: 14px 18px 48px; }
+html.nx-stage-bank:not(.nx-stage-mobile) .graph-wrap { height: clamp(320px, calc(100vh - 200px), 620px); }

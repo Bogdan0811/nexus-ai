@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEXUS AI · Честный бенчмарк</title>
+<meta name="description" content="Бенчмарк NEXUS AI в браузере: precision, recall, F1, FPR на корпусе RU+KZ, время до обнаружения и тип атаки детектора манипуляций на синтетических звонках, отдельно — живые замеры сцены. Корпус синтетический, размечен командой.">
+<meta name="theme-color" content="#05070D">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235457E8'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='900' font-size='16' text-anchor='middle' fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
+<script>try{if(/[?&]present(=(1|true|on|yes)?)?(&|$)/.test(location.search))document.documentElement.className+=' nx-present';}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .bnav { position: sticky; top: 0; z-index: 50; background: var(--topbar-bg); -webkit-backdrop-filter: saturate(1.6) blur(16px); backdrop-filter: saturate(1.6) blur(16px); border-bottom: 1px solid var(--line); padding-top: var(--safe-top); }
+  .bnav-in { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .bnav .brand { padding: 0; color: inherit; text-decoration: none; }
+  .bnav .brand-sub { display: none; }
+  body { font-size: 16px; line-height: 1.55; }
+  .wrap-b p.small, .wrap-b .more-b .small, .wrap-b .plan { font-size: 14px; line-height: 1.55; }
+  .bnav .links { display: flex; gap: 8px; align-items: center; }
+  .bnav .links .btn:not(.primary) { display: none; }
+  .wrap-b { max-width: 1200px; margin: 0 auto; padding: 0 16px calc(48px + var(--safe-bottom)); }
+  .bhead { position: relative; padding: 28px 0 6px; }
+  .bhead h1 { font-size: clamp(26px, 6.4vw, 40px); line-height: 1.15; letter-spacing: -0.03em; margin: 16px 0 16px; max-width: 24em; }
+  .bhead p { color: var(--muted); max-width: var(--measure); font-size: 16px; line-height: 1.6; }
+  .bhead p b { color: var(--text); }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; }
+  .controls .tabs { flex: none; max-width: 100%; }
+  .thr { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 240px; }
+  .thr input[type=range] { flex: 1; min-width: 110px; accent-color: var(--accent); }
+  .thr .v { font-family: var(--display); font-size: 24px; font-weight: 600; min-width: 40px; text-align: right; color: var(--accent-ink); letter-spacing: -0.03em; }
+  .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .kpis .card .value { font-size: 26px; }
+  .kpis .ci { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .cm { display: grid; grid-template-columns: 84px 1fr 1fr; gap: 8px; font-size: 13px; }
+  .cm .h { color: var(--muted); font-size: 12px; display: flex; align-items: flex-end; justify-content: center; text-align: center; padding: 4px; }
+  .cm .rh { color: var(--muted); font-size: 12px; display: flex; align-items: center; padding: 4px; }
+  .cm .cell { border-radius: 16px; padding: 16px 10px; text-align: center; border: 1px solid var(--line); background: var(--bg2); }
+  .cm .cell b { display: block; font-family: var(--display); font-size: 26px; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .cm .cell span { font-size: 12px; color: var(--muted); }
+  .cm .tp { border-color: color-mix(in srgb, var(--ok) 35%, transparent); background: var(--ok-soft); }
+  .cm .tp b { color: var(--ok-ink); }
+  .cm .tn { border-color: color-mix(in srgb, var(--info) 30%, transparent); background: var(--info-soft); }
+  .cm .tn b { color: var(--info-ink); }
+  .cm .fn { border-color: color-mix(in srgb, var(--danger) 38%, transparent); background: var(--danger-soft); }
+  .cm .fn b { color: var(--danger-ink); }
+  .cm .fp { border-color: color-mix(in srgb, var(--warn) 40%, transparent); background: var(--warn-soft); }
+  .cm .fp b { color: var(--warn-ink); }
+  .br-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .br-row b { font-size: 18px; font-family: var(--mono); flex: none; font-variant-numeric: tabular-nums; }
+  .mbar { height: 8px; border-radius: 8px; background: var(--panel3); overflow: hidden; min-width: 60px; }
+  .mbar i { display: block; height: 100%; border-radius: 8px; }
+  .mbar i.ok { background: var(--ok); }
+  .mbar i.bad { background: var(--warn); }
+  td.wbar { width: 18%; }
+  #byLang td, #opsTable td { white-space: normal; }
+  @media (max-width: 1180px) { td.wbar, #byLang th:nth-child(3), #byLang th:nth-child(5) { display: none; } }
+  .table tr.cur td { background: var(--accent-soft); }
+  .srow { display: grid; grid-template-columns: minmax(0, 1fr) 30% 48px; gap: 10px; align-items: center; font-size: 13px; padding: 4px 0; }
+  .srow .sl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .srow .sv { font-family: var(--mono); text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mb-s { margin-bottom: 8px; }
+  .err { padding: 16px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--line); margin-bottom: 10px; }
+  .err.fn { border-left: 3px solid var(--danger); }
+  .err.fp { border-left: 3px solid var(--warn); }
+  .err-h { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .err-score { margin-left: auto; font-family: var(--mono); font-weight: 700; font-size: 13px; }
+  .err-t { font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+  .err-r { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .err-r li { font-size: 13px; color: var(--muted); display: flex; gap: 8px; }
+  .err-r .w { font-family: var(--mono); color: var(--text); flex: none; min-width: 34px; }
+  #errList { max-height: 720px; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
+  .plan li { margin-bottom: 8px; }
+  .plan { padding-left: 18px; margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+  .plan b { color: var(--text); }
+  .canvas-box canvas { width: 100%; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  /* части страницы: тест модели / замеры демо */
+  html { scroll-padding-top: 72px; }
+  .parts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; max-width: 900px; }
+  .part { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--line); color: var(--text); text-decoration: none; box-shadow: var(--shadow-sm); }
+  .part:hover { border-color: var(--accent-line); text-decoration: none; }
+  .part .pk { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; }
+  .part b { font-size: 15px; }
+  .part span:last-child { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .part-h { margin-top: 40px; scroll-margin-top: 72px; }
+  .part-h h2 { font-size: clamp(20px, 4.6vw, 28px); letter-spacing: -0.02em; margin: 10px 0 6px; }
+  .part-h p { max-width: 860px; line-height: 1.55; }
+  #benchRoot > .part-h:first-child { margin-top: 26px; }
+  #callsRoot h4 { font-size: 15px; }
+  .calls { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .callx { border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--line); padding: 10px 12px; }
+  .callx[open] { border-color: var(--line2); }
+  .callx summary { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; min-height: 44px; cursor: pointer; list-style: none; }
+  .callx summary::-webkit-details-marker { display: none; }
+  .callx summary::before { content: '▸'; color: var(--muted2); font-size: 12px; transition: transform .15s; }
+  .callx[open] summary::before { transform: rotate(90deg); }
+  .callx .cmeta { margin-left: auto; font-size: 13px; color: var(--muted); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .clines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .clines li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; font-size: 13px; line-height: 1.5; padding: 5px 8px; border-radius: 8px; }
+  .clines li.c { color: var(--muted); }
+  .clines li.al { background: var(--danger-soft); }
+  .clines .no { font-family: var(--mono); font-size: 12px; color: var(--muted2); text-align: right; padding-top: 1px; }
+  .clines .tx { overflow-wrap: anywhere; }
+  #stageRoot .empty, #callsRoot .empty { text-align: left; }
+  @media (max-width: 599px) { .callx .cmeta { margin-left: 0; width: 100%; } }
+  @media (min-width: 700px) { .parts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  footer { border-top: 1px solid var(--line); padding: 24px 0 0; margin-top: 40px; }
+  footer .sig { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  @media (min-width: 600px) {
+    .bnav-in, .wrap-b { padding-left: 24px; padding-right: 24px; }
+    .bnav .brand-sub { display: block; }
+    .cm { grid-template-columns: 120px 1fr 1fr; }
+    .cm .cell b { font-size: 30px; }
+  }
+  @media (min-width: 900px) {
+    .bnav .links .btn:not(.primary) { display: inline-flex; }
+    .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .kpis .card .value { font-size: 30px; }
+    .bhead { padding-top: 40px; }
+  }
+  @media (max-width: 520px) {
+    td.wbar { display: none; }
+    .kpis .card { padding: 14px; }
+    .kpis .card .value { font-size: 22px; }
+    .kpis .label { font-size: 12px; }
+    .br-row { flex-wrap: wrap; }
+    #baseRate { width: 100% !important; min-height: 44px !important; }
+    .bnav .brand { min-height: 44px; }
+  }
+  /* P6: первый экран — 4 числа, части — вкладки, длинные блоки свёрнуты */
+  .btop { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 8px; }
+  .btop .card { padding: 16px; min-width: 0; }
+  .btop .label { font-size: 13px; color: var(--muted); line-height: 1.35; }
+  .btop .value { font-family: var(--display); font-size: 28px; font-weight: 600; letter-spacing: -0.03em; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
+  .btop .ci { font-size: 12px; color: var(--muted2); }
+  .bhonest { margin-top: 16px; font-size: 16px; max-width: var(--measure); }
+  .ptabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 24px; padding: 4px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--line); }
+  .ptab { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; min-height: 48px; padding: 8px 10px; border-radius: 12px; border: 0; background: transparent; color: var(--muted); font: 600 14px/1.25 var(--font); text-align: left; cursor: pointer; transition: background-color var(--dur) ease, color var(--dur) ease; }
+  .ptab:hover { color: var(--text); background: var(--panel2); }
+  .ptab .pk { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); }
+  .ptab[aria-selected="true"] { background: var(--accent-soft); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent-soft2); }
+  .ptab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .bpart[hidden] { display: none; }
+  details.bfold > summary { cursor: pointer; list-style: none; min-height: 44px; }
+  details.bfold > summary::-webkit-details-marker { display: none; }
+  details.bfold > summary h3::before { content: '▸ '; color: var(--muted2); }
+  details.bfold[open] > summary h3::before { content: '▾ '; }
+  details.bfold:not([open]) > summary { margin-bottom: 0; }
+  @media (min-width: 900px) { .btop { grid-template-columns: repeat(4, minmax(0, 1fr)); } .btop .value { font-size: 32px; } }
+  @media (max-width: 420px) { .ptab { font-size: 13px; padding: 8px 6px; } }
+  html.nx-present body { font-size: 16px; }
+  html.nx-present .small, html.nx-present .err-r li, html.nx-present .srow { font-size: 14px; }
+  html.nx-present .bhead p, html.nx-present .err-t { font-size: 17px; }
+</style>
+</head>
+<body>
+<header class="bnav">
+  <div class="bnav-in">
+    <a class="brand" href="index.html"><div class="brand-logo">N</div><div><div class="brand-name">NEXUS AI</div><div class="brand-sub">Честный бенчмарк</div></div></a>
+    <nav class="links" aria-label="Навигация">
+      <a class="btn ghost sm" href="index.html">Лендинг</a>
+      <a class="btn ghost sm" href="client.html">Кабинет клиента</a>
+      <a class="btn ghost sm" href="bank.html">Панель банка</a>
+      <a class="btn primary sm" href="stage.html" data-icon="play">Презентация</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap-b">
+  <header class="bhead">
+    <span class="badge info">Измерено в вашем браузере</span>
+    <h1>Честный бенчмарк: как часто NEXUS ошибается и как рано замечает мошенника</h1>
+    <div class="btop" id="bTop" aria-live="polite">
+      <div class="card"><div class="label">Найдено мошенничества · основной корпус</div><div class="value" id="tRecall">…</div><div class="ci" id="tRecallS">порог 25</div></div>
+      <div class="card"><div class="label">Найдено мошенничества · отложенная выборка</div><div class="value" id="tHold">…</div><div class="ci" id="tHoldS">другой стиль текста, порог 25</div></div>
+      <div class="card"><div class="label">Ложные тревоги · основной корпус</div><div class="value" id="tFpr">…</div><div class="ci" id="tFprS">на честных сообщениях</div></div>
+      <div class="card"><div class="label">Тревога до просьбы кода</div><div class="value" id="tCode">…</div><div class="ci" id="tCodeS">синтетические звонки, порог 55</div></div>
+    </div>
+    <p class="bhonest"><b>Корпус и звонки написала и разметила наша команда — это проверка логики, а не качество на данных банка.</b> Все числа считаются сейчас, при загрузке страницы.</p>
+    <details class="more mt-s"><summary>Подробнее о корпусе</summary><div class="more-b"><p class="small muted">Страница прогоняет те же движки, что в кабинете клиента: <span class="mono">NX.scanText</span> — по корпусу из <b id="corpusSize">…</b> на русском и казахском, <span class="mono">NX.Manip</span> — по синтетическим звонкам, реплика за репликой. Тексты написаны по публичным описаниям схем, номера и счета заменены заглушками. Правила писала та же команда, поэтому основной корпус — проверка здравого смысла; отложенная выборка другого стиля (расшифровки, транслит, мессенджеры) ближе к реальности. Настоящую оценку даст только план валидации на данных банка.</p></div></details>
+    <div class="ptabs" role="tablist" aria-label="Части бенчмарка">
+      <button type="button" class="ptab" role="tab" data-part="p1" id="tab-p1" aria-controls="p1" aria-selected="true"><span class="pk">Часть 1</span>Тест модели</button>
+      <button type="button" class="ptab" role="tab" data-part="p2" id="tab-p2" aria-controls="p2" aria-selected="false"><span class="pk">Часть 2</span>Замеры демо</button>
+      <button type="button" class="ptab" role="tab" data-part="p3" id="tab-p3" aria-controls="p3" aria-selected="false"><span class="pk">Часть 3</span>Устойчивость NEXUS</button>
+    </div>
+  </header>
+
+  <main id="benchRoot">
+   <section class="bpart" id="p1" role="tabpanel" aria-labelledby="tab-p1">
+    <div class="part-h" id="model"><span class="badge info">Часть 1 · тест модели</span><h2>Сообщения: корпус RU + KZ</h2><p class="small muted">Тексты SMS, мессенджеров и расшифровок. Тревога — индекс риска 0–100 не ниже порога. Индекс не является вероятностью.</p></div>
+    <section class="card mt">
+      <div class="controls">
+        <div class="tabs" role="group" aria-label="Набор данных">
+          <button class="tab" data-set="train" type="button">Основной · <span id="setTrainN">—</span></button>
+          <button class="tab" data-set="holdout" type="button">Holdout · <span id="setHoldN">—</span></button>
+          <button class="tab" data-set="all" type="button">Все · <span id="setAllN">—</span></button>
+        </div>
+        <div class="thr">
+          <label for="thrSlider" class="small muted" style="white-space:nowrap">Порог тревоги</label>
+          <input id="thrSlider" type="range" min="1" max="99" step="1" value="55" aria-describedby="thrHint">
+          <span class="v" id="thrVal">55</span>
+        </div>
+        <div class="row gap-s wrap">
+          <button class="chip" data-thr="25" type="button">25 · «подозрительно»</button>
+          <button class="chip" data-thr="55" type="button">55 · «высокий риск»</button>
+        </div>
+      </div>
+      <div class="row wrap between mt">
+        <label class="check" style="margin:0;flex:1 1 280px"><input type="checkbox" id="useStop"> Учитывать стоп-лист этого браузера (реквизиты, оставшиеся после демо). По умолчанию выключено: оцениваем только текст.</label>
+        <button class="btn sm" id="rerun" type="button" data-icon="reset">Пересчитать</button>
+      </div>
+      <p class="small muted mt-s" id="thrHint">В продукте 55 и выше — «высокий индекс риска», 25–54 — «подозрительное сообщение». Здесь тревогой считается индекс не ниже выбранного порога.</p>
+      <p class="small muted mt-s" id="runInfo">Считаем…</p>
+    </section>
+
+    <section class="kpis mt">
+      <div class="card kpi"><div class="label">Precision · из тревог — мошенничество</div><div class="value" id="kPrecision">—</div><div class="ci" id="kPrecisionCi"></div></div>
+      <div class="card kpi"><div class="label">Recall · поймано мошенничества</div><div class="value" id="kRecall">—</div><div class="ci" id="kRecallCi"></div></div>
+      <div class="card kpi"><div class="label">FPR · ложные тревоги на легитимных</div><div class="value" id="kFpr">—</div><div class="ci" id="kFprCi"></div></div>
+      <div class="card kpi"><div class="label">F1</div><div class="value" id="kF1">—</div><div class="ci" id="kAuc"></div></div>
+    </section>
+
+    <section class="card mt">
+      <div class="card-h"><h3>Рабочие точки продукта</h3><span class="hint">в кабинете клиента 25+ даёт предупреждение, 55+ — тревогу</span></div>
+      <div class="table-wrap" id="opsTable"></div>
+    </section>
+
+    <section class="grid g2 mt">
+      <div class="card">
+        <div class="card-h"><h3>Матрица ошибок</h3><span class="hint">порог <b id="cmThr">55</b></span></div>
+        <div class="cm">
+          <div></div><div class="h">Модель: тревога</div><div class="h">Модель: без тревоги</div>
+          <div class="rh">Факт: мошенничество</div>
+          <div class="cell tp"><b id="cmTP">—</b><span>верная тревога (TP)</span></div>
+          <div class="cell fn"><b id="cmFN">—</b><span>пропуск (FN)</span></div>
+          <div class="rh">Факт: легитимное</div>
+          <div class="cell fp"><b id="cmFP">—</b><span>ложная тревога (FP)</span></div>
+          <div class="cell tn"><b id="cmTN">—</b><span>верно без тревоги (TN)</span></div>
+        </div>
+        <p class="small muted mt" id="cmNote"></p>
+      </div>
+      <div class="card canvas-box">
+        <div class="card-h"><h3>PR-кривая</h3><span class="hint">все пороги 0–100, точка — текущий</span></div>
+        <canvas id="prCanvas" role="img" aria-describedby="prSummary" aria-label="PR-кривая: precision в зависимости от recall при разных порогах"></canvas>
+        <p class="sr-only" id="prSummary"></p>
+      </div>
+    </section>
+
+    <section class="grid g2 mt">
+      <div class="card canvas-box">
+        <div class="card-h"><h3>Распределение индекса риска</h3>
+          <div class="legend"><span><i style="background:var(--accent3)"></i>легитимные</span><span><i style="background:var(--danger)"></i>мошеннические</span></div></div>
+        <canvas id="histCanvas" role="img" aria-describedby="histSummary" aria-label="Гистограмма индекса риска по классам"></canvas>
+        <p class="sr-only" id="histSummary"></p>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Precision на реальном потоке</h3>
+          <select id="baseRate" class="input" style="width:auto;padding:6px 36px 6px 12px;min-height:38px" aria-label="Доля мошенничества в потоке">
+            <option value="0.001">мошенничества 0,1%</option>
+            <option value="0.005">мошенничества 0,5%</option>
+            <option value="0.01">мошенничества 1%</option>
+            <option value="0.05">мошенничества 5%</option>
+          </select></div>
+        <p class="small muted mb-s">Пересчёт по формуле Байеса: precision = recall·p / (recall·p + FPR·(1 − p)), где p — доля мошеннических сообщений в потоке. Долю p надо брать из данных банка, варианты в списке — сценарии, а не измерения.</p>
+        <div id="brOut"></div>
+      </div>
+    </section>
+
+    <section class="grid g2 mt">
+      <div class="card">
+        <div class="card-h"><h3>По языкам</h3><span class="hint" id="langHint">recall и FPR по языкам</span></div>
+        <div class="table-wrap" id="byLang"></div>
+      </div>
+      <details class="card bfold">
+        <summary class="card-h"><h3>По схемам</h3><span class="hint">где модель слепа · открыть</span></summary>
+        <div id="byScheme"></div>
+      </details>
+    </section>
+
+    <details class="card mt bfold">
+      <summary class="card-h"><h3>Ошибки модели</h3><span class="hint" id="errCount"></span></summary>
+      <div class="tabs mb" role="group" aria-label="Фильтр ошибок">
+        <button class="tab" data-err="errors" type="button">Все ошибки</button>
+        <button class="tab" data-err="fn" type="button">Пропуски мошенничества</button>
+        <button class="tab" data-err="fp" type="button">Ложные тревоги</button>
+        <button class="tab" data-err="all" type="button">Весь набор</button>
+      </div>
+      <div id="errList"></div>
+    </details>
+
+    <div class="part-h" id="calls"><span class="badge info">Часть 1 · тест модели</span><h2>Звонки: время до обнаружения</h2><p class="small muted">Синтетические звонки RU/KZ: мошеннические по шести сценариям и честные (курьер, настоящий банк без просьбы кода, родственник). После каждой реплики звонящего пересчитываются индекс <span class="mono">NX.scanText</span> по всему сказанному и стадии детектора манипуляций <span class="mono">NX.Manip</span> — как в Защите звонка. Главный вопрос: успевает ли тревога <b>до</b> просьбы кода или перевода.</p></div>
+    <section class="card mt" id="callsRoot"><div class="small muted">Считаем…</div></section>
+
+    <section class="grid g2 mt">
+      <div class="card">
+        <div class="card-h"><h3>Ваш обычный перевод · контрольные случаи</h3><span class="hint">NX.DNA.assess</span></div>
+        <div id="dnaRoot"><div class="small muted">Считаем…</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Как читать эти цифры</h3><span class="hint">честно</span></div>
+        <ul class="plan">
+          <li><b>Запас в репликах, а не в секундах:</b> темп речи у всех разный, реплика — честная единица для синтетики.</li>
+          <li><b>Тревога после просьбы кода</b> — тоже польза (клиент видит «положите трубку» до того, как продиктовал код), но цель — тревога раньше.</li>
+          <li><b>Тип атаки</b> сравнивается с разметкой команды по всему звонку. Ошибка типа не отменяет тревогу: стадии давления важнее названия схемы.</li>
+          <li><b>Звонков мало</b> — десятки, а не тысячи. Это проверка логики, а не статистическая оценка.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="grid g2 mt">
+      <div class="card">
+        <div class="card-h"><h3>Проверьте своё сообщение</h3><span class="hint hide-m">Ctrl+Enter</span></div>
+        <textarea id="ownText" class="input" placeholder="Например: Сәлеметсіз бе, банктің қауіпсіздік қызметі. SMS-кодты айтыңыз…" aria-label="Текст сообщения"></textarea>
+        <div class="row wrap mt-s"><button class="btn primary sm" id="ownBtn" type="button" data-icon="search">Проверить</button><span class="small muted">Текст никуда не отправляется, проверка идёт в браузере.</span></div>
+        <div id="ownOut" class="mt-s"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>План валидации на данных банка</h3><span class="hint">что заменит этот бенчмарк</span></div>
+        <ol class="plan">
+          <li><b>Бэктест на 6 месяцах истории</b> обращений и инцидентов банка, разметка — аналитики антифрода с двойной проверкой.</li>
+          <li><b>Метрики под реальный дисбаланс:</b> площадь под кривой «точность–полнота» и recall при фиксированной доле ложных тревог 0,1%, а не accuracy.</li>
+          <li><b>Отдельно для казахского и смешанной речи</b> — с собственным корпусом и носителями языка.</li>
+          <li><b>Shadow-режим 4–6 недель:</b> модель считает, но не удерживает операции; сравниваем с решениями текущего антифрода.</li>
+          <li><b>Калибровка:</b> пока индекс риска 0–100 не откалиброван (Platt / isotonic), он не является вероятностью.</li>
+          <li><b>Мониторинг дрейфа:</b> новые сценарии мошенников появляются еженедельно, правила и модель пересматриваются по ошибкам.</li>
+        </ol>
+      </div>
+    </section>
+   </section>
+
+   <section class="bpart" id="p2" role="tabpanel" aria-labelledby="tab-p2" hidden>
+    <div class="part-h" id="demo"><span class="badge info">Часть 2 · замеры демо</span><h2>Сцена: что намерили на последнем показе</h2><p class="small muted">Эти числа не из корпуса: их записывает сцена для жюри (<span class="mono">stage.html</span>) во время показа в этом браузере. Они показывают, что демо работает живьём, а не по сценарию, но не оценивают качество модели.</p></div>
+    <section class="card mt" id="stageRoot"><div class="small muted">Читаем замеры…</div></section>
+   </section>
+
+   <section class="bpart" id="p3" role="tabpanel" aria-labelledby="tab-p3" hidden>
+    <div class="part-h" id="selftest"><span class="badge info">Часть 3 · устойчивость самого NEXUS</span><h2>Как атакуют сам NEXUS: самопроверка</h2><p class="small muted">Мошенник может атаковать не клиента, а защиту: взломать приманку инъекцией, подбросить чужой счёт в стоп-лист, вписать HTML в SMS, вытянуть персональные данные через LLM. Проверки ниже запускаются при открытии страницы на том же коде, что работает в демо. Корпус атак написан командой (<span class="mono">assets/data/attack-corpus.js</span>); провалы показаны как есть.</p></div>
+    <div id="selftestRoot"><div class="small muted">Считаем…</div></div>
+   </section>
+  </main>
+
+  <footer>
+    <p class="sig">Концепт команды NEXUS AI. Не является продуктом банка-организатора. Все данные синтетические.</p>
+    <p class="disclaimer mt-s">Корпус составлен командой по публичным описаниям схем, все номера, счета и ссылки — заглушки (.test), реальные бренды не использованы. Метрики относятся только к этому корпусу.</p>
+  </footer>
+</div>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/ui-kit.js"></script>
+<script src="assets/js/manip.js"></script>
+<script src="assets/js/dna.js"></script>
+<script src="assets/data/sms-corpus.js"></script>
+<script src="assets/data/call-scenarios.js"></script>
+<script src="assets/js/bench.js"></script>
+<script src="assets/js/decoy-engine.js"></script>
+<script src="assets/data/attack-corpus.js"></script>
+<script src="assets/js/selftest.js"></script>
+<script>
+(function () {
+  'use strict';
+  var NX = window.NX || {};
+  var $ = function (s) { return document.querySelector(s); };
+  var setT = function (id, t) { var el = document.getElementById(id); if (el) el.textContent = t; };
+  var pct = function (x) { return isFinite(x) ? (x * 100).toFixed(1).replace('.', ',') + '%' : '—'; };
+
+  /* --- первый экран: 4 числа (тот же движок и корпус, что ниже; без стоп-листа браузера) --- */
+  (function top4() {
+    var C = window.NX_CORPUS;
+    if (NX.scanText && C && Array.isArray(C.train) && Array.isArray(C.holdout)) {
+      var orig = NX.iocHits;
+      var calc = function (list, thr) {
+        var tp = 0, fn = 0, fp = 0, tn = 0;
+        list.forEach(function (it) {
+          var s = 0; try { s = Number(NX.scanText(it.t).score) || 0; } catch (e) { s = 0; }
+          var p = s >= thr;
+          if (it.y === 1) { if (p) tp++; else fn++; } else if (p) fp++; else tn++;
+        });
+        return { r: tp / Math.max(1, tp + fn), f: fp / Math.max(1, fp + tn) };
+      };
+      var a, b;
+      try { NX.iocHits = function () { return []; }; a = calc(C.train, 25); b = calc(C.holdout, 25); } finally { NX.iocHits = orig; }
+      setT('tRecall', pct(a.r)); setT('tHold', pct(b.r)); setT('tFpr', pct(a.f));
+      setT('tRecallS', C.train.length + ' сообщений, порог 25');
+      setT('tHoldS', C.holdout.length + ' сообщений другого стиля, порог 25');
+    } else { setT('tRecall', '—'); setT('tHold', '—'); setT('tFpr', '—'); setT('tRecallS', 'корпус не загрузился'); }
+    var B = NX.Bench, calls = window.NX_CALLS;
+    if (B && typeof B.evalCalls === 'function' && Array.isArray(calls) && calls.length) {
+      try {
+        var s = B.callSummary(B.evalCalls(calls, 55));
+        setT('tCode', s.withCode ? s.before + ' из ' + s.withCode : '—');
+        setT('tCodeS', calls.length + ' синтетических звонков, порог 55');
+      } catch (e) { setT('tCode', '—'); }
+    } else setT('tCode', '—');
+  })();
+
+  /* --- части 1/2/3 как вкладки; ссылки #model, #calls, #demo, #selftest открывают нужную --- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.ptab'));
+  function show(id, scrollTo) {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute('data-part') === id;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.classList.toggle('active', on);
+      var p = document.getElementById(t.getAttribute('data-part'));
+      if (p) p.hidden = !on;
+    });
+    // графики части 1 рисуются по ширине — перерисовать после показа
+    if (id === 'p1') { try { window.dispatchEvent(new Event('resize')); } catch (e) { /* ignore */ } }
+    if (scrollTo) { var el = document.getElementById(scrollTo); if (el) { try { el.scrollIntoView({ block: 'start' }); } catch (e) { /* ignore */ } } }
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var id = t.getAttribute('data-part');
+      show(id);
+      try { history.replaceState(null, '', '#' + id); } catch (e) { /* ignore */ }
+    });
+  });
+  function fromHash() {
+    var h = (location.hash || '').slice(1);
+    if (!h) return;
+    var el = document.getElementById(h);
+    var part = el ? (el.classList.contains('bpart') ? el : el.closest('.bpart')) : null;
+    if (part) show(part.id, el === part ? null : h);
+  }
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
+
+  /* --- STRIDE (рисует selftest.js в части 3) — свернуть по умолчанию --- */
+  function foldStride() {
+    var st = document.getElementById('st-stride');
+    if (!st || st.closest('details')) return;
+    var d = document.createElement('details');
+    d.className = 'card mt bfold';
+    var h = st.querySelector('.card-h');
+    var sum = document.createElement('summary');
+    sum.className = 'card-h';
+    if (h) { while (h.firstChild) sum.appendChild(h.firstChild); h.remove(); } else sum.textContent = 'Модель угроз STRIDE';
+    st.parentNode.insertBefore(d, st);
+    d.appendChild(sum);
+    st.classList.remove('card', 'mt');
+    d.appendChild(st);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(foldStride, 0); });
+  else setTimeout(foldStride, 0);
+})();
+</script>
+</body>
+</html>

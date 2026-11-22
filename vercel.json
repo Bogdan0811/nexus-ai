@@ -1,0 +1,16 @@
+{
+  "routes": [
+    {
+      "src": "^/(.*)$",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "no-referrer",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Permissions-Policy": "microphone=(self), camera=(), geolocation=()"
+      },
+      "continue": true
+    },
+    { "src": "^/(server|netlify)(/.*)?$", "status": 404, "dest": "/404.html" },
+    { "src": "^/(package\\.json|package-lock\\.json|serve\\.ps1|netlify\\.toml|vercel\\.json)$", "status": 404, "dest": "/404.html" }
+  ]
+}

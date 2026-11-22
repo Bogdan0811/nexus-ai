@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEXUS AI — панель банка</title>
+<meta name="theme-color" content="#05070D">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366F1'/%3E%3Cstop offset='.55' stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%2322D3EE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='900' font-size='16' text-anchor='middle' fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
+<script>
+  /* ранние CSS-хуки (?embed=1 / ?demo=1 / ?full=1 / ?present=1) до первой отрисовки; core.js ставит те же классы повторно */
+  (function () { try { var q = window.location.search, d = document.documentElement; ['demo', 'full', 'embed', 'present'].forEach(function (k) { if (new RegExp('[?&]' + k + '(=(1|true|on|yes)?)?(&|$)').test(q)) d.classList.add('nx-' + k); }); } catch (e) { /* ignore */ } })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/bank-extra.css">
+<link rel="stylesheet" href="assets/css/leak-radar.css">
+<link rel="stylesheet" href="assets/css/safe-deal.css">
+<link rel="stylesheet" href="assets/css/mule-exit.css">
+<link rel="stylesheet" href="assets/css/credit-lock.css">
+<style>
+  /* Fraud Fusion Center — разметка страницы банка. Та же единая тёмная дизайн-система, что и на остальных страницах:
+     цвета — только переменные :root (style.css), банк отличается лишь плотностью. */
+  .graph-wrap {
+    position: relative; border-radius: var(--radius-sm); border: 1px solid var(--line); overflow: hidden;
+    background-color: var(--panel);
+    background-image:
+      linear-gradient(rgba(148, 170, 220, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 170, 220, 0.07) 1px, transparent 1px);
+    background-size: 28px 28px, 28px 28px;
+    background-position: -1px -1px, -1px -1px;
+  }
+  .graph-wrap canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+  .graph-tip { position: absolute; pointer-events: none; background: var(--panel2); border: 1px solid var(--line3); border-radius: var(--radius-xs); padding: 8px 10px; font-size: 13px; line-height: 1.4; display: none; max-width: 240px; z-index: 5; color: var(--text); box-shadow: var(--shadow); }
+  .graph-legend { position: absolute; left: 12px; bottom: 12px; right: 12px; width: max-content; max-width: calc(100% - 24px); background: var(--panel); border: 1px solid var(--line2); border-radius: var(--radius-xs); padding: 8px 12px; box-shadow: var(--shadow-sm); font-size: 12px; color: var(--text); gap: 6px 14px; }
+  .graph-tools { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 6px; z-index: 4; }
+  .graph-tools button { width: 36px; height: 36px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line2); color: var(--text); cursor: pointer; display: grid; place-items: center; font-size: 18px; line-height: 1; padding: 0; font-family: var(--mono); box-shadow: var(--shadow-sm); transition: border-color var(--dur) ease, background-color var(--dur) ease, color var(--dur) ease; }
+  .graph-tools button:hover { border-color: var(--line3); color: var(--accent-ink); background: var(--panel2); }
+  .graph-tools button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  /* легенда графа: цвета узлов = семантические токены (совпадают с canvas в graph.js) */
+  .legend i.gl-dot { border-radius: 50%; box-sizing: border-box; width: 10px; height: 10px; flex: none; }
+  .legend i.gl-client { background: var(--muted); }
+  .legend i.gl-victim { background: var(--warn); }
+  .legend i.gl-mule { background: var(--danger); }
+  .legend i.gl-transit { background: var(--accent2); }
+  .legend i.gl-cashout { background: var(--accent3); }
+  .legend i.gl-ioc-s { background: transparent; border: 2px dashed var(--warn); }
+  .legend i.gl-ioc-c { background: transparent; border: 2px solid var(--danger); }
+  .live-banner { border-radius: var(--radius); padding: var(--s-4) var(--s-5); border: 1px solid var(--danger-line); border-left: 3px solid var(--danger); background: var(--panel); box-shadow: var(--shadow-sm); }
+  /* анимации появления — одноразовые классы, которые bank.js ставит только новым узлам (не при перерисовке) */
+  .live-banner.live-in { animation: fadeIn .3s; }
+  #immunity .immune, #immunity .ioc-chip { animation: none; }
+  #immunity .immune.immune-in { animation: fadeIn .3s; }
+  #immunity .ioc-chip.ioc-new { animation: iocIn .6s var(--ease); }
+  #immunity .immune.immune-flash { animation: immuneFlash 1s ease; }
+  @keyframes immuneFlash { from { box-shadow: 0 0 0 4px var(--accent-soft2); } to { box-shadow: 0 0 0 0 transparent; } }
+  .stream-row-new { animation: flash 1s ease; }
+
+  /* ---- финансовая конституция клиента ---- */
+  .live-banner.cons-live { border-color: var(--accent-line); border-left-color: var(--accent); background: var(--panel); }
+  .cons-amt { font-size: 28px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  .cons-art { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); min-width: 0; }
+  .cons-art .grow { min-width: 0; overflow-wrap: anywhere; }
+  .cons-art.off { opacity: .55; }
+  .cons-n { flex: none; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 12px; background: var(--accent-soft); color: var(--accent-ink); }
+  .cons-n.hold, .cons-n.protect { background: var(--danger-soft); color: var(--danger-ink); }
+  .cons-n.confirm { background: var(--warn-soft); color: var(--warn-ink); }
+  .cons-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cons-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line2); background: var(--bg2); color: var(--text); max-width: 100%; }
+  .cons-chip svg { flex: none; }
+  .cons-chip.high { border-color: var(--danger-line); color: var(--danger-ink); background: var(--danger-soft); }
+  .cons-chip.warn { border-color: var(--warn-line); color: var(--warn-ink); background: var(--warn-soft); }
+  .cons-chip.ok { border-color: var(--ok-line); color: var(--ok-ink); background: var(--ok-soft); }
+  .cons-row { cursor: pointer; }
+  .cons-row .t { white-space: normal; overflow: visible; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cons-row:hover .t { color: var(--accent-ink); }
+  .cons-tag { color: var(--accent-ink) !important; border: 1px solid var(--accent-soft2) !important; background: var(--accent-soft) !important; white-space: nowrap; }
+  .cons-hash { font-family: var(--mono); font-size: 12px; color: var(--muted); word-break: break-all; }
+  .cons-mini .li { padding: 7px 0; align-items: flex-start; }
+  .cons-mini:empty { display: none; }
+  .cons-focus { background: var(--accent-soft); border-radius: 10px; }
+  .kpi-cons { cursor: pointer; border-color: var(--accent-soft2) !important; }
+  .kpi-cons:hover { border-color: var(--accent) !important; }
+  .kpi-cons .label { color: var(--accent-ink); }
+  .kpi-cons:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .cons-why { gap: 12px; }
+  .cons-why-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); min-width: 0; }
+  .cons-why-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); }
+  .tl-item.tl-cons .t::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; background: var(--accent); vertical-align: 1px; }
+  h4 svg { vertical-align: -3px; color: var(--accent); }
+  .modal-box .tag, #incList .tag { white-space: normal; max-width: 100%; overflow-wrap: anywhere; }
+  .modal-box dd { overflow-wrap: anywhere; min-width: 0; }
+  .kpi .value, .big, .cons-amt { font-variant-numeric: tabular-nums; }
+
+  /* KPI «Сейчас»: четыре плитки (число + одна строка) */
+  body.page-bank #kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body.page-bank #kpis .kpi .value { font-size: clamp(20px, 1.55vw, 26px); overflow-wrap: anywhere; }
+  body.page-bank .kpi { gap: var(--s-1); }
+  body.page-bank .kpi .label { font-size: var(--fs-xs); font-weight: 600; color: var(--muted); letter-spacing: .01em; }
+  body.page-bank .kpi .label svg { color: var(--accent-ink); }
+  body.page-bank .kpi .delta { font-size: var(--fs-xs); color: var(--muted); line-height: 1.35; }
+  .nx-ext { margin-left: auto; opacity: .8; }
+
+  /* ---- мобильная версия ≤ 900px: выезжающее меню, 2 колонки KPI, граф 380px ---- */
+  body.page-bank .scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 55; display: none; }
+  body.page-bank .scrim.open { display: block; }
+  @media (max-width: 900px) {
+    body.page-bank .app { grid-template-columns: minmax(0, 1fr); }
+    body.page-bank .sidebar { position: fixed; left: 0; top: 0; bottom: 0; height: 100%; height: 100dvh; width: min(300px, 86vw); transform: translateX(-105%); visibility: hidden; transition: transform .25s ease, visibility 0s linear .25s; z-index: 60; box-shadow: var(--shadow-lg); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+    body.page-bank .sidebar.open { transform: none; visibility: visible; transition: transform .25s ease; }
+    body.page-bank .nav-btn { min-height: 44px; }
+    body.page-bank .burger { display: grid; place-items: center; width: 44px; height: 44px; flex: none; color: var(--text); }
+    body.page-bank .burger svg { width: 20px; height: 20px; }
+    body.page-bank .topbar { padding: 10px 16px; gap: 10px; }
+    body.page-bank .topbar h1 { font-size: 16px; }
+    body.page-bank .topbar .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    body.page-bank .content { padding: 16px 16px 56px; }
+    body.page-bank .hide-m { display: none !important; }
+    body.page-bank .g-main, body.page-bank .g2, body.page-bank .g3 { grid-template-columns: minmax(0, 1fr); }
+    body.page-bank .g4, body.page-bank #kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    body.page-bank #kpis > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+    body.page-bank .grid { gap: 12px; }
+    body.page-bank .col.gap-l { gap: 12px; }
+    body.page-bank .card { padding: 14px; }
+    body.page-bank .kpi .value, body.page-bank #kpis .kpi .value { font-size: 19px; }
+    body.page-bank .kpi .label { font-size: var(--fs-xs); }
+    body.page-bank .kpi .delta { font-size: var(--fs-xs); overflow-wrap: anywhere; }
+    body.page-bank .card-h { flex-wrap: wrap; }
+    body.page-bank .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; max-width: 100%; }
+    body.page-bank #monSearch { width: 100% !important; }
+    body.page-bank #view-monitor .row.wrap.gap-s { width: 100%; }
+    body.page-bank #view-monitor select.input { flex: 1 1 140px; }
+    body.page-bank .graph-wrap { height: auto !important; }
+    body.page-bank .graph-wrap canvas { height: 380px; }
+    body.page-bank .graph-legend { position: static; width: auto; max-width: none; margin: 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; font-size: var(--fs-xs); }
+    body.page-bank .graph-tools button { width: 44px; height: 44px; }
+    body.page-bank .bar-row { grid-template-columns: 92px 1fr 56px; }
+    body.page-bank .live-banner { padding: 14px; }
+    body.page-bank .cons-amt { font-size: 22px; }
+    body.page-bank .modal { padding: 10px; }
+    body.page-bank .modal-box { max-height: calc(100vh - 20px); max-height: calc(100dvh - 20px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 18px 16px; }
+    body.page-bank .modal-box .row.wrap > .btn { flex: 1 1 auto; justify-content: center; }
+    body.page-bank .btn { min-height: 44px; }
+    body.page-bank .btn.sm { min-height: var(--tap); }
+    body.page-bank .input { font-size: 16px; }
+    body.page-bank .tabs { max-width: 100%; }
+    body.page-bank .tabs .tab { min-height: var(--tap); }
+    body.page-bank #toasts { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); max-width: none; }
+    body.page-bank .immune { padding: 14px; }
+    body.page-bank .immune .col { min-width: 0 !important; }
+    body.page-bank .immune .grow { min-width: 0 !important; }
+  }
+  @media (max-width: 420px) {
+    body.page-bank .topbar .sub { display: none; }
+    body.page-bank .kpi .value, body.page-bank #kpis .kpi .value { font-size: 17px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.page-bank .sidebar { transition: none !important; }
+    .live-banner, .stream-row-new, #immunity .immune, #immunity .ioc-chip { animation: none !important; }
+  }
+</style>
+</head>
+<body class="nx-app page-bank">
+<div class="scrim"></div>
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand" href="index.html" style="text-decoration:none;color:inherit"><div class="brand-logo">N</div><div><div class="brand-name">NEXUS AI</div><div class="brand-sub">Панель банка · антифрод</div></div></a>
+    <button class="nav-btn active" data-view="overview" data-icon="home">Сейчас</button>
+    <button class="nav-btn" data-view="monitor" data-icon="list">Мониторинг</button>
+    <button class="nav-btn" data-view="graph" data-icon="graph">Граф</button>
+    <button class="nav-btn" data-view="accounts" data-icon="eye">Счета</button>
+    <button class="nav-btn" data-view="incidents" data-icon="folder">Инциденты <span class="nav-badge hidden" id="incBadge"></span></button>
+    <button class="nav-btn" data-view="analytics" data-icon="chart">Аналитика</button>
+    <div class="sidebar-foot">
+      <div class="card pad-s"><div class="small muted" id="analystRole">Аналитик</div><b id="analystName">Смена №2 · А. Касымов</b><div id="roleSwitch" class="mt-s"></div></div>
+      <a class="btn block" href="client.html" target="nexus_client" data-icon="users">Кабинет клиента<svg class="nx-ic nx-ext" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (откроется в соседней вкладке)</span></a>
+      <button class="btn ghost sm block show-m" id="bankResetM" type="button" data-icon="reset">Сбросить демо</button>
+      <p class="disclaimer mt-s">Концепт команды NEXUS AI. Не является продуктом банка-организатора.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="burger" data-icon="menu" aria-label="Меню"></button>
+      <div class="grow" style="min-width:0"><h1 id="viewTitle">Сейчас</h1><div class="sub" id="viewSub">Что требует внимания аналитика прямо сейчас</div></div>
+      <button type="button" class="tag-demo tag-demo-btn" data-nx-honesty aria-haspopup="dialog" aria-expanded="false">Демо · синтетические данные</button>
+      <button class="btn sm danger bank-act hide-m" id="runAttack" type="button" title="Открывает кабинет клиента в соседней вкладке и запускает демо-атаку: SMS, ссылка, вход с нового устройства, попытка поднять лимит" data-icon="play">Запустить атаку</button>
+      <button class="pill hide-m" id="tpsPill" type="button" title="Синтетический поток операций (выборка 1:1000). Нажмите, чтобы поставить поток на паузу или возобновить"><span class="dot pulse"></span><span id="tpsLabel">— опер./с</span></button>
+      <button class="btn sm ghost bank-act hide-m" id="bankReset" type="button" data-icon="reset">Сбросить демо</button>
+    </header>
+
+    <div class="content">
+      <!-- СЕЙЧАС (id overview сохранён для BankStage.go('overview')) -->
+      <section class="view active" id="view-overview">
+        <div id="liveAttack"></div>
+        <div id="cycleStrip"></div>
+        <div id="immunity"></div>
+        <div class="grid g4 mb" id="kpis"></div>
+        <div class="grid now-grid">
+          <div class="card">
+            <div class="card-h"><h3>Очередь — нужен ответ аналитика</h3><button class="btn sm ghost" type="button" data-goto="incidents">Все инциденты →</button></div>
+            <div class="list" id="queue"></div>
+            <div class="row between wrap mt-s"><span class="tiny muted" id="queueNote"></span><button class="btn sm ghost" type="button" data-goto="monitor">Весь мониторинг →</button></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h3>Новые функции</h3></div>
+            <div class="ft-grid" id="featTiles"></div>
+          </div>
+        </div>
+
+        <details class="more now-more" id="nowMore">
+          <summary>Ещё: алерты потока, правила клиентов, «Близкие», карты для магазинов, безопасные сделки</summary>
+          <div class="now-more-b">
+            <div class="grid g2">
+              <div class="card">
+                <div class="card-h"><h3>Алерты потока</h3><span class="hint">высокий риск</span></div>
+                <div class="list" id="alerts" style="max-height:380px;overflow:auto"></div>
+              </div>
+              <div class="col gap-l">
+                <div class="card" id="consCard">
+                  <div class="card-h"><h3>Правила клиентов</h3><span class="small muted" id="consCount"></span><button class="btn sm ghost" type="button" data-cons-log="1">Журнал</button></div>
+                  <p class="tiny muted" style="margin:-6px 0 10px">Правила защиты, которые клиент установил сам. Не банковские лимиты.</p>
+                  <div id="consPanel"></div>
+                </div>
+                <div class="card" id="tcCard">
+                  <div class="card-h"><h3>«Близкие» · запросы на проверку</h3><span class="hint">доверенные люди клиентов</span></div>
+                  <div id="tcPanel"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Карты для магазинов (leak-radar.js) -->
+            <div class="card lr-bank mt" id="leakRadarMount" aria-live="polite"></div>
+            <!-- Безопасная сделка (safe-deal.js) -->
+            <div class="card sd-bank mt" id="sdBankMount" aria-live="polite"></div>
+          </div>
+        </details>
+      </section>
+
+      <!-- МОНИТОРИНГ -->
+      <section class="view" id="view-monitor">
+        <div class="card">
+          <div class="mon-bar mb">
+            <div class="seg" id="monChips" role="tablist" aria-label="Фильтр операций">
+              <button type="button" role="tab" data-mf="focus" class="on" aria-selected="true">Удержанные и высокий риск</button>
+              <button type="button" role="tab" data-mf="all" aria-selected="false">Все</button>
+              <button type="button" role="tab" data-mf="held" aria-selected="false">Удержаны</button>
+              <button type="button" role="tab" data-mf="high" aria-selected="false">Высокий</button>
+              <button type="button" role="tab" data-mf="med" aria-selected="false">Средний</button>
+            </div>
+            <input class="input" id="monSearch" placeholder="Поиск: клиент, счёт, город…" aria-label="Поиск по операциям">
+          </div>
+          <div class="small muted mb" id="monCount"></div>
+          <div class="table-wrap scroll mon-wrap"><table class="table mon-table"><thead><tr><th>Время</th><th>Клиент</th><th>Получатель</th><th class="num">Сумма</th><th>Канал</th><th>Риск</th><th>Решение</th></tr></thead><tbody id="monBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- ГРАФ -->
+      <section class="view" id="view-graph">
+        <div class="card mb">
+          <div class="row wrap between mb gap-s">
+            <div class="row wrap gap-s"><button class="btn primary" id="detectBtn" type="button" data-icon="search">Найти схемы</button><button class="btn sm ghost" id="graphReset" type="button">Перестроить граф</button></div>
+            <span class="small muted">Касание узла — детали счёта</span>
+          </div>
+          <div class="graph-wrap" id="graphWrap"><canvas id="graphCanvas" role="img" aria-label="Граф денежных потоков между счетами"></canvas><div class="graph-tip" id="graphTip"></div>
+            <div class="graph-tools" role="group" aria-label="Масштаб графа"><button type="button" data-gzoom="in" aria-label="Приблизить" title="Приблизить">+</button><button type="button" data-gzoom="out" aria-label="Отдалить" title="Отдалить">−</button><button type="button" data-gzoom="fit" aria-label="Вписать граф в окно" title="Вписать граф в окно"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
+            <div class="graph-legend legend" id="graphLegend"><span><i class="gl-dot gl-client"></i>Клиент</span><span><i class="gl-dot gl-victim"></i>Пострадавший</span><span><i class="gl-dot gl-mule"></i>Дроп</span><span><i class="gl-dot gl-transit"></i>Транзит</span><span><i class="gl-dot gl-cashout"></i>Обнал</span><span data-lg="ioc" hidden><i class="gl-dot gl-ioc-s"></i>Реквизит в стоп-листе</span><span data-lg="merchant" hidden><i class="gl-dot gl-merchant"></i>Магазин</span><span data-lg="recruit" hidden><i class="gl-dot gl-recruit"></i>Вербуемый · сообщил сам</span><span data-lg="factory" hidden><i class="gl-dot gl-factory"></i>Устройство-фабрика заявок</span></div>
+          </div>
+        </div>
+        <div class="grid g-main">
+          <details class="card ch-card" id="chainCard" open><summary class="ch-sum">Цепочка дропов · подробности</summary><div id="chainPanel"></div></details>
+          <div class="col gap-l">
+            <div class="card" id="nodePanel"><div class="empty">Выберите узел на графе, чтобы увидеть детали счёта</div></div>
+            <div class="card"><div class="card-h"><h3>Найденные схемы</h3></div><div id="rings"><p class="small muted">Нажмите «Найти схемы»: NEXUS ищет веерные поступления от несвязанных отправителей, быстрый транзит денег и вывод в обнал.</p></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- СЧЕТА -->
+      <section class="view" id="view-accounts">
+        <div class="grid g4 mb" id="accKpis"></div>
+        <div class="card">
+          <div class="card-h"><h3>Подозрительные счета</h3><span class="hint">сверху — самый высокий риск · нажмите строку, чтобы открыть карточку счёта</span></div>
+          <div class="table-wrap scroll acc-wrap"><table class="table acc-table"><thead><tr><th>Счёт</th><th>Владелец</th><th>Роль</th><th class="num">Отправителей</th><th class="num">Оборот 48 ч</th><th>Сигналы</th><th>Риск</th><th>Действие</th></tr></thead><tbody id="accBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- ИНЦИДЕНТЫ -->
+      <section class="view" id="view-incidents">
+        <div class="inc-filters mb">
+          <div class="seg" id="incTabs" role="tablist" aria-label="Статус инцидента">
+            <button type="button" role="tab" class="on" aria-selected="true" data-st="">Все</button>
+            <button type="button" role="tab" aria-selected="false" data-st="new">Новые</button>
+            <button type="button" role="tab" aria-selected="false" data-st="progress">В работе</button>
+            <button type="button" role="tab" aria-selected="false" data-st="resolved">Закрытые</button>
+            <button type="button" role="tab" aria-selected="false" data-st="false_positive">Ложные срабатывания</button>
+          </div>
+          <div class="inc-row2">
+            <label class="small muted" for="incKind">Тип</label>
+            <select class="input" id="incKind">
+              <option value="">Все</option>
+              <option value="safe_return">Возврат денег</option>
+              <option value="emergency">Заблокировать всё</option>
+              <option value="leak">Утечка у магазина</option>
+              <option value="sd_dispute">Безопасная сделка</option>
+              <option value="mule_exit">Не стань дропом</option>
+              <option value="credit_lock">Кредитный замок</option>
+            </select>
+            <span class="small muted" id="incCount"></span>
+          </div>
+        </div>
+        <div class="col" id="incList"></div>
+      </section>
+
+      <!-- АНАЛИТИКА -->
+      <section class="view" id="view-analytics">
+        <div class="card mb">
+          <div class="card-h"><h3>Поток операций · 30 минут</h3><div class="legend"><span><i style="background:var(--accent)"></i>Все операции</span><span><i style="background:var(--danger)"></i>Удержанные</span></div></div>
+          <canvas id="flowChart" height="200" style="width:100%;height:200px"></canvas>
+        </div>
+        <div class="col gap-l" id="ovAnalytics">
+          <details class="card an-d" open><summary>Сводка по угрозам</summary><div class="an-b"><div class="row between wrap mb"><span class="hint">собрана по данным панели шаблоном, без нейросети</span><button class="btn sm ghost" id="regenSummary" type="button">Обновить</button></div><div id="aiSummary"></div></div></details>
+          <details class="card an-d"><summary>Откуда атаки</summary><div class="an-b"><div class="grid g2"><div><h4 class="small mb">Типы угроз</h4><div id="threatBars"></div></div><div><h4 class="small mb">Каналы</h4><div id="channelChart"></div></div></div></div></details>
+          <details class="card an-d"><summary>Подозрительные операции по часам</summary><div class="an-b"><div id="hourBars"></div></div></details>
+          <details class="card an-d" id="xbankCard"><summary>Обмен сигналами с другими банками (симуляция)</summary><div class="an-b"><div id="xbank"></div></div></details>
+          <details class="card an-d"><summary>Проверка модели</summary><div class="an-b"><div id="modelQuality"></div></div></details>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+<div id="toasts"></div>
+<div class="modal" id="modal"></div>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/ui-kit.js"></script>
+<script src="assets/js/constitution.js"></script>
+<script src="assets/js/manip.js"></script>
+<script src="assets/js/dna.js"></script>
+<script src="assets/js/graph.js"></script>
+<script src="assets/js/bank.js"></script>
+<script src="assets/js/leak-radar.js"></script>
+<script src="assets/js/safe-deal.js"></script>
+<script src="assets/js/mule-exit.js"></script>
+<script src="assets/js/credit-lock.js"></script>
+</body>
+</html>

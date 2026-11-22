@@ -1,0 +1,7 @@
+/* NEXUS AI — сцена, шаг 7 «Не только звонки» (stage-more.js). Только токены style.css, без анимаций появления. */
+.st-result .sm-list { list-style: none; margin: .4rem 0 .5rem; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.st-result .sm-list li { display: flex; gap: .45rem; align-items: flex-start; color: var(--muted); font-size: .86rem; line-height: 1.35; min-width: 0; }
+.st-result .sm-list li > svg { flex: 0 0 auto; margin-top: .12rem; color: var(--muted2); }
+.st-result .sm-list li.ok > svg { color: var(--ok-ink); }
+.st-result .sm-list li b { color: var(--text); font-weight: 600; }
+.st-result .sm-list li span { min-width: 0; overflow-wrap: anywhere; }

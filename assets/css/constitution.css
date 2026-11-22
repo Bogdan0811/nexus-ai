@@ -1,0 +1,350 @@
+/* =====================================================================
+   NEXUS AI 2.0 — «Финансовая конституция клиента»
+   Стили раздела «Конституция», плашки защитного режима, карточки
+   «Голос из спокойного времени», листов Якоря Одиссея и запроса опекуну.
+   Только переменные дизайн-системы (style.css); цвета-оттенки — через color-mix
+   с безопасным запасным фоном для старых браузеров. Единая тёмная тема: текст статусов — *-ink, подложки — *-soft.
+   ===================================================================== */
+
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- общая раскладка раздела ---------- */
+.cx-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.cx-main, .cx-side { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.cx-h-ic { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; flex: none; color: var(--accent-ink); background: var(--bg2); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.cx-h-ic svg { width: 18px; height: 18px; }
+.cx-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink); }
+.cx-display { font-family: var(--display, var(--font)); letter-spacing: -0.01em; }
+
+/* ---------- документ: шапка ---------- */
+.cx-doc {
+  position: relative; overflow: hidden; border-radius: var(--radius); padding: 26px 26px 20px;
+  background: var(--panel); border: 1px solid var(--line2); box-shadow: var(--shadow);
+}
+.cx-doc::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--accent-solid); }
+.cx-doc::after {
+  content: ''; position: absolute; right: -60px; top: -60px; width: 240px; height: 240px; border-radius: 50%; pointer-events: none;
+  background: none; display: none; /* v5: без декоративного свечения */
+}
+.cx-doc-top { display: flex; gap: 18px; align-items: flex-start; position: relative; z-index: 1; }
+.cx-seal {
+  width: 64px; height: 64px; border-radius: 50%; flex: none; display: grid; place-items: center; color: var(--on-accent);
+  background: var(--accent-solid); box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--panel) 30%, transparent);
+}
+.cx-seal svg { width: 28px; height: 28px; }
+.cx-doc h2 { font-family: var(--display, var(--font)); font-size: 26px; line-height: 1.15; margin: 4px 0 8px; font-weight: 700; }
+.cx-owner { font-size: 13px; color: var(--muted); }
+.cx-owner b { color: var(--text); }
+.cx-preamble { font-size: 14px; line-height: 1.6; color: var(--text); margin-top: 12px; max-width: 62ch; font-style: italic; opacity: 0.9; }
+.cx-doc-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 20px; position: relative; z-index: 1; }
+.cx-meta { padding: 11px 13px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--line); min-width: 0; }
+.cx-meta span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+.cx-meta b { display: block; font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
+.cx-meta b.mono { font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em; }
+.cx-meta.ok b { color: var(--ok-ink, var(--ok)); }
+.cx-doc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; position: relative; z-index: 1; }
+
+/* ---------- статьи ---------- */
+.cx-articles { display: flex; flex-direction: column; gap: 12px; }
+.cx-art {
+  display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 16px; align-items: start;
+  padding: 18px 18px 16px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line);
+  transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.cx-art:hover { border-color: var(--line2); }
+.cx-art.off { opacity: 1; border-style: dashed; }
+.cx-art.off h4, .cx-art.off p, .cx-art.off .cx-art-body { color: var(--muted); }
+.cx-art.off .cx-art-num { background: var(--bg2); color: var(--muted); }
+.cx-art.pending { border-color: var(--warn); box-shadow: inset 3px 0 0 var(--warn); }
+.cx-art.flash { animation: cxFlash 1.4s ease; }
+@keyframes cxFlash { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.cx-art-num {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; height: 64px; border-radius: 16px;
+  background: var(--bg2); background: color-mix(in srgb, var(--accent) 10%, var(--panel)); color: var(--accent-ink);
+}
+.cx-art-num small { font-size: 12px; font-weight: 650; letter-spacing: 0; text-transform: none; opacity: 0.9; }
+.cx-art-num b { font-family: var(--display, var(--font)); font-size: 24px; line-height: 1; }
+.cx-art.anchor .cx-art-num { background: var(--accent-solid); color: var(--on-accent); }
+.cx-art h4 { font-size: 15px; font-weight: 700; margin: 2px 0 4px; }
+.cx-art p { font-size: 13.5px; line-height: 1.55; color: var(--text); opacity: 0.86; }
+.cx-art-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+.cx-art-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.cx-art-side .switch { margin-top: 4px; }
+.cx-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 650; white-space: nowrap; background: var(--bg2); color: var(--muted); border: 1px solid var(--line); }
+.cx-chip svg { width: 12px; height: 12px; }
+.cx-chip.confirm { color: var(--warn-ink, var(--warn)); background: color-mix(in srgb, var(--warn) 12%, transparent); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+.cx-chip.hold, .cx-chip.protect { color: var(--danger-ink, var(--danger)); background: color-mix(in srgb, var(--danger) 10%, transparent); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+.cx-chip.ok { color: var(--ok-ink, var(--ok)); background: color-mix(in srgb, var(--ok) 11%, transparent); border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
+.cx-chip.violet { color: var(--violet-ink); background: color-mix(in srgb, var(--accent2) 11%, transparent); border-color: color-mix(in srgb, var(--accent2) 28%, transparent); }
+.cx-chip.pend { color: var(--warn-ink, var(--warn)); background: color-mix(in srgb, var(--warn) 12%, transparent); border-color: var(--warn); font-family: var(--mono); }
+
+.cx-params { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.cx-param { display: inline-flex; align-items: center; gap: 8px; padding: 7px 8px 7px 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); font-size: 12.5px; }
+.cx-param span { color: var(--muted); }
+.cx-param b { font-variant-numeric: tabular-nums; }
+.cx-edit-btn { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; color: var(--accent-ink); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; padding: 4px 6px; border-radius: 8px; }
+.cx-edit-btn:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.cx-edit-btn svg { width: 14px; height: 14px; }
+.cx-editor { margin-top: 12px; padding: 14px; border-radius: 14px; background: var(--bg2); border: 1px dashed var(--line2); display: flex; flex-direction: column; gap: 10px; }
+.cx-editor .row { flex-wrap: wrap; }
+.cx-editor .field { flex: 1; min-width: 160px; }
+.cx-editor .input { font-variant-numeric: tabular-nums; }
+.cx-editor-hint { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; }
+.cx-editor-hint svg { width: 14px; height: 14px; flex: none; margin-top: 2px; color: var(--violet-ink); }
+.cx-quick { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ---------- ожидающие изменения (Якорь Одиссея) ---------- */
+.cx-pending { border-radius: var(--radius); padding: 18px; border: 1px solid var(--warn); background: var(--panel); background: color-mix(in srgb, var(--warn) 7%, var(--panel)); }
+.cx-pending-h { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.cx-pending-h .cx-h-ic { color: var(--warn-ink, var(--warn)); background: color-mix(in srgb, var(--warn) 15%, transparent); }
+.cx-pend-item { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+.cx-pend-item + .cx-pend-item { margin-top: 8px; }
+.cx-pend-item .grow { min-width: 200px; }
+.cx-cd { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 18px; color: var(--warn-ink, var(--warn)); letter-spacing: 0.02em; }
+.cx-demo-tag { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 6px; border-radius: 6px; background: var(--bg2); color: var(--muted); border: 1px solid var(--line); }
+
+/* ---------- обзор: карточка конституции ---------- */
+.cx-ov {
+  display: flex; align-items: center; gap: 16px; width: 100%; text-align: left; cursor: pointer; font: inherit; color: var(--text);
+  padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--accent-line); position: relative; overflow: hidden;
+  background: var(--panel); box-shadow: var(--shadow-sm);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.cx-ov:hover { transform: translateY(-1px); }
+.cx-ov:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.cx-ov.hidden { display: none; }
+.cx-ov-ic { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; flex: none; background: var(--accent-solid); color: var(--on-accent); }
+.cx-ov-ic svg { width: 26px; height: 26px; }
+.cx-ov-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cx-ov-main b { font-family: var(--display, var(--font)); font-size: 16px; font-weight: 650; }
+.cx-ov-sub { font-size: 12px; color: var(--muted); }
+.cx-ov-sub .mono { font-family: var(--mono); }
+.cx-ov-flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.cx-ov-cta { flex: none; font-weight: 650; font-size: 13px; color: var(--accent-ink); white-space: nowrap; }
+.cx-ov.alert { background: var(--panel); border-color: var(--danger-line); box-shadow: inset 3px 0 0 var(--danger); }
+.cx-ov.alert .cx-ov-ic { background: var(--danger-solid); }
+
+/* ---------- плашка защитного режима ---------- */
+.cx-protect { position: relative; z-index: 1; padding: 12px 28px; color: var(--text); background: var(--panel); background: color-mix(in srgb, var(--danger) 10%, var(--panel)); border-bottom: 1px solid var(--danger); }
+.cx-protect-in { display: flex; align-items: center; gap: 14px; max-width: 1400px; flex-wrap: wrap; }
+.cx-protect-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--danger); color: var(--on-accent); animation: cxPulse 2s infinite; }
+.cx-protect-ic svg { width: 20px; height: 20px; }
+.cx-protect b { color: var(--danger-ink, var(--danger)); }
+.cx-protect .grow { min-width: 220px; }
+.cx-protect .small { color: var(--text); opacity: 0.85; }
+.cx-protect-short { display: none; }
+@keyframes cxPulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger) 50%, transparent); } 50% { box-shadow: 0 0 0 8px transparent; } }
+
+/* ---------- «Голос из спокойного времени» ---------- */
+.cx-voice {
+  display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 16px; margin-top: 12px; text-align: left;
+  background: var(--panel); background: color-mix(in srgb, var(--accent2) 8%, var(--panel));
+  border: 1px solid var(--line2); border-color: color-mix(in srgb, var(--accent2) 35%, transparent); color: var(--text);
+}
+.cx-voice-ava { width: 46px; height: 46px; border-radius: 50%; flex: none; display: grid; place-items: center; font-weight: 700; color: var(--on-accent); background: var(--accent-solid); }
+.cx-voice-ava svg { width: 22px; height: 22px; }
+.cx-voice .grow { min-width: 0; }
+.cx-voice-lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--violet-ink); }
+.cx-voice-text { font-size: 14px; line-height: 1.5; margin-top: 3px; font-style: italic; color: var(--text); }
+.cx-voice-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.cx-voice .btn { flex: none; }
+.cx-side .cx-voice { flex-wrap: wrap; align-items: flex-start; }
+.cx-side .cx-voice .grow { flex: 1 1 160px; }
+.cx-side .cx-voice .btn { width: 100%; }
+.cx-voice.playing .cx-voice-ava { animation: cxPulse 1.2s infinite; }
+.cx-wave { display: inline-flex; gap: 3px; align-items: flex-end; height: 16px; margin-left: 6px; vertical-align: middle; }
+.cx-wave i { width: 3px; border-radius: 2px; background: currentColor; height: 30%; animation: cxWave 0.9s ease-in-out infinite; }
+.cx-wave i:nth-child(2) { animation-delay: 0.15s; } .cx-wave i:nth-child(3) { animation-delay: 0.3s; } .cx-wave i:nth-child(4) { animation-delay: 0.45s; }
+@keyframes cxWave { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+.cx-anchor-tabs { margin-top: 14px; }
+.cx-rec { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--danger); }
+.cx-rec-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--danger); flex: none; animation: cxPulse 1s infinite; }
+.cx-rec-bar { flex: 1; height: 6px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.cx-rec-bar i { display: block; height: 100%; background: var(--danger); width: 0; transition: width 0.2s linear; }
+.cx-consent { font-size: 12px; }
+
+/* ---------- срабатывания статей в переводе / модальных окнах ---------- */
+.cx-hits { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.cx-hit { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line2); text-align: left; }
+.cx-hit.confirm { background: color-mix(in srgb, var(--warn) 8%, var(--panel)); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+.cx-hit.hold, .cx-hit.protect { background: color-mix(in srgb, var(--danger) 7%, var(--panel)); border-color: color-mix(in srgb, var(--danger) 40%, transparent); }
+.cx-hit-n { flex: none; min-width: 46px; height: 46px; border-radius: 13px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--panel); border: 1px solid var(--line2); color: var(--violet-ink); }
+.cx-hit-n small { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.cx-hit-n b { font-family: var(--display, var(--font)); font-size: 18px; line-height: 1; }
+.cx-hit .grow { min-width: 0; }
+.cx-hit-t { font-weight: 700; font-size: 13.5px; }
+.cx-hit-d { font-size: 12.5px; margin-top: 2px; }
+.cx-hit-why { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.cx-hit .cx-chip { margin-left: auto; flex: none; align-self: center; }
+
+/* ---------- листы: Якорь Одиссея, отказ, опекун ---------- */
+.cx-sheet { text-align: left; }
+.cx-sheet-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 6px 0 4px; }
+.cx-sheet-ic { width: 68px; height: 68px; border-radius: 22px; display: grid; place-items: center; color: var(--on-accent); background: var(--accent-solid); }
+.cx-sheet-ic svg { width: 32px; height: 32px; }
+.cx-sheet-ic.danger { background: var(--danger); box-shadow: 0 14px 30px -12px var(--danger); }
+.cx-sheet-ic.warn { background: var(--warn-soft); color: var(--warn-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn) 40%, transparent); }
+.cx-sheet-ic.ok { background: var(--ok-soft); color: var(--ok-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ok) 40%, transparent); }
+.cx-sheet h3 { font-family: var(--display, var(--font)); font-size: 20px; line-height: 1.2; }
+.cx-sheet-sub { font-size: 13.5px; color: var(--muted); max-width: 46ch; }
+.cx-diff { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 14px 0 4px; font-size: 14px; }
+.cx-diff s { color: var(--muted); }
+.cx-diff b { color: var(--text); }
+.cx-big-cd { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 40px; font-weight: 700; letter-spacing: 0.02em; text-align: center; color: var(--warn-ink, var(--warn)); margin: 8px 0 2px; }
+.cx-cd-sub { text-align: center; font-size: 12px; color: var(--muted); }
+.cx-checks { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.cx-checks li { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; padding: 10px 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); }
+.cx-checks li svg { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--ok-ink, var(--ok)); }
+.cx-checks li.no svg { color: var(--danger-ink, var(--danger)); }
+.cx-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+.cx-actions .grow-l { margin-right: auto; }
+
+.cx-guard-box { margin-top: 14px; border-radius: 16px; border: 1px solid var(--line2); background: var(--bg2); overflow: hidden; }
+.cx-guard-top { display: flex; gap: 12px; align-items: center; padding: 14px 16px; }
+.cx-guard-ava { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; flex: none; background: var(--panel); border: 2px solid var(--accent2); color: var(--violet-ink); }
+.cx-guard-top .grow { min-width: 0; }
+.cx-guard-state { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.cx-dots { display: inline-flex; gap: 3px; }
+.cx-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent2); animation: cxDot 1.2s infinite; }
+.cx-dots i:nth-child(2) { animation-delay: 0.2s; } .cx-dots i:nth-child(3) { animation-delay: 0.4s; }
+@keyframes cxDot { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+.cx-guard-demo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px dashed var(--line2); background: var(--panel); }
+.cx-guard-demo .tiny { margin-right: auto; }
+.cx-guard-res { padding: 12px 16px; border-top: 1px solid var(--line); font-size: 13px; display: flex; gap: 10px; align-items: flex-start; }
+.cx-guard-res svg { width: 18px; height: 18px; flex: none; }
+.cx-guard-res.ok svg { color: var(--ok-ink, var(--ok)); }
+.cx-guard-res.bad svg { color: var(--danger-ink, var(--danger)); }
+
+/* ---------- боковые карточки ---------- */
+.cx-side .card-h h3 { display: flex; align-items: center; gap: 10px; }
+.cx-guardian { display: flex; gap: 14px; align-items: center; }
+.cx-guardian .cx-guard-ava { width: 52px; height: 52px; font-size: 16px; }
+.cx-list-feat { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--muted); }
+.cx-list-feat li { display: flex; gap: 8px; align-items: flex-start; }
+.cx-list-feat li svg { width: 14px; height: 14px; flex: none; margin-top: 2px; color: var(--accent-ink); }
+.cx-plan { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.cx-plan:last-of-type { border-bottom: 0; }
+.cx-plan .grow { min-width: 0; }
+.cx-plan .t { font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-plan .s { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-plan .amt { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cx-icon-btn { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--panel); color: var(--muted); cursor: pointer; flex: none; }
+.cx-icon-btn:hover { color: var(--danger-ink, var(--danger)); border-color: var(--danger); }
+.cx-icon-btn svg { width: 15px; height: 15px; }
+.cx-form { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; padding: 14px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); }
+.cx-form .row { flex-wrap: wrap; }
+.cx-form .field { flex: 1; min-width: 140px; }
+.cx-protect-card.on { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 6%, var(--panel)); }
+.cx-protect-card .cx-h-ic { color: var(--danger-ink, var(--danger)); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+
+/* ---------- краш-тест ---------- */
+.cx-crash { position: relative; overflow: hidden; }
+.cx-crash::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--accent-solid); }
+.cx-crash-score { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 10px; }
+.cx-crash-score b { font-family: var(--display, var(--font)); font-size: 34px; line-height: 1; }
+.cx-crash-score span { color: var(--muted); font-size: 13px; }
+.cx-crash-list { display: flex; flex-direction: column; gap: 8px; }
+.cx-sc { display: flex; gap: 12px; align-items: flex-start; padding: 11px 12px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); transition: border-color 0.3s, background 0.3s; }
+.cx-sc-ic { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--panel); border: 1px solid var(--line2); color: var(--muted); }
+.cx-sc-ic svg { width: 15px; height: 15px; }
+.cx-sc .grow { min-width: 0; }
+.cx-sc-t { font-size: 14px; font-weight: 650; line-height: 1.35; }
+.cx-sc-r { font-size: 12px; color: var(--muted); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.cx-sc.wait { background: transparent; border-style: dashed; }
+.cx-sc.wait .cx-sc-t { color: var(--muted); }
+.cx-sc.run .cx-sc-ic { color: var(--accent-ink); border-color: var(--accent); animation: cxPulse 1s infinite; }
+.cx-sc.stop { border-color: color-mix(in srgb, var(--ok) 45%, transparent); background: var(--ok-soft); }
+.cx-sc.stop .cx-sc-ic { background: var(--ok-soft); border-color: var(--ok); color: var(--ok-ink); }
+.cx-sc.pass { border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: var(--danger-soft); }
+.cx-sc.pass .cx-sc-ic { background: var(--danger-soft); border-color: var(--danger); color: var(--danger-ink); }
+
+/* ---------- «своими словами» ---------- */
+.cx-nl-form { display: flex; gap: 8px; }
+.cx-nl-form .input { flex: 1; min-width: 0; }
+.cx-understood { margin-top: 14px; padding: 16px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 6%, var(--panel)); animation: fadeIn 0.25s; }
+.cx-understood.bad { border-color: color-mix(in srgb, var(--warn) 50%, transparent); background: color-mix(in srgb, var(--warn) 6%, var(--panel)); }
+.cx-understood-h { display: flex; gap: 10px; align-items: center; font-weight: 700; font-size: 14px; }
+.cx-understood-h svg { width: 18px; height: 18px; color: var(--accent-ink); flex: none; }
+.cx-understood.bad .cx-understood-h svg { color: var(--warn-ink, var(--warn)); }
+.cx-understood p { font-size: 13.5px; margin-top: 6px; line-height: 1.55; }
+.cx-art-preview { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px dashed var(--line2); }
+.cx-art-preview .tiny { text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--muted); }
+
+/* ---------- история поправок ---------- */
+.cx-history .tl-item .t { font-weight: 650; }
+.cx-history .tl-item .s { margin-top: 2px; }
+.cx-hist-no { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+/* ---------- раздел «Безопасность» ---------- */
+.cx-sec-link { border-color: color-mix(in srgb, var(--accent2) 35%, transparent); }
+.cx-sec-sum { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ---------- Защита звонка: голос внутри тревоги ---------- */
+.call-alert .cx-voice { margin: 0 0 10px; }
+
+/* ---------- адаптив ---------- */
+@media (max-width: 1180px) {
+  .cx-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 768px) {
+  .cx-protect { padding: 10px 16px; position: relative; }
+  .cx-protect-in { gap: 8px 10px; flex-wrap: nowrap; align-items: center; }
+  .cx-protect-ic { width: 32px; height: 32px; border-radius: 10px; }
+  .cx-protect-ic svg { width: 17px; height: 17px; }
+  .cx-protect b { font-size: 13px; line-height: 1.3; display: block; }
+  .cx-protect .grow { min-width: 0; }
+  .cx-protect-long { display: none; }
+  .cx-protect-short { display: block; font-size: 12px; }
+  .cx-protect .row { flex: none; }
+  .cx-protect .btn { min-height: 44px; padding: 6px 12px; white-space: normal; line-height: 1.2; max-width: 108px; }
+  .cx-protect .btn.ghost { display: none; }
+  .cx-doc { padding: 22px 16px 16px; }
+  .cx-doc-top { gap: 14px; }
+  .cx-seal { width: 52px; height: 52px; }
+  .cx-seal svg { width: 24px; height: 24px; }
+  .cx-doc h2 { font-size: 21px; }
+  .cx-preamble { font-size: 13.5px; }
+  .cx-art { grid-template-columns: 52px minmax(0, 1fr); gap: 12px; padding: 14px; }
+  .cx-art-num { height: 52px; border-radius: 14px; }
+  .cx-art-num b { font-size: 20px; }
+  .cx-art-num small { font-size: 12px; letter-spacing: 0; text-transform: none; }
+  .cx-art-side { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--line); }
+  .cx-art-side .switch { margin-top: 0; }
+  .cx-ov { padding: 16px; gap: 12px; }
+  .cx-ov-ic { width: 44px; height: 44px; border-radius: 14px; }
+  .cx-ov-cta { display: none; }
+  .cx-nl-form { flex-direction: column; }
+  .cx-voice { flex-wrap: wrap; }
+  .cx-voice .btn { width: 100%; }
+  .cx-hit { flex-wrap: wrap; }
+  .cx-hit .cx-chip { margin-left: 58px; }
+  .cx-big-cd { font-size: 34px; }
+  .cx-actions .btn, .cx-guard-demo .btn, .cx-editor .btn, .cx-form .btn, .cx-pend-item .btn, .cx-doc-actions .btn { min-height: 44px; }
+  .cx-actions { justify-content: stretch; }
+  .cx-actions .btn { flex: 1 1 auto; }
+  .cx-guard-demo .tiny { width: 100%; }
+  .cx-guard-demo .btn { flex: 1; }
+  .cx-edit-btn, .cx-icon-btn { min-width: 44px; min-height: 44px; }
+  .cx-layout .input, .cx-sheet .input, .cx-form .input { font-size: 16px; }
+  .cx-pend-item .grow { min-width: 100%; }
+}
+@media (max-width: 420px) {
+  .cx-doc-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cx-doc-top { flex-direction: column; }
+}
+/* NEXUS Decoy: строка ввода реплики мошенника (shield.js → #decoyInputBar).
+   Поле и группа кнопок переносятся: на узком экране (телефон 320–420 px, телефон сцены 360 px)
+   поле занимает всю строку, кнопки — под ним; на широком — всё в одну строку. */
+.decoy-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.decoy-bar .decoy-bar-in { flex: 999 1 240px; min-width: 0; width: auto; }
+.decoy-bar-acts { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 auto; min-width: 0; }
+.decoy-bar-acts .btn { flex: 1 1 auto; white-space: nowrap; justify-content: center; }
+@media (max-width: 520px) {
+  .decoy-bar .decoy-bar-in { flex-basis: 100%; font-size: 16px; }
+  .decoy-bar-acts { flex-basis: 100%; }
+  .decoy-bar-acts .btn { min-height: 44px; padding-left: 10px; padding-right: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cx-protect-ic, .cx-rec-dot, .cx-sc.run .cx-sc-ic, .cx-voice.playing .cx-voice-ava, .cx-wave i, .cx-dots i, .cx-art.flash, .cx-understood { animation: none !important; }
+  .cx-ov:hover { transform: none; }
+}

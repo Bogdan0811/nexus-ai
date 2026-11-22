@@ -1,0 +1,44 @@
+/* NEXUS AI — Leak Radar · карты-маячки (leak-radar.js). Только токены из style.css; без анимаций появления:
+   разметка перерисовывается по событиям шины. */
+.lr-wrap { white-space: normal !important; overflow-wrap: anywhere; }
+.lr-h4 { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.lr-hero .card-h h3, .lr-bank .card-h h3 { display: flex; align-items: center; gap: 8px; }
+.lr-hero .card-h h3 svg, .lr-bank .card-h h3 svg { color: var(--accent-ink); flex: none; }
+
+.lr-alert { border-color: var(--danger-line); background: var(--panel); box-shadow: inset 3px 0 0 var(--danger); }
+.lr-alert-h { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+.lr-alert-h > svg { color: var(--danger-ink); flex: none; margin-top: 2px; }
+.lr-alert-h b { font-size: 15px; line-height: 1.35; display: block; }
+.lr-steps { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.lr-steps li { display: flex; gap: 8px; align-items: flex-start; line-height: 1.45; }
+.lr-steps li svg { color: var(--ok-ink); flex: none; margin-top: 3px; }
+
+.lr-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+.lr-tile { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: var(--radius-sm); background: var(--panel2); border: 1px solid var(--line); min-width: 0; }
+.lr-tile.honey { border-style: dashed; border-color: var(--violet-line); background: var(--violet-soft); }
+.lr-tile .mono { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.lr-ic { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); flex: none; }
+.lr-tile.honey .lr-ic { background: var(--panel3); color: var(--violet-ink); }
+.lr-ok { color: var(--ok-ink); }
+
+.lr-reality { display: flex; flex-direction: column; gap: 6px; }
+.lr-r { font-size: 12px; line-height: 1.45; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line2); background: var(--panel2); color: var(--muted); }
+.lr-r.work { color: var(--ok-ink); border-color: var(--ok-line); background: var(--ok-soft); }
+.lr-r.sim { color: var(--warn-ink); border-color: var(--warn-line); background: var(--warn-soft); }
+.lr-r.api { color: var(--info-ink); border-color: var(--info-line); background: var(--info-soft); }
+
+.lr-dots { display: inline-flex; gap: 4px; align-items: center; }
+.lr-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--panel3); border: 1px solid var(--line3); }
+.lr-dots i.on { background: var(--danger); border-color: var(--danger); }
+.lr-meter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lr-mlist { display: flex; flex-direction: column; gap: 8px; }
+.lr-mrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--panel2); }
+.lr-mrow.cpp { border-color: var(--danger-line); background: var(--danger-soft); }
+.lr-mside { align-items: center; }
+.lr-run { color: var(--warn-ink); }
+.gl-dot.gl-merchant { background: var(--accent); }
+
+@media (max-width: 560px) {
+  .lr-mrow { flex-direction: column; align-items: stretch; }
+  .lr-mside { justify-content: flex-start; }
+}

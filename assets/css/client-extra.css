@@ -1,0 +1,392 @@
+/* =====================================================================
+   NEXUS AI 3.0 — кабинет клиента: меню 3.0, детектор манипуляций,
+   Transaction DNA, «Почему именно сейчас», охлаждение 60 с, Trust Circle,
+   «Защищённость N/100». Только токены style.css :root — своих палитр нет.
+   ===================================================================== */
+.page-client .mb-s { margin-bottom: 8px; }
+
+/* ---------- меню: из «Дополнительных модулей» без ?full=1 виден только NEXUS Decoy; AI-банкир и VoiceGuard — только с ?full=1 ---------- */
+html:not(.nx-full) body.page-client .sidebar .nav-btn.nav-extra[data-view="decoy"] { display: flex !important; }
+html:not(.nx-full) body.page-client .sidebar .nav-btn.nav-extra[data-view="banker"],
+html:not(.nx-full) body.page-client .sidebar .nav-btn.nav-extra[data-view="voice"] { display: none !important; }
+.nav-exp { margin-left: auto; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 6px; border-radius: 6px; color: var(--warn-ink); background: var(--warn-soft); border: 1px solid var(--warn-line); }
+.nav-btn.nav-extra { font-size: 13px; }
+.nav-btn.nav-help:not(.active) { color: var(--text); }
+.nav-btn.nav-help svg { color: var(--danger-ink); }
+@media (max-width: 768px) {
+  /* нижний таб-бар — только основной цикл защиты; дополнительные модули — в меню по бургеру */
+  html body.page-client .sidebar:not(.open) .nav-btn.nav-extra[data-view] { display: none !important; }
+  .page-client .sidebar:not(.open) .nav-exp { display: none; }
+}
+
+/* ---------- Emergency Shield: место на «Обзоре» и в шапке (кнопки рисует rescue.js) ---------- */
+.em-mount:empty, .em-top:empty { display: none; }
+.em-top { display: flex; align-items: center; flex: none; }
+@media (max-width: 420px) { .page-client .topbar .em-top .nxr-sos-t { display: none; } }
+
+/* ---------- «Защищённость N/100» ---------- */
+.prot-head { display: flex; gap: 18px; align-items: center; }
+.prot-grade { font-size: 15px; }
+.prot-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.prot-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--line); }
+.prot-item .prot-ic { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; color: var(--warn-ink); background: var(--warn-soft); }
+.prot-item.ok { background: transparent; }
+.prot-item.ok .prot-ic { color: var(--ok-ink); background: var(--ok-soft); }
+.prot-t { font-weight: 650; font-size: 13.5px; }
+.prot-d { font-size: 12.5px; color: var(--muted); margin-top: 2px; line-height: 1.45; }
+.prot-how { font-size: 12px; color: var(--warn-ink); margin-top: 4px; }
+.prot-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.prot-pts { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.prot-item.ok .prot-pts { color: var(--ok-ink); }
+@media (max-width: 520px) {
+  .prot-head { flex-direction: column; align-items: flex-start; }
+  .prot-item { flex-wrap: wrap; }
+  .prot-side { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; padding-left: 38px; }
+}
+
+/* ---------- детектор манипуляций (Защита звонка) ---------- */
+.mp-empty { display: flex; gap: 12px; align-items: flex-start; color: var(--muted); }
+.mp-empty svg { flex: none; color: var(--accent-ink); margin-top: 2px; }
+.mp-empty b { color: var(--text); }
+.mp-head { display: flex; gap: 12px; justify-content: space-between; align-items: flex-start; }
+.mp-type { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mp-type b { font-family: var(--display); font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.25; }
+.mp-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink); }
+.mp-risk { display: flex; flex-direction: column; align-items: flex-end; flex: none; font-size: 12px; color: var(--muted); line-height: 1.1; }
+.mp-risk b { font-family: var(--display); font-size: 30px; font-weight: 700; line-height: 1.05; }
+.mp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.mp-stat { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.mp-stat > span { font-size: 12px; color: var(--muted); }
+.mp-stat b { font-size: 15px; }
+.mp-stat small { font-size: 12px; color: var(--muted2); }
+.mp-pr.high { color: var(--danger-ink); } .mp-pr.med { color: var(--warn-ink); } .mp-pr.low { color: var(--ok-ink); }
+.mp-meter { height: 6px; border-radius: 6px; background: var(--panel3); overflow: hidden; margin-top: 4px; }
+.mp-meter i { display: block; height: 100%; border-radius: 6px; transition: width 0.4s var(--ease); }
+.mp-meter i.high { background: var(--danger); } .mp-meter i.med { background: var(--warn); } .mp-meter i.low { background: var(--ok); }
+.mp-seq { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 6px; margin-top: 14px; counter-reset: mpstep; }
+.mp-step { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 7px; align-items: center; padding: 7px 8px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); min-width: 0; }
+.mp-step .mp-dot { grid-row: 1 / span 2; }
+.mp-step.hit { border-color: var(--danger-line); background: var(--danger-soft); }
+.mp-step.next { border: 1px dashed var(--warn); background: var(--warn-soft); }
+.mp-step.skip { background: transparent; border-style: dashed; }
+.mp-dot { position: relative; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--panel2); color: var(--muted); border: 1px solid var(--line2); }
+.mp-step.hit .mp-dot { background: var(--danger-solid); color: var(--on-accent); border-color: var(--danger-solid); }
+.mp-step.next .mp-dot { color: var(--warn-ink); border: 2px dashed var(--warn); background: var(--warn-soft); animation: mpPulse 1.6s ease-in-out infinite; }
+.mp-step-l { font-size: 12px; font-weight: 600; line-height: 1.2; color: var(--muted); overflow-wrap: anywhere; }
+.mp-step.hit .mp-step-l { color: var(--text); }
+.mp-step.next .mp-step-l { color: var(--warn-ink); }
+.mp-step-s { font-size: 12px; color: var(--muted2); font-family: var(--mono); }
+@keyframes mpPulse { 50% { box-shadow: 0 0 0 5px var(--warn-soft); } }
+.mp-h { font-size: 13px; margin: 14px 0 8px; }
+.mp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.mp-list li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: baseline; padding: 9px 12px; border-radius: var(--radius-sm); background: var(--danger-soft); border: 1px solid var(--danger-line); }
+.mp-list li .tiny { grid-column: 2; }
+.mp-tag { font-size: 12px; font-weight: 700; color: var(--danger-ink); white-space: nowrap; }
+.mp-list q { font-size: 13px; line-height: 1.45; color: var(--text); quotes: '«' '»'; }
+.mp-next { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 11px 13px; border-radius: var(--radius-sm); background: var(--warn-soft); border: 1px solid var(--warn-line); color: var(--warn-ink); }
+.mp-next svg { flex: none; margin-top: 2px; }
+.mp-next .small { color: var(--text); margin-top: 3px; }
+.mp-rec h4 { font-size: 13px; margin: 0 0 3px; }
+@media (max-width: 520px) {
+  .mp-list li { grid-template-columns: minmax(0, 1fr); }
+  .mp-list li .tiny { grid-column: 1; }
+  .mp-type b { font-size: 15.5px; }
+}
+
+/* ---------- Transaction DNA ---------- */
+.dna-card.hidden { display: none; }
+.dna-prof { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--line); }
+.dna-prof-l { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan-ink); }
+.dna-prof b { font-size: 13.5px; }
+.dna-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.dna-scale { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 12px; }
+.dna-scale.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dna-seg { padding: 7px 6px 6px; border-radius: 8px; border-top: 3px solid var(--line2); background: var(--bg2); display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.dna-seg:not(.on) { background: transparent; border-top-width: 2px; }
+.dna-seg span { font-family: var(--mono); font-size: 12px; color: var(--muted2); }
+.dna-seg b { font-size: 12px; font-weight: 600; line-height: 1.2; color: var(--muted); }
+.dna-seg.normal { border-top-color: var(--ok); } .dna-seg.check { border-top-color: var(--info); }
+.dna-seg.cooling { border-top-color: var(--warn); } .dna-seg.hold { border-top-color: var(--danger); }
+.dna-seg.on { opacity: 1; background: var(--panel2); box-shadow: inset 0 0 0 1px var(--line2); }
+.dna-seg.on b { color: var(--text); }
+.dna-cmp { margin-top: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+.dna-cmp-h, .dna-row { display: grid; grid-template-columns: 92px minmax(0, 1fr) minmax(0, 1fr); gap: 10px; padding: 8px 12px; align-items: baseline; }
+.dna-cmp-h { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted2); background: var(--bg2); }
+.dna-row { border-top: 1px solid var(--line); font-size: 12.5px; }
+.dna-k { font-weight: 650; }
+.dna-p { color: var(--muted); }
+.dna-v { display: inline-flex; gap: 5px; align-items: baseline; color: var(--ok-ink); }
+.dna-v svg { flex: none; position: relative; top: 2px; }
+.dna-row.off { background: var(--warn-soft); }
+.dna-row.off .dna-v { color: var(--warn-ink); font-weight: 650; }
+.dna-fac { margin-top: 0; }
+.dna-safe, .cool-safe { margin-top: 12px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--ok-soft); border: 1px solid var(--ok-line); }
+.dna-safe > b, .cool-safe > b { display: inline-flex; gap: 6px; align-items: center; color: var(--ok-ink); font-size: 13px; }
+.dna-safe ol, .cool-safe ol { margin: 6px 0 0; padding-left: 20px; font-size: 12.5px; line-height: 1.55; color: var(--text); }
+@media (max-width: 520px) {
+  .dna-cmp-h { display: none; }
+  .dna-row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .dna-scale { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- «Почему именно сейчас» ---------- */
+.why-card { border-color: var(--warn-line); background: linear-gradient(180deg, var(--warn-soft), transparent 70%), var(--panel); }
+.why-card .card-h h3 { display: inline-flex; gap: 8px; align-items: center; }
+.why-card .card-h h3 svg { color: var(--warn-ink); }
+.why-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.why-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5; }
+.why-list li svg { flex: none; margin-top: 2px; color: var(--muted); }
+.why-list li.high svg { color: var(--danger-ink); }
+.why-list li.med svg { color: var(--warn-ink); }
+
+/* ---------- период охлаждения 60 с ---------- */
+.cool-hero h3 { margin: 4px 0 6px; }
+.cool-ring { position: relative; width: 132px; height: 132px; margin: 16px auto 6px; }
+.cool-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.cool-ring circle { fill: none; stroke-width: 6; }
+.cool-ring .cool-bg { stroke: var(--panel3); }
+.cool-ring .cool-fg { stroke: var(--warn); stroke-linecap: round; transition: stroke-dashoffset 0.95s linear; }
+.cool-num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.cool-num b { font-family: var(--display); font-size: 36px; line-height: 1; }
+.cool-num span { font-size: 12px; color: var(--muted); }
+.cool-why { margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--warn-soft); border: 1px solid var(--warn-line); }
+.cool-why > b { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--warn-ink); }
+.cool-why ul { margin: 6px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.5; }
+.cool-safe .btn { margin-top: 10px; }
+@media (prefers-reduced-motion: reduce) { .cool-ring .cool-fg, .mp-meter i { transition: none; } .mp-step.next .mp-dot { animation: none; } }
+
+/* ---------- Trust Circle ---------- */
+.tc-list { display: flex; flex-direction: column; gap: 12px; }
+.tc-req { padding: 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg2); }
+.tc-req.pending { border-color: var(--warn-line); box-shadow: inset 3px 0 0 var(--warn); }
+.tc-push { padding: 12px 14px; border-radius: 16px; background: var(--panel2); border: 1px solid var(--line2); box-shadow: var(--shadow-sm); }
+.tc-push-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.tc-app { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-ink); }
+.tc-push-t { font-weight: 700; margin-top: 6px; }
+.tc-push-x { font-size: 14px; line-height: 1.5; margin-top: 4px; }
+.tc-mask { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tc-mask span { display: inline-flex; gap: 4px; align-items: center; font-size: 12px; color: var(--muted); padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg2); }
+.tc-to { margin-top: 8px; }
+.tc-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.tc-acts .btn { flex: 1 1 200px; }
+.tc-demo-note { flex-basis: 100%; }
+.tc-res { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); }
+.tc-res svg { flex: none; margin-top: 2px; }
+.tc-res.ok { background: var(--ok-soft); border-color: var(--ok-line); color: var(--ok-ink); }
+.tc-res.bad { background: var(--danger-soft); border-color: var(--danger-line); color: var(--danger-ink); }
+.tc-res b { color: var(--text); }
+
+/* ---------- Конституция: раздел «Мои планы» внутри документа (после статьи 4) ---------- */
+.cx-plans-sec { margin: -2px 0 2px 28px; padding: 14px 16px; border-radius: var(--radius); border: 1px dashed var(--violet-line); background: var(--violet-soft); }
+.cx-plans-sec:empty { display: none; }
+.cx-plans-sec .card-h { margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+@media (max-width: 520px) { .cx-plans-sec { margin-left: 0; padding: 12px; } }
+
+/* ---------- VoiceGuard: эксперимент ---------- */
+.exp-notice { display: block; line-height: 1.55; }
+.exp-notice .badge { margin-right: 6px; vertical-align: 1px; }
+
+/* ---------- Bank call verified (bank_call): card on overview and in call shield; no entry animation, the TTL timer updates text only ---------- */
+.bc-card { border-color: var(--ok-line); background: var(--ok-soft); min-width: 0; }
+.bc-h { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; color: var(--text); }
+.bc-h > svg { color: var(--ok-ink); flex: none; margin-top: 2px; }
+.bc-h .grow { min-width: 0; flex: 1 1 180px; overflow-wrap: anywhere; }
+.bc-rules { margin: 8px 0 0; padding-left: 18px; line-height: 1.5; }
+.bc-rules li { margin: 2px 0; }
+#bankCallShield { margin-bottom: 10px; }
+#bankCallShield .bc-card { padding: 12px 14px; }
+.bc-note { border-left: 3px solid var(--ok-line); padding: 6px 10px; margin-top: 8px; border-radius: 6px; background: var(--ok-soft); }
+.bc-note.warn { border-left-color: var(--warn-line); background: var(--warn-soft); }
+/* =====================================================================
+   P2 · 5 разделов клиента: Главная · Звонок · Платежи · Правила · Помощь
+   (без анимаций появления — строки статуса и панели перерисовываются по таймеру)
+   ===================================================================== */
+/* шапка: SOS и «демо-данные» */
+.page-client .topbar #honestyTagMount { display: inline-flex; flex: none; }
+.cx-sos {
+  flex: none; min-width: 52px; min-height: 36px; padding: 0 var(--s-3); border-radius: 999px; border: 1px solid var(--danger-line);
+  background: var(--danger-solid); color: var(--on-accent); font-weight: 800; font-size: var(--fs-sm); letter-spacing: 0.06em; cursor: pointer;
+}
+.cx-sos:hover { filter: brightness(1.08); }
+.cx-sos:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
+@media (max-width: 420px) { .page-client .topbar .sub { display: none; } .page-client .topbar { gap: var(--s-2); } }
+
+/* подразделы раздела (#secNav) */
+.sec-nav { margin-bottom: var(--s-4); }
+.sec-nav .seg { max-width: 720px; }
+
+/* «Помощь»: блоки стоят друг под другом */
+.page-client .content > .view#view-helpsos.active,
+.page-client .content > .view#view-recover.active,
+.page-client .content > .view#view-security.active { margin-bottom: var(--s-5); }
+
+/* Главная: ≤ 1,5 экрана на 375 */
+.home { max-width: 720px; }
+.home .bank-card { min-height: 0; }
+.home-quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.home-act {
+  display: flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 64px; padding: var(--s-3);
+  border-radius: var(--radius-sm); border: 1px solid var(--line2); background: var(--panel); color: var(--text);
+  font: inherit; font-weight: 700; font-size: var(--fs-md); line-height: 1.2; text-align: center; cursor: pointer;
+}
+.home-act:hover { background: var(--panel2); border-color: var(--line3); }
+.home-act svg { width: 22px; height: 22px; color: var(--accent-ink); flex: none; }
+.home-act:focus-visible, .home-remind:focus-visible, .link-btn:focus-visible, .status-go:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.home-remind {
+  width: 100%; display: flex; gap: var(--s-3); align-items: center; padding: var(--s-3) var(--s-4); text-align: left; cursor: pointer;
+  border-radius: var(--radius-sm); border: 1px dashed var(--accent-line); background: var(--accent-soft); color: var(--text); font: inherit;
+}
+.home-remind > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.home #recentTx .li:nth-child(n+6) { display: none; }
+#homeStatus .status-go { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+
+/* ссылка-кнопка */
+.link-btn { background: none; border: 0; padding: 2px 0; color: var(--accent-ink); font: inherit; font-size: var(--fs-sm); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; text-align: left; }
+.link-btn.tiny { font-size: var(--fs-xs); }
+.link-btn:disabled { color: var(--muted); text-decoration: none; cursor: default; }
+
+/* Звонок: одна карточка тревоги, маленький индикатор */
+.call-verdict .gauge.sm { width: 104px; height: 104px; flex: none; }
+.call-verdict h3 { font-size: var(--fs-lg); line-height: var(--lh-head); }
+.call-verdict-big { font-size: var(--fs-lg) !important; line-height: var(--lh-head); }
+.call-reasons { margin: var(--s-2) 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm); line-height: var(--lh-text); }
+.call-alert .mp-seq { margin: var(--s-2) 0; }
+
+/* Платежи → Перевод: метка звонка вместо флажка разработчика */
+.tr-call { align-items: center; min-height: 28px; }
+.tr-call-on { color: var(--warn-ink); border-color: var(--warn-line); background: var(--warn-soft); cursor: default; }
+.tr-call-on svg { margin-right: 4px; }
+
+/* панель задержанного перевода */
+.held-h { display: flex; gap: var(--s-3); align-items: flex-start; color: var(--danger-ink); }
+.held-h h3 { color: var(--text); font-size: var(--fs-lg); line-height: var(--lh-head); }
+.held .cx-guard-box { margin-top: var(--s-3); }
+.cx-voice-line { display: flex; gap: var(--s-2); align-items: center; margin-top: var(--s-3); padding: var(--s-2) var(--s-3); border-radius: var(--radius-sm); background: var(--violet-soft); border: 1px solid var(--violet-line); }
+.cx-voice-line > svg { color: var(--violet-ink); flex: none; }
+.cx-voice-line .grow { min-width: 0; overflow-wrap: anywhere; }
+
+/* Правила: «Ещё» */
+.cx-more { margin-top: var(--s-4); }
+.cx-more > .more-b { color: var(--text); }
+.page-client #view-constitution .cx-layout { grid-template-columns: minmax(0, 1fr); max-width: 880px; }
+
+/* нижняя панель на телефоне: ровно 5 вкладок, все видны (sidebar .nav-btn = .bottom-bar) */
+@media (max-width: 768px) {
+  html body.page-client .sidebar:not(.open) { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; overflow: hidden; padding-left: 4px; padding-right: 4px; }
+  html body.page-client .sidebar:not(.open) .nav-btn { flex: none; max-width: none; min-width: 0; width: auto; padding: 6px 2px; }
+  html body.page-client .sidebar:not(.open) .nav-btn[data-short]::after { font-size: var(--fs-xs); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html body.page-client .sidebar:not(.open) > :not(.nav-btn) { display: none !important; }
+  .home-act { min-height: 56px; font-size: var(--fs-sm); }
+  .page-client .sec-nav { margin-bottom: var(--s-3); }
+}
+/* P7: в «Помощи» кнопка «Заблокировать всё» уже стоит сверху (#emergencyMount) — вторая копия в карточке обращения не нужна */
+.page-client #view-recover .nxr-intro-sos { display: none; }
+
+/* =====================================================================
+   v5 · визуальная полировка кабинета клиента (Swiss / Trust & Authority)
+   Только переопределения поверх style.css: кегли, цели нажатия, таб-бар, иконки операций.
+   ===================================================================== */
+
+/* ---------- типографика: текст 15px, вторичный ≥ 13px, подписи 12px ---------- */
+.page-client .content { font-size: 15px; line-height: 1.55; }
+.page-client .content .small { font-size: 13.5px; line-height: 1.5; }
+.page-client .content .tiny { font-size: 12.5px; line-height: 1.45; }
+.page-client .content p { max-width: var(--measure); }
+.page-client .content .card-h h3 { font-size: 16px; line-height: var(--lh-head); }
+.page-client .content .card-h .hint { font-size: 13px; }
+.page-client .content h3 { line-height: var(--lh-head); }
+.page-client .li .t { font-size: 14.5px; }
+.page-client .li .s { font-size: 13px; }
+.page-client .setting .t { font-size: 14.5px; }
+.page-client .setting .d { font-size: 13px; line-height: 1.45; }
+.page-client .topbar h1 { letter-spacing: -0.015em; }
+.page-client .topbar .sub { font-size: 13px; }
+.page-client .disclaimer { font-size: 12.5px; line-height: 1.5; }
+.page-client .badge { font-variant-numeric: tabular-nums; }
+.page-client .amt, .page-client .bal, .page-client .risk-big, .page-client .gauge .num { font-variant-numeric: tabular-nums; }
+
+/* ---------- иконки операций: линейная иконка, цвет категории на тихой подложке ---------- */
+.page-client .li .ic.tx-ic { width: 40px; height: 40px; border-radius: var(--radius-sm); }
+.page-client .li .ic svg { width: 20px; height: 20px; }
+.page-client .li .ic.tx-ic svg { stroke-width: 1.75; }
+.nx-ext { margin-left: 4px; vertical-align: -2px; opacity: 0.85; }
+.decoy-vs { display: inline-flex; align-items: center; }
+
+/* ---------- плоские поверхности: без декоративных градиентов ---------- */
+.page-client .nxr-sos { background: var(--danger-soft); }
+.page-client .nxr-sos.on { background: var(--ok-soft); }
+.page-client .why-card { background: var(--panel); border-left: 3px solid var(--warn); }
+
+/* ---------- фокус: одно кольцо на весь кабинет ---------- */
+.page-client :where(button, a, [role="button"], summary, input, select, textarea, label):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.page-client .nxr-sos:focus-visible, .page-client .nxr-steps button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; box-shadow: none; }
+
+/* ---------- шапка: SOS — компактная, явно красная, ≥ 44px ---------- */
+.page-client .topbar .cx-sos {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 64px; min-height: 40px; padding: 0 14px;
+  font-family: var(--display); font-size: 14px; font-weight: 700; letter-spacing: 0.08em; border-color: var(--danger-solid);
+  box-shadow: 0 0 0 3px var(--danger-soft); transition: filter var(--dur) ease, box-shadow var(--dur) ease;
+}
+.page-client .topbar .cx-sos svg { width: 16px; height: 16px; flex: none; }
+.page-client .topbar .cx-sos:hover { box-shadow: 0 0 0 4px var(--danger-line); }
+.page-client .topbar .cx-sos:active { filter: brightness(0.92); }
+.page-client .topbar .cx-sos:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+/* «демо-данные»: видимая пилюля прежняя, зона нажатия 44px */
+.page-client .topbar .tag-demo-btn::after { inset: -12px -4px; }
+
+/* ссылка-кнопка: кегль текста, зона нажатия по высоте */
+.page-client .link-btn { display: inline-flex; align-items: center; min-height: 32px; font-size: 14px; }
+.page-client .link-btn.tiny { font-size: 13px; }
+
+@media (max-width: 768px) {
+  .page-client { --tabbar-h: 68px; }
+  .page-client .content { font-size: 15px; }
+  .page-client .topbar { padding-left: 12px; padding-right: 12px; gap: 8px; }
+  .page-client .topbar .cx-sos { min-height: var(--tap); min-width: 58px; padding: 0 12px; }
+  .page-client .avatar { width: 36px; height: 36px; }
+  .page-client .link-btn { min-height: var(--tap); padding: 0 2px; }
+  .page-client details > summary { min-height: var(--tap); display: flex; align-items: center; }
+  .page-client input[type="range"] { min-height: var(--tap); }
+  /* мастер обращения: шаги 1–5 — цели 44px */
+  .page-client .nxr-steps button { min-height: var(--tap); padding-top: 9px; justify-content: flex-start; }
+  .page-client .nxr-steps .n { width: 26px; height: 26px; font-size: 12px; }
+
+  /* нижний таб-бар: подписи 12px, иконки 24px, ясное активное состояние, safe-area */
+  html body.page-client .sidebar:not(.open) {
+    gap: 4px; padding: 6px 8px calc(6px + var(--safe-bottom)); background: var(--panel); border-top: 1px solid var(--line2);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  html body.page-client .sidebar:not(.open) .nav-btn {
+    min-height: 56px; padding: 6px 2px 5px; gap: 3px; border-radius: var(--radius-sm); color: var(--muted); font-weight: 600;
+  }
+  html body.page-client .sidebar:not(.open) .nav-btn svg { width: 24px; height: 24px; stroke-width: 1.75; }
+  html body.page-client .sidebar:not(.open) .nav-btn[data-short]::after { font-size: 12px; line-height: 1.2; letter-spacing: 0; font-weight: 600; }
+  html body.page-client .sidebar:not(.open) .nav-btn.active { color: var(--accent-ink); background: var(--accent-soft); }
+  html body.page-client .sidebar:not(.open) .nav-btn.active::before {
+    content: ''; position: absolute; top: -7px; left: 28%; right: 28%; height: 3px; border-radius: 0 0 3px 3px; background: var(--accent-ink);
+  }
+  html body.page-client .sidebar:not(.open) .nav-btn.active[data-short]::after { font-weight: 700; }
+  html body.page-client .sidebar:not(.open) .nav-btn.nav-help:not(.active) { color: var(--muted); }
+  html body.page-client .sidebar:not(.open) .nav-btn .nav-badge { top: 2px; left: calc(50% + 8px); font-size: 12px; }
+}
+.page-client .msg .who, .page-client .tline .who { font-size: 12px; }
+.page-client .tline.interim { opacity: 0.85; }
+.page-client .status-line .status-go::after { inset: -12px -6px; }
+.page-client .msg .eng, .page-client .ioc-chip .k { font-size: 12px; }
+@media (max-width: 768px) { html body.page-client .sidebar.open .nav-btn .nav-badge { font-size: 12px; } }
+/* 375: заголовок раздела целиком — аватар (декоративные инициалы) прячем, SOS и «демо-данные» остаются */
+@media (max-width: 420px) {
+  .page-client .topbar #avatar { display: none; }
+  .page-client .topbar h1 { font-size: 17px; }
+}
+/* 1366: «Главная» в две колонки — счёт и действия слева, операции справа */
+@media (min-width: 1100px) {
+  .page-client .home {
+    max-width: 1120px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); grid-template-rows: repeat(5, auto) 1fr;
+    column-gap: var(--s-5); row-gap: var(--s-4); align-items: start;
+  }
+  .page-client .home > * { grid-column: 1; min-width: 0; }
+  .page-client .home > :empty { display: none; }
+  .page-client .home > .card { grid-column: 2; grid-row: 1 / span 6; }
+}
+.page-client .nav-btn .nav-badge { font-size: 12px; }

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ru" class="nx-stage-host">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070D">
+<meta name="color-scheme" content="dark">
+<title>NEXUS AI — сцена для жюри</title>
+<meta name="description" content="Сцена показа NEXUS AI: телефон клиентки и панель банка на одном экране. 7 шагов + финал: тревога до просьбы кода, номер-ловушка, цепочка дропов, удержание перевода другой клиентки, правило 24 часов, «Заблокировать всё», карты для магазинов и безопасная сделка. Концепт команды NEXUS AI, не продукт банка-организатора; данные синтетические.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366F1'/%3E%3Cstop offset='.55' stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%2322D3EE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='900' font-size='16' text-anchor='middle' fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/stage.css">
+<link rel="stylesheet" href="assets/css/stage-more.css">
+</head>
+<body class="st-body lay-slides m-tab-phone">
+<header class="st-top" id="stTop">
+  <a class="st-brand" href="index.html" title="На лендинг NEXUS AI">
+    <span class="st-logo" aria-hidden="true">N</span>
+    <span class="st-brand-t"><b>NEXUS <i>AI</i></b><small>концепт команды</small></span>
+  </a>
+  <nav class="st-stepper" id="stepper" aria-label="Шаги демо"></nav>
+  <button type="button" class="st-ready busy" id="stReady" title="Готовность сцены — подробнее «?»" aria-label="Готовность сцены"><i aria-hidden="true"></i><span class="t">Подготовка…</span></button>
+  <div class="st-status" id="stStatus" hidden>
+    <span class="st-chip" id="chipLink" title="Пинг по шине раз в 3 с">Связь…</span>
+    <span class="st-chip" id="chipLlm" title="Доступность /api/chat">LLM…</span>
+    <span class="st-chip" id="chipVoice" title="Русский голос для озвучки">Звук…</span>
+    <span class="st-chip" id="chipScene" title="Подготовить сцену — R">Сцена…</span>
+  </div>
+  <div class="st-tools">
+    <button type="button" class="st-tool" id="btnPrep" title="Подготовить сцену (R)"><span class="k">R</span><span class="t">Подготовить</span></button>
+    <button type="button" class="st-tool st-tool-auto" id="btnAuto" title="Автопилот всего демо (A)"><span class="k">A</span><span class="t">Автопилот</span></button>
+    <button type="button" class="st-tool st-hide-m" id="btnFull" title="Полный экран (F)"><span class="k">F</span></button>
+    <button type="button" class="st-tool" id="btnHelp" title="Справка и горячие клавиши (?)"><span class="k">?</span></button>
+  </div>
+</header>
+
+<main class="st-grid" id="stGrid">
+  <!-- мобильная раскладка: переключатель «Телефон / Банк» -->
+  <div class="st-mtabs" id="mTabs" role="tablist" aria-label="Экран">
+    <button type="button" class="st-mtab" role="tab" data-mtab="phone" id="mTabPhone" aria-controls="paneClient" aria-selected="true"><span class="st-dot" aria-hidden="true"></span>Телефон</button>
+    <button type="button" class="st-mtab" role="tab" data-mtab="bank" id="mTabBank" aria-controls="paneBank" aria-selected="false"><span class="st-dot" aria-hidden="true"></span>Банк</button>
+  </div>
+
+  <!-- Телефон клиентки -->
+  <section class="st-pane st-phone" id="paneClient" aria-label="Телефон клиентки">
+    <div class="st-pane-label"><span class="st-dot" id="dotClient"></span><span id="paneClientLabel">Телефон клиентки · Гульнара-апа, 63</span></div>
+    <div class="st-phone-shell" id="phoneShell">
+      <div class="st-phone-screen">
+        <div class="st-phone-status" aria-hidden="true">
+          <span class="st-sb-time" id="phoneTime">9:41</span>
+          <span class="st-phone-island"></span>
+          <span class="st-sb-icons"><i class="sig"></i><i class="wifi"></i><i class="bat"></i></span>
+        </div>
+        <div class="st-frame-host" id="hostClient"><iframe id="frClient" name="nexus_client" title="Кабинет клиента NEXUS"></iframe></div>
+        <div class="st-ribbon hidden" id="phoneRibbon" role="status"></div>
+        <div class="st-cover" id="coverClient"><div class="st-spin"></div><span>Загрузка кабинета…</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Центральная колонка: шаг, пуш опекуну, пульт судьи, замеры -->
+  <aside class="st-pane st-mid" id="paneMid" aria-label="Ход демо">
+    <div class="st-card st-stepcard" id="stepCard"></div>
+    <div class="st-card st-push hidden" id="pushCard" aria-live="polite"></div>
+    <div class="st-card st-judge hidden" id="judgeCard">
+      <div class="st-judge-head">
+        <div class="grow">
+          <b>Мошенник → номер-ловушка NEXUS</b>
+          <div class="st-sub">Звонок переадресован на номер-ловушку банка · приманка не знает данных клиентки и не совершает операций</div>
+        </div>
+        <div class="st-timer" id="judgeTimer" title="Реальное время сессии">00:00</div>
+      </div>
+      <div class="st-log" id="judgeLog" aria-live="polite"></div>
+      <div class="st-ap hidden" id="judgeAp"></div>
+      <label class="st-sr" for="judgeInput">Реплика мошенника</label>
+      <textarea id="judgeInput" rows="1" maxlength="400" placeholder="Пишите за мошенника: представьтесь службой безопасности, попросите код, назовите «безопасный счёт»… Enter — отправить, Esc — выйти из поля"></textarea>
+      <div class="st-judge-actions">
+        <button type="button" class="btn primary sm" id="judgeMic" title="Говорить за мошенника голосом — бабушка ответит вслух (M)">Говорить голосом · M</button>
+        <button type="button" class="btn sm" id="judgeSend">Отправить</button>
+        <button type="button" class="btn sm ghost" id="judgeLang" title="Язык распознавания">RU</button>
+        <button type="button" class="btn sm ghost" id="judgeAuto" title="Автопилот мошенника (J)">Автопилот · J</button>
+        <button type="button" class="btn sm ghost" id="judgeVoice" title="Озвучка приманки">Озвучка</button>
+      </div>
+      <div class="st-judge-foot"><span id="judgeEngine">Движок приманки: офлайн</span><span id="judgeEquiv"></span></div>
+    </div>
+    <div class="st-card st-result hidden" id="resultCard" aria-live="polite"></div>
+    <div class="st-card st-metrics" id="metricsCard"></div>
+    <p class="st-disclaimer">Концепт команды NEXUS AI. Не является продуктом банка-организатора.</p>
+  </aside>
+
+  <!-- Fraud Fusion Center банка -->
+  <section class="st-pane st-bankpane" id="paneBank" aria-label="Fraud Fusion Center банка">
+    <div class="st-pane-label"><span class="st-dot" id="dotBank"></span><span>Панель банка</span><span class="st-tag" data-nx-honesty role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false" title="Что работает в прототипе">синтетические данные</span></div>
+    <div class="st-browser">
+      <div class="st-browser-bar" aria-hidden="true"><i></i><i></i><i></i><span class="st-url"><b>NEXUS</b> · панель банка</span><span class="st-live">LIVE</span></div>
+      <div class="st-browser-body">
+        <div class="st-frame-host" id="hostBank"><iframe id="frBank" name="nexus_bank" title="Fraud Fusion Center банка"></iframe></div>
+        <div class="st-cover" id="coverBank"><div class="st-spin"></div><span>Загрузка панели банка…</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Слайды вступления и финала (поверх iframe; на мобильном — в потоке страницы) -->
+  <section class="st-slides hidden" id="slides" aria-live="polite">
+    <div class="st-slides-body" id="slidesBody"></div>
+    <div class="st-slides-nav">
+      <button type="button" class="st-tool" id="slidePrev" title="Назад (←)" aria-label="Предыдущий слайд"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <span class="st-dots" id="slideDots"></span>
+      <button type="button" class="st-tool" id="slideNext" title="Дальше (→ / Space)" aria-label="Следующий слайд"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+  </section>
+</main>
+
+<!-- мобильная панель управления: назад · действие шага · дальше -->
+<nav class="st-mbar" id="mBar" aria-label="Управление демо">
+  <button type="button" class="st-mbar-btn" data-act="prev" aria-label="Назад"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+  <span class="st-mstep" id="mStep" aria-live="polite">Начало</span>
+  <button type="button" class="st-mbar-btn main" data-act="primary" id="mBarMain">Начать</button>
+  <button type="button" class="st-mbar-btn" data-act="next" aria-label="Дальше"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+</nav>
+
+<noscript><div class="st-noscript">Для сцены нужен JavaScript.</div></noscript>
+<div id="toasts"></div>
+<div class="modal" id="modal"></div>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/ui-kit.js"></script>
+<script src="assets/data/voice-manifest.js"></script>
+<script src="assets/js/tts.js"></script>
+<script src="assets/js/manip.js"></script>
+<script src="assets/js/dna.js"></script>
+<script src="assets/js/roi.js"></script>
+<script src="assets/js/decoy-engine.js"></script>
+<script src="assets/js/stage-more.js"></script>
+<script src="assets/vendor/qrcode.js"></script>
+<script src="assets/js/relay.js"></script>
+<script src="assets/js/stage-phone.js"></script>
+<script src="assets/js/stage.js"></script>
+</body>
+</html>

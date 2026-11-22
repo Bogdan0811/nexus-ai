@@ -1,0 +1,93 @@
+/* NEXUS AI — Безопасная сделка · P2P-эскроу (safe-deal.js). Только токены из style.css; без анимаций появления:
+   разметка перерисовывается по событиям шины, обратный отсчёт меняет только текст. */
+.nx-embed #sdModes { display: none !important; }
+.sd-modes { margin-bottom: 16px; max-width: 100%; }
+.sd-wrap { white-space: normal !important; overflow-wrap: anywhere; }
+.sd-h4 { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.sd-hero .card-h h3, .sd-phone-card .card-h h3, .sd-bank .card-h h3 { display: flex; align-items: center; gap: 8px; }
+.sd-hero .card-h h3 svg, .sd-phone-card .card-h h3 svg, .sd-bank .card-h h3 svg { color: var(--accent-ink); flex: none; }
+.sd-grid > .col { min-width: 0; }
+.sd-fields { gap: 12px; }
+.sd-text { min-height: 76px; resize: vertical; font-family: var(--font); line-height: 1.45; }
+
+/* проверки до оплаты */
+.sd-checks { display: flex; flex-direction: column; gap: 8px; }
+.sd-check { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--panel2); font-size: 13px; line-height: 1.45; }
+.sd-check b { display: block; color: var(--text); }
+.sd-check-ic { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--panel3); color: var(--muted); }
+.sd-check.ok { border-color: var(--ok-line); }
+.sd-check.ok .sd-check-ic { background: var(--ok-soft); color: var(--ok-ink); }
+.sd-check.warn { border-color: var(--warn-line); background: var(--warn-soft); }
+.sd-check.warn .sd-check-ic { background: var(--panel3); color: var(--warn-ink); }
+.sd-check.danger { border-color: var(--danger-line); background: var(--danger-soft); }
+.sd-check.danger .sd-check-ic { background: var(--panel3); color: var(--danger-ink); }
+.sd-list { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; color: var(--muted); overflow-wrap: anywhere; }
+.sd-chips { align-items: center; margin-top: 4px; }
+.sd-reply { margin-top: 8px; padding: 8px 10px; border-radius: 10px; border: 1px dashed var(--line3); background: var(--panel); }
+
+/* сделка покупателя */
+.sd-deal.dispute { border-color: var(--danger-line); }
+.sd-dealtop { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; }
+.sd-amt { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.sd-code { font-size: 17px; font-weight: 600; letter-spacing: .06em; color: var(--accent-ink); }
+.sd-steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.sd-step { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line2); color: var(--muted); background: var(--panel2); }
+.sd-step.done { color: var(--ok-ink); border-color: var(--ok-line); background: var(--ok-soft); }
+.sd-li { width: 100%; text-align: left; background: none; border: 0; color: inherit; cursor: pointer; font: inherit; }
+.sd-li:hover { background: var(--hover); }
+
+/* телефон продавца */
+.sd-phone { max-width: 340px; margin: 0 auto; padding: 14px; border-radius: 28px; border: 1px solid var(--line3); background: var(--bg2); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sd-phone-top { display: flex; justify-content: space-between; padding: 0 6px; }
+.sd-phone-deal, .sd-phone-empty { padding: 12px; border-radius: 18px; background: var(--panel2); border: 1px solid var(--line); }
+.sd-phone-amt { font-size: 26px; font-weight: 800; margin: 4px 0; font-variant-numeric: tabular-nums; }
+.sd-phone-st { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; margin-bottom: 6px; }
+.sd-phone-st.good { color: var(--ok-ink); background: var(--ok-soft); border: 1px solid var(--ok-line); }
+.sd-phone-st.bad { color: var(--danger-ink); background: var(--danger-soft); border: 1px solid var(--danger-line); }
+.sd-codeform { display: flex; flex-direction: column; gap: 6px; }
+.sd-codeform .input { min-width: 0; }
+.sd-verify { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; font-size: 13px; line-height: 1.45; border: 1px solid var(--line); }
+.sd-verify > svg { flex: none; margin-top: 2px; }
+.sd-verify b { display: block; overflow-wrap: anywhere; }
+.sd-verify.good { border-color: var(--ok-line); background: var(--ok-soft); }
+.sd-verify.good > svg { color: var(--ok-ink); }
+.sd-verify.bad { border-color: var(--danger-line); background: var(--danger-soft); }
+.sd-verify.bad > svg { color: var(--danger-ink); }
+.sd-verify.warn { border-color: var(--warn-line); background: var(--warn-soft); }
+.sd-verify.warn > svg { color: var(--warn-ink); }
+.sd-shot { position: relative; padding: 14px; border-radius: 14px; border: 1px dashed var(--line3); background: var(--panel); display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; color: var(--muted); }
+.sd-shot-stamp { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; letter-spacing: .08em; color: var(--ok-ink); font-size: 16px; }
+.sd-shot-amt { font-size: 20px; font-weight: 800; color: var(--text); }
+
+/* реальность */
+.sd-reality { display: flex; flex-direction: column; gap: 6px; }
+.sd-r { font-size: 12px; line-height: 1.45; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line2); background: var(--panel2); color: var(--muted); }
+.sd-r.work { color: var(--ok-ink); border-color: var(--ok-line); background: var(--ok-soft); }
+.sd-r.sim { color: var(--warn-ink); border-color: var(--warn-line); background: var(--warn-soft); }
+.sd-r.api { color: var(--info-ink); border-color: var(--info-line); background: var(--info-soft); }
+
+/* Fusion Center */
+.sd-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.sd-stats > div { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--panel2); border: 1px solid var(--line); min-width: 0; }
+.sd-stats b { font-size: 18px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.sd-blist { display: flex; flex-direction: column; gap: 8px; }
+.sd-brow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--panel2); }
+.sd-brow.dispute { border-color: var(--danger-line); background: var(--danger-soft); }
+.sd-bside { align-items: center; }
+.sd-run { color: var(--warn-ink); }
+.sd-dots { display: inline-flex; gap: 4px; align-items: center; }
+.sd-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--panel3); border: 1px solid var(--line3); }
+.sd-dots i.on { background: var(--danger); border-color: var(--danger); }
+.sd-meter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sd-kv dd { text-align: right; }
+
+@media (max-width: 560px) {
+  .sd-brow { flex-direction: column; align-items: stretch; }
+  .sd-bside { justify-content: flex-start; }
+  .sd-stats { grid-template-columns: 1fr; }
+  .sd-phone { border-radius: 22px; padding: 10px; }
+  .sd-amt { font-size: 21px; }
+}
+
+/* длинные бейджи проверок (Transaction DNA …) переносятся на узком экране */
+.sd-chips .badge { white-space: normal; max-width: 100%; overflow-wrap: anywhere; text-align: left; }
